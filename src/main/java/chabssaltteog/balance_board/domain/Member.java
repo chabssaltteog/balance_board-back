@@ -24,6 +24,9 @@ public class Member extends BaseTimeEntity {
     private String providerId;    //providerId -> google 고유 ID
 
     @Column(nullable = false)
+    private String provider;
+
+    @Column(nullable = false)
     private String email;       //googleProfile 클래스로 빼서 객체 추가해도 됨
 
     @Column(nullable = false)
@@ -44,8 +47,9 @@ public class Member extends BaseTimeEntity {
     private MyRole role;
 
     @Builder
-    public Member(String providerId, String email, String name, String nickname, int age, String gender, String imageUrl, MyRole role) {
+    public Member(String providerId, String provider, String email, String name, String nickname, int age, String gender, String imageUrl, MyRole role) {
         this.providerId = providerId;
+        this.provider = provider;
         this.email = email;
         this.name = name;
         this.nickname = nickname;
@@ -59,4 +63,8 @@ public class Member extends BaseTimeEntity {
         return this.role.getKey();
     }
 
+    public Member update(String name) { // 코드 수정 필요함..
+        this.name = name;
+        return this;
+    }
 }

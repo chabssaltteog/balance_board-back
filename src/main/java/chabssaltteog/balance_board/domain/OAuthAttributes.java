@@ -13,15 +13,17 @@ public class OAuthAttributes {
     private String email;
     private String imageUrl;
     private String providerId;
+    private String provider;
 
     @Builder
-    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String imageUrl, String providerId) {
+    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String imageUrl, String providerId, String provider) {
         this.attributes = attributes;
         this.nameAttributeKey = nameAttributeKey;
         this.name = name;
         this.email = email;
         this.imageUrl = imageUrl;
         this.providerId = providerId;
+        this.provider = provider;
     }
 
     public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
@@ -35,6 +37,7 @@ public class OAuthAttributes {
                 .email((String) attributes.get("email"))
                 .imageUrl((String) attributes.get("imageUrl"))
                 .providerId((String) attributes.get("sub"))
+                .provider("google")
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
@@ -47,6 +50,7 @@ public class OAuthAttributes {
                 .email(email)
                 .imageUrl(imageUrl)
                 .providerId(providerId)
+                .provider(provider)
                 .role(MyRole.USER) // 가입할 때 기본 권한
                 .build();
     }
