@@ -37,5 +37,6 @@ public class LoginController {
 
     /**
      * 리다이렉션 get 메서드 따로 작성 / 닉네임,나이,성별 값 업데이트하는 메서드 따로 작성
+     * or 컨트롤러가 필요 없을 확률 높음 -> SecurityConfig에서 Oauth2LoginSuccessfulHandler 로 칼럼 값 설정하기
      */
 }

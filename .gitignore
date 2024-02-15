@@ -38,3 +38,4 @@ out/
 
 # user
 application-oauth.properties
+application-mysql.properties
