@@ -15,12 +15,6 @@ public class LoginController {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final MemberService memberService;
 
-    @GetMapping("/api/login")
-    public String login() {
-        // 로그인 페이지로 리디렉션
-        return "Redirecting to login page...";
-    }
-
     @GetMapping("/login/oauth2/code/google")    // Google redirect URL
     public String googleLogin(@AuthenticationPrincipal OAuth2User oauth2User) {
         /**구글 로그인 성공 후 처리할 코드
