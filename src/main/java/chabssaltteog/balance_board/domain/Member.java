@@ -26,11 +26,11 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String provider;
 
-    @Column(nullable = false)
-    private String email;       //googleProfile 클래스로 빼서 객체 추가해도 됨
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @Column(nullable = false)
-    private String name;        //googleProfile 클래스로 빼서 객체 추가해도 됨
+    private String name;
 
     @Column(nullable = false)
     private String nickname;
@@ -63,8 +63,16 @@ public class Member extends BaseTimeEntity {
         return this.role.getKey();
     }
 
-    public Member update(String name) { // 코드 수정 필요함..
+    public Member update(String name, String imageUrl) { // todo
         this.name = name;
+        this.imageUrl = imageUrl;
+        return this;
+    }
+
+    public Member updateNickNameAgeGender(String nickname, int age, String gender) {
+        this.nickname = nickname;
+        this.age = age;
+        this.gender = gender;
         return this;
     }
 }

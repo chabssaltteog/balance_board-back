@@ -26,24 +26,25 @@ public class OAuthAttributes {
         this.provider = provider;
     }
 
+    // OAuth2User 사용자 정보는 Map -> 변환
     public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
-        return ofGoogle(userNameAttributeName, attributes);
+        return ofGoogle(registrationId, userNameAttributeName, attributes);
     }
 
-    // OAuth2User 사용자 정보는 Map -> 변환
-    private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+    // google 생성자
+    private static OAuthAttributes ofGoogle(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
         return OAuthAttributes.builder()
                 .name((String) attributes.get("name"))
                 .email((String) attributes.get("email"))
                 .imageUrl((String) attributes.get("imageUrl"))
                 .providerId((String) attributes.get("sub"))
-                .provider("google")
+                .provider(registrationId)   //google
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
     }
 
-    // User 엔티티 생성 (생성 시점은 처음 가입할 때)
+    // Member 엔티티 생성 (생성 시점은 처음 가입할 때)
     public Member toEntity() {
         return Member.builder()
                 .name(name)
