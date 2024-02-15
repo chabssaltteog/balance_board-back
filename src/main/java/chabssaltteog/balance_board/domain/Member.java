@@ -2,6 +2,7 @@ package chabssaltteog.balance_board.domain;
 
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,5 +39,24 @@ public class Member extends BaseTimeEntity {
     @Column(name = "image_url")
     private String imageUrl;    //프로필 사진
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MyRole role;
+
+    @Builder
+    public Member(long providerId, String email, String name, String nickname, int age, String gender, String imageUrl, MyRole role) {
+        this.providerId = providerId;
+        this.email = email;
+        this.name = name;
+        this.nickname = nickname;
+        this.age = age;
+        this.gender = gender;
+        this.imageUrl = imageUrl;
+        this.role = role;
+    }
+
+    public String getRoleKey() {
+        return this.role.getKey();
+    }
 
 }
