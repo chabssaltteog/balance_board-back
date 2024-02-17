@@ -36,7 +36,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
         Member member = memberRepository.findByEmail(attributes.getEmail()) // 기존 회원인지 확인
-                .map(m -> m.update(attributes.getName(), attributes.getImageUrl())) // 기존 회원이라면 -> 구글로부터 받는 이름, 이미지 업데이트
+                .map(m -> m.updateGoogle(attributes.getName(), attributes.getImageUrl())) // 기존 회원이라면 -> 구글로부터 받는 이름, 이미지 업데이트
                 .orElseGet(() -> {  // 기존 회원이 아니면 새로 생성
                     Member newMember = attributes.toEntity();
                     return memberRepository.save(newMember);

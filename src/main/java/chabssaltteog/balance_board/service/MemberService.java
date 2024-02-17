@@ -19,12 +19,12 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void updateMemberInfo(String email, String nickname, int age, String gender) {
+    public void updateMemberInfo(String email, String nickname, int birthYear, String gender) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
         // 회원 정보(닉네임, 나이, 성별) 추가
-        member.updateNickNameAgeGender(nickname, age, gender);
+        member.updateNickNameBirthYearGender(nickname, birthYear, gender);
         memberRepository.save(member);
     }
 }

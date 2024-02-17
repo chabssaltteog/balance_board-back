@@ -35,7 +35,8 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String nickname;
 
-    private int age;            //사용자 입력값
+    @Column(name = "birth_year")
+    private int birthYear;            //사용자 입력값
 
     private String gender;      //사용자 입력값
 
@@ -47,13 +48,13 @@ public class Member extends BaseTimeEntity {
     private MyRole role;
 
     @Builder
-    public Member(String providerId, String provider, String email, String name, String nickname, int age, String gender, String imageUrl, MyRole role) {
+    public Member(String providerId, String provider, String email, String name, String nickname, int birthYear, String gender, String imageUrl, MyRole role) {
         this.providerId = providerId;
         this.provider = provider;
         this.email = email;
         this.name = name;
         this.nickname = nickname;
-        this.age = age;
+        this.birthYear = birthYear;
         this.gender = gender;
         this.imageUrl = imageUrl;
         this.role = role;
@@ -63,15 +64,15 @@ public class Member extends BaseTimeEntity {
         return this.role.getKey();
     }
 
-    public Member update(String name, String imageUrl) { // todo
+    public Member updateGoogle(String name, String imageUrl) { // todo
         this.name = name;
         this.imageUrl = imageUrl;
         return this;
     }
 
-    public Member updateNickNameAgeGender(String nickname, int age, String gender) {
+    public Member updateNickNameBirthYearGender(String nickname, int birthYear, String gender) {
         this.nickname = nickname;
-        this.age = age;
+        this.birthYear = birthYear;
         this.gender = gender;
         return this;
     }
