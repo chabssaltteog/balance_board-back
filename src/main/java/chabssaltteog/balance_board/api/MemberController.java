@@ -10,6 +10,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/member")
@@ -20,17 +23,22 @@ public class MemberController {
     private final MemberRepository memberRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerMember(@AuthenticationPrincipal UserDetails userDetails,
-                                                 @RequestParam String nickname,
-                                                 @RequestParam int birthYear,
-                                                 @RequestParam String gender) {
+    public ResponseEntity<Map<String, Object>> register(@AuthenticationPrincipal UserDetails userDetails,
+                                                        @RequestParam String nickname,
+                                                        @RequestParam int birthYear,
+                                                        @RequestParam String gender) {
         // 현재 인증된 사용자의 이메일 가져오기
         String email = userDetails.getUsername();
 
         // 사용자 정보 생성 및 업데이트
-        memberService.updateMemberInfo(email, nickname, birthYear, gender);
+        long userId = memberService.updateMemberInfo(email, nickname, birthYear, gender);
 
-        return ResponseEntity.ok("Member register success");
+        // 응답으로 반환할 JSON 객체 생성
+        Map<String, Object> response = new HashMap<>();
+        response.put("userId", userId);
+        response.put("message", "Member registered successfully");
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/login")
