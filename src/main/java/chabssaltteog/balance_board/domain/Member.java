@@ -20,7 +20,7 @@ public class Member extends BaseTimeEntity {
     @Column(name = "user_id")
     private long userId;        //pk
 
-    @Column(name = "provider_id")
+    @Column(nullable = false, name = "provider_id")
     private String providerId;    //providerId -> google 고유 ID
 
     @Column(nullable = false)

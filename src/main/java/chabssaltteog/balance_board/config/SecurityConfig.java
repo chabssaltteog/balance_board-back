@@ -34,7 +34,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .logout(
-                        (logoutConfig) -> logoutConfig.logoutSuccessUrl("/")
+                        (logoutConfig) -> logoutConfig.logoutSuccessUrl("/")    // logout
                 )
                 .oauth2Login(Customizer.withDefaults());
         return http.build();

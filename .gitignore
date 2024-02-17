@@ -39,3 +39,4 @@ out/
 # user
 application-oauth.properties
 application-mysql.properties
+chapssal_key.pem
