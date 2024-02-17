@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,5 +27,15 @@ public class MemberService {
         // 회원 정보(닉네임, 나이, 성별) 추가
         member.updateNickNameBirthYearGender(nickname, birthYear, gender);
         memberRepository.save(member);
+    }
+
+    // 추가 정보 확인
+    public boolean additionalInfoRequired(String email) {
+
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+
+        return optionalMember.map(member ->
+                member.getNickname() == null || member.getBirthYear() == 0 || member.getGender() == null
+        ).orElse(false);
     }
 }

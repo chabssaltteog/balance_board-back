@@ -1,14 +1,15 @@
 package chabssaltteog.balance_board.api;
 
+import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/member")
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     @PostMapping("/register")
     public ResponseEntity<String> registerMember(@AuthenticationPrincipal UserDetails userDetails,
@@ -28,6 +30,28 @@ public class MemberController {
         // 사용자 정보 생성 및 업데이트
         memberService.updateMemberInfo(email, nickname, birthYear, gender);
 
-        return ResponseEntity.ok("Member registered successfully");
+        return ResponseEntity.ok("Member register success");
     }
+
+    @GetMapping("/login")
+    public ResponseEntity<String> login(@AuthenticationPrincipal UserDetails userDetails) {
+        // 현재 인증된 사용자의 이메일 가져오기
+        String email = userDetails.getUsername();
+
+        // 사용자 정보 확인하여 추가 정보가 있는지 확인
+        boolean additionalInfoRequired = memberService.additionalInfoRequired(email);
+
+        // 추가 정보가 필요한 경우 추가 정보 입력 페이지로 리다이렉트
+        if (additionalInfoRequired) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header(HttpHeaders.LOCATION, "/additional-info-page")
+                    .build();
+        } else {
+            // 추가 정보가 없는 경우 기존 서비스 페이지로 리다이렉트
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header(HttpHeaders.LOCATION, "/main-service-page")
+                    .build();
+        }
+    }
+
 }
