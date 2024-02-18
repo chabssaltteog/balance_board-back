@@ -10,7 +10,7 @@ public class SessionMember implements Serializable {    // 인증된 사용자 �
     private String email;
     private String imageUrl;
     private String nickname;
-    private int age;
+    private int birthYear;
     private String gender;
 
     public SessionMember(Member member) {
@@ -18,7 +18,7 @@ public class SessionMember implements Serializable {    // 인증된 사용자 �
         this.email = member.getEmail();
         this.imageUrl = member.getImageUrl();
         this.nickname = member.getNickname();
-        this.age = member.getAge();
+        this.birthYear = member.getBirthYear();
         this.gender = member.getGender();
     }
 }

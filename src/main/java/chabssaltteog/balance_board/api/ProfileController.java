@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ProfileController {
 
-    @GetMapping("/{userId}")
-    public ProfileResponse profile(@PathVariable Long userId) {
-
-    }
+//    @GetMapping("/{userId}")
+//    public ProfileResponse profile(@PathVariable Long userId) {
+//
+//    }
 
     @Data
     @AllArgsConstructor
