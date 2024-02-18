@@ -30,7 +30,8 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests((authorizeRequest) -> authorizeRequest
                         .requestMatchers("/posts/new", "/comments/save").hasRole(MyRole.USER.name())    //todo
-                        .requestMatchers("/", "/css/**", "images/**", "/js/**", "/login/*", "/logout/*", "/posts/**", "/comments/**").permitAll()
+                        .requestMatchers("/", "/css/**", "images/**", "/js/**", "/login/*", "/logout/*",
+                                "/posts/**", "/comments/**", "/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .logout(
