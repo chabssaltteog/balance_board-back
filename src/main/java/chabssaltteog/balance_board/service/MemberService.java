@@ -26,8 +26,6 @@ public class MemberService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
-        // 검증
-        validateDuplicateMember(member);
         // 회원 정보(닉네임, 나이, 성별) 추가
         member.updateNickNameBirthYearGender(nickname, birthYear, gender);
         return member.getUserId();
@@ -39,10 +37,10 @@ public class MemberService {
             throw new IllegalStateException("이미 존재하는 닉네임입니다.");
         }
 
-        int currentYear = Year.now().getValue();
-        if (member.getBirthYear() < 1900 || member.getBirthYear() > currentYear) {
-            throw new IllegalStateException("유효하지 않은 출생년도입니다.");
-        }
+//        int currentYear = Year.now().getValue();
+//        if (member.getBirthYear() < 1900 || member.getBirthYear() > currentYear) {
+//            throw new IllegalStateException("유효하지 않은 출생년도입니다.");
+//        }
     }
 
     // 추가 정보 확인

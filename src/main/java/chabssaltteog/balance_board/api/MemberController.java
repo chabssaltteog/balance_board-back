@@ -1,12 +1,9 @@
 package chabssaltteog.balance_board.api;
 
-import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.service.MemberService;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,9 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 
 @RestController
@@ -38,6 +32,11 @@ public class MemberController {
         Long userId = memberService.updateMemberInfo(email, request.nickname, request.BirthYear, request.gender);
 
         return new CreateMemberResponse(userId);
+
+    }
+
+    @GetMapping("/validate")
+    public ValidateResponse validateNickname(@RequestBody String nickname) {
 
     }
 
