@@ -1,44 +1,44 @@
 package chabssaltteog.balance_board.api;
 
+import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.service.MemberService;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/api/member")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@AuthenticationPrincipal UserDetails userDetails,
-                                                        @RequestParam String nickname,
-                                                        @RequestParam int birthYear,
-                                                        @RequestParam String gender) {
+    public CreateMemberResponse register(@AuthenticationPrincipal UserDetails userDetails,
+                                                        @RequestBody @Validated CreateMemberRequest request) {
         // 현재 인증된 사용자의 이메일 가져오기
         String email = userDetails.getUsername();
 
         // 사용자 정보 생성 및 업데이트
-        long userId = memberService.updateMemberInfo(email, nickname, birthYear, gender);
+        Long userId = memberService.updateMemberInfo(email, request.nickname, request.BirthYear, request.gender);
 
-        // 응답으로 반환할 JSON 객체 생성
-        Map<String, Object> response = new HashMap<>();
-        response.put("userId", userId);
-        response.put("message", "Member registered successfully");
+        return new CreateMemberResponse(userId);
 
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/login")
@@ -61,5 +61,34 @@ public class MemberController {
                     .build();
         }
     }
+
+    @Data
+    @AllArgsConstructor
+    static class RegisterResponse {
+        private Long userId;
+    }
+
+    @Data
+    static class CreateMemberResponse {
+        private Long userId;
+
+        public CreateMemberResponse(Long userId) {
+            this.userId = userId;
+        }
+    }
+
+
+    @Data
+    static class CreateMemberRequest {
+        @NotEmpty
+        private String nickname;
+
+        @NotEmpty
+        private int BirthYear;
+
+        @NotEmpty
+        private String gender;
+    }
+
 
 }
