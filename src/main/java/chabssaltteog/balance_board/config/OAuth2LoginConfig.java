@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import java.util.Collections;
 
 @Configuration
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application-oauth.properties")
 public class OAuth2LoginConfig {
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -27,7 +27,7 @@ public class OAuth2LoginConfig {
     private String scope;
 
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
-    String redirectUri;
+    private String redirectUri;
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
