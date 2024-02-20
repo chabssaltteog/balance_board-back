@@ -1,6 +1,7 @@
 package chabssaltteog.balance_board.api;
 
 import chabssaltteog.balance_board.service.MemberService;
+import chabssaltteog.balance_board.service.RegisterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final RegisterService registerService;
 
     @Operation(summary = "test API", description = "test")
     @ApiResponses(value = {
@@ -44,22 +47,39 @@ public class MemberController {
         return testResult;
     }
 
-    @Operation(summary = "Member Register API", description = "최종 회원가입 성공")
+
+
+    @Operation(summary = "Register API", description = "회원 가입")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
             content = {@Content(schema = @Schema(implementation = CreateMemberResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
     @PostMapping("/register")
-    public CreateMemberResponse register(@AuthenticationPrincipal UserDetails userDetails,
-                                                        @RequestBody @Valid CreateMemberRequest request) {
+    public CreateMemberResponse register(
+//            @AuthenticationPrincipal UserDetails userDetails,
+                                                        @RequestBody @Valid CreateMemberRequestDTO request) {
 
-        String email = userDetails.getUsername();
-        Long userId = memberService.updateMemberInfo(email, request.getNickname(), request.getBirthYear(), request.getGender());
-        log.info("userId, email = {}", userId, email);
-        return new CreateMemberResponse(userId);
+//        String email = userDetails.getUsername();
+        String message = "";
+        try {
+            registerService.register(request);
+        } catch (IllegalArgumentException e) {
+            message = e.getMessage();
+        }
+
+        boolean duplicate;
+        if (message.isEmpty()) {
+            duplicate = false;
+        } else duplicate = true;
+        log.info("message = {}", message);
+        log.info("duplicate = {}", duplicate);
+
+        return new CreateMemberResponse(duplicate, request.getEmail());
+//        Long userId = memberService.updateMemberInfo(request.email, request.getNickname(), request.getBirthYear(), request.getGender());
 
     }
+
 
     @Operation(summary = "Nickname validate API", description = "닉네임 중복 확인")
     @ApiResponses(value = {
@@ -83,16 +103,25 @@ public class MemberController {
     @Data
     @AllArgsConstructor
     @Schema(title = "MEM_REQ_01 : 회원 가입 요청 DTO")
-    static class CreateMemberRequest {
+    public static class CreateMemberRequestDTO {
+
+        @NotBlank
+        @Email
+        @Schema(description = "email", example = "aaa@gmail.com")
+        private String email;
+
+        @NotBlank
+        @Schema(description = "password", example = "1231!@aa")
+        private String password;
 
         @NotBlank(message = "닉네임을 입력해주세요.")
-        @Size(min = 3, max = 15, message = "닉네임은 3글자 이상 15글자 이하로 입력해야 합니다.")
+        @Size(min = 3, max = 10, message = "닉네임은 3글자 이상 10글자 이하로 입력해야 합니다.")
         @Schema(description = "닉네임", example = "몽글몽글")
         private String nickname;
 
         @Schema(description = "출생 년도", example = "1999")
         @NotBlank
-        private int BirthYear;
+        private String BirthYear;
 
 
         @Schema(description = "성별", example = "male")
@@ -102,21 +131,22 @@ public class MemberController {
     }
 
     @Data
+    @AllArgsConstructor
     static class CreateMemberResponse {
 
-        @Schema(description = "사용자 ID", example = "1")
-        private Long userId;
+        @Schema(description = "Email 중복 여부", example = "true")
+        private boolean duplicate;
 
-        public CreateMemberResponse(Long userId) {
-            this.userId = userId;
-        }
+        @Schema(description = "입력한 email", example = "aaa@gmail.com")
+        private String email;
+
     }
 
     @Data
     @AllArgsConstructor
     static class ValidateResponse {
 
-        @Schema(description = "중복 여부", example = "true")
+        @Schema(description = "닉네임 중복 여부", example = "true")
         private boolean duplicate;
 
     }
