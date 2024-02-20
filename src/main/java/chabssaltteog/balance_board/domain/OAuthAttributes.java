@@ -7,52 +7,52 @@ import java.util.Map;
 
 @Getter
 public class OAuthAttributes {
-    private Map<String, Object> attributes;
-    private String nameAttributeKey;
-    private String name;
-    private String email;
-    private String imageUrl;
-    private String providerId;
-    private String provider;
-
-    @Builder
-    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String imageUrl, String providerId, String provider) {
-        this.attributes = attributes;
-        this.nameAttributeKey = nameAttributeKey;
-        this.name = name;
-        this.email = email;
-        this.imageUrl = imageUrl;
-        this.providerId = providerId;
-        this.provider = provider;
-    }
-
-    // OAuth2User 사용자 정보는 Map -> 변환
-    public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
-        return ofGoogle(registrationId, userNameAttributeName, attributes);
-    }
-
-    // google 생성자
-    private static OAuthAttributes ofGoogle(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
-        return OAuthAttributes.builder()
-                .name((String) attributes.get("name"))
-                .email((String) attributes.get("email"))
-                .imageUrl((String) attributes.get("imageUrl"))
-                .providerId((String) attributes.get("sub"))
-                .provider(registrationId)   //google
-                .attributes(attributes)
-                .nameAttributeKey(userNameAttributeName)
-                .build();
-    }
+//    private Map<String, Object> attributes;
+//    private String nameAttributeKey;
+//    private String name;
+//    private String email;
+//    private String imageUrl;
+//    private String providerId;
+//    private String provider;
+//
+//    @Builder
+//    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String imageUrl, String providerId, String provider) {
+//        this.attributes = attributes;
+//        this.nameAttributeKey = nameAttributeKey;
+//        this.name = name;
+//        this.email = email;
+//        this.imageUrl = imageUrl;
+//        this.providerId = providerId;
+//        this.provider = provider;
+//    }
+//
+//    // OAuth2User 사용자 정보는 Map -> 변환
+//    public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
+//        return ofGoogle(registrationId, userNameAttributeName, attributes);
+//    }
+//
+//    // google 생성자
+//    private static OAuthAttributes ofGoogle(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
+//        return OAuthAttributes.builder()
+//                .name((String) attributes.get("name"))
+//                .email((String) attributes.get("email"))
+//                .imageUrl((String) attributes.get("imageUrl"))
+//                .providerId((String) attributes.get("sub"))
+//                .provider(registrationId)   //google
+//                .attributes(attributes)
+//                .nameAttributeKey(userNameAttributeName)
+//                .build();
+//    }
 
     // Member 엔티티 생성 (생성 시점은 처음 가입할 때)
-    public Member toEntity() {
-        return Member.builder()
-                .name(name)
-                .email(email)
-                .imageUrl(imageUrl)
-                .providerId(providerId)
-                .provider(provider)
-                .role(MyRole.USER) // 가입할 때 기본 권한
-                .build();
-    }
+//    public Member toEntity() {
+//        return Member.builder()
+//                .name(name)
+//                .email(email)
+//                .imageUrl(imageUrl)
+//                .providerId(providerId)
+//                .provider(provider)
+//                .role(MyRole.USER) // 가입할 때 기본 권한
+//                .build();
+//    }
 }
