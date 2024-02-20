@@ -11,8 +11,14 @@
 <script>
     document
         .getElementById('myButton')
-        .addEventListener('click', function () {
-            fetch('url')
+        .addEventListener('click', function (e) {
+            e.preventDefault();
+            const url =
+                'http://52.78.127.145:8080/api/user/validate?nickname=aaa';
+            fetch(
+                url
+                // 'https://virtserver.swaggerhub.com/gwonminje/Balance_Board_API/1.0.0/api/user/validate?nickname=aaa'
+            );
         });
 </script>
 </body>
