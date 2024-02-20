@@ -8,6 +8,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static chabssaltteog.balance_board.api.MemberController.*;
 
 @Service
@@ -28,6 +31,9 @@ public class RegisterService {
         String encodedPassword = passwordEncoder.encode(requestDTO.getPassword());
         Member member = new Member(requestDTO.getEmail(), encodedPassword,
                 requestDTO.getNickname(), requestDTO.getBirthYear(), requestDTO.getGender());
+        List<String> roles = new ArrayList<>();
+        roles.add("USER");
+        member.setRoles(roles);
 
         memberRepository.save(member);
     }
