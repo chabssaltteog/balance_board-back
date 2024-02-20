@@ -30,7 +30,7 @@ public class MemberController {
     }
 
     @GetMapping("/validate")
-    public ResponseEntity<ValidateResponse> validateNickname(@RequestBody String nickname) {
+    public ResponseEntity<ValidateResponse> validateNickname(@RequestParam String nickname) {
 
         boolean isDuplicate = memberService.validateDuplicateMember(nickname);
         ValidateResponse response = new ValidateResponse(isDuplicate);

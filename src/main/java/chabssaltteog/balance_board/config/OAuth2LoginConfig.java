@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import java.util.Collections;
 
 @Configuration
-@PropertySource("classpath:application-oauth.properties")
+@PropertySource("classpath:application.properties")
 public class OAuth2LoginConfig {
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")

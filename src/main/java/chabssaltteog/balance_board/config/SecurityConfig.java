@@ -39,8 +39,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorizeRequest) -> authorizeRequest
                         .requestMatchers("/posts/new", "/comments/save").hasRole(MyRole.ADMIN.name())    //todo
                         .requestMatchers("/", "/css/**", "images/**", "/js/**", "/login/*", "/logout/*",
-                                "/posts/**", "/comments/**", "/api/**").permitAll()
-                        .anyRequest().authenticated()
+                                "/posts/**", "/comments/**", "/api/**", "/swagger-resources/**", "/swagger-ui/**").permitAll()
+                        .anyRequest().permitAll()
                 )
                 .logout(
                         (logoutConfig) -> logoutConfig.logoutSuccessUrl("/")    // logout
