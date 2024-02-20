@@ -5,6 +5,7 @@ import chabssaltteog.balance_board.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -37,22 +38,27 @@ public class SecurityConfig {
                         )
                 )
                 .authorizeHttpRequests((authorizeRequest) -> authorizeRequest
-                        .requestMatchers("/posts/new", "/comments/save").hasRole(MyRole.ADMIN.name())    //todo
-                        .requestMatchers("/", "/css/**", "images/**", "/js/**", "/login/*", "/logout/*",
-                                "/posts/**", "/comments/**", "/api/**", "/swagger-resources/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/posts/new", "/comments/save").hasRole(MyRole.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/", "/css/**", "images/**", "/js/**", "/login/*", "/logout/*",
+                                "/posts/**", "/comments/**", "/api/**", "/swagger-resources/**", "/swagger-ui/**",
+                                "/api/user/*", "api/user/validate", "/login/oauth2/code/google", "/api/user/test").permitAll()
                         .anyRequest().permitAll()
                 )
                 .logout(
                         (logoutConfig) -> logoutConfig.logoutSuccessUrl("/")    // logout
                 )
                 .oauth2Login(Customizer.withDefaults());
-        return http.build();
+        return http.getOrBuild();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*")); // 모든 origin 허용
+        configuration.setAllowedOrigins(Arrays.asList("http://52.78.127.145:8080", "http://52.78.127.145:8080/api/user/test",
+                "http://52.78.127.145:8080/api/user/validate",
+                "http://52.78.127.145:8080/api/user/login",
+                "http://52.78.127.145:8080/api/user/register", "http://52.78.127.145:8080/login/oauth2/code/google",
+                "http://127.0.0.1:3000", "http://localhost:3000")); // 모든 origin 허용
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

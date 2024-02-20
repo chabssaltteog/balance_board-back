@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,9 +27,22 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
+@Slf4j
 public class MemberController {
 
     private final MemberService memberService;
+
+    @Operation(summary = "test API", description = "test")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success", content = {@Content(schema = @Schema(implementation = TestResult.class))}),
+            @ApiResponse(responseCode = "500", description = "fail")
+    })
+    @GetMapping("/test")
+    public TestResult test() {
+        TestResult testResult = new TestResult(true, "test message");
+        log.info("testResult = {}", testResult);
+        return testResult;
+    }
 
     @Operation(summary = "Member Register API", description = "최종 회원가입 성공")
     @ApiResponses(value = {
@@ -42,6 +56,7 @@ public class MemberController {
 
         String email = userDetails.getUsername();
         Long userId = memberService.updateMemberInfo(email, request.getNickname(), request.getBirthYear(), request.getGender());
+        log.info("userId, email = {}", userId, email);
         return new CreateMemberResponse(userId);
 
     }
@@ -59,6 +74,9 @@ public class MemberController {
 
         boolean isDuplicate = memberService.validateDuplicateMember(nickname);
         ValidateResponse response = new ValidateResponse(isDuplicate);
+        log.info("Nickname: {}", nickname);
+        log.info("Is duplicate: {}", isDuplicate);
+
         return response;
     }
 
@@ -101,6 +119,16 @@ public class MemberController {
         @Schema(description = "중복 여부", example = "true")
         private boolean duplicate;
 
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class TestResult {
+        @Schema(description = "test용", example = "true")
+        private boolean test;
+
+        @Schema(description = "메세지", example = "test message")
+        private String message;
     }
 
 
