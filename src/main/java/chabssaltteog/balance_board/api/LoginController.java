@@ -38,16 +38,22 @@ public class LoginController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content(schema = @Schema(implementation = LoginResponse.class))}),
-            @ApiResponse(responseCode = "400", description = "Fail")
+            @ApiResponse(responseCode = "403", description = "Fail",
+                    content = {@Content(schema = @Schema(implementation = LoginFailResponse.class))})
     })
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody @Valid LoginRequestDTO loginRequestDTO) {
+    public Object login(@RequestBody @Valid LoginRequestDTO loginRequestDTO) {
 
-        JwtToken jwtToken = memberService.signIn(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
-        log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
-        log.info("request email = {}, password = {}", loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
+        try {
+            JwtToken jwtToken = memberService.signIn(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
+            log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
+            log.info("request email = {}, password = {}", loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
+            return new LoginResponse(loginRequestDTO.getEmail(), loginRequestDTO.getPassword(), jwtToken);
 
-        return new LoginResponse(loginRequestDTO.getEmail(), loginRequestDTO.getPassword(), jwtToken);
+        } catch (Exception e) {
+            return new LoginFailResponse(loginRequestDTO.getEmail(), loginRequestDTO.getPassword(), e.getMessage());
+        }
+
     }
 
     @Data
@@ -79,6 +85,21 @@ public class LoginController {
         private JwtToken jwtToken;
 
     }
+
+    @Data
+    @AllArgsConstructor
+    static class LoginFailResponse {
+
+        @Schema(description = "사용자가 입력한 email", example = "bbb@gmail.com")
+        private String email;
+
+        @Schema(description = "사용자가 입력한 password", example = "333!@bb")
+        private String password;
+
+        @Schema(description = "Login Fail Message", example = "회원이 아닙니다.")
+        private String message;
+    }
+
 
 
 //    private final CustomOAuth2UserService customOAuth2UserService;

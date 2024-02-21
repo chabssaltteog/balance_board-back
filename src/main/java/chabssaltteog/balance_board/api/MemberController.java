@@ -1,5 +1,6 @@
 package chabssaltteog.balance_board.api;
 
+import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.service.MemberService;
 import chabssaltteog.balance_board.service.RegisterService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,15 +15,16 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Tag(name = "Register", description = "Register API")
@@ -35,17 +37,17 @@ public class MemberController {
     private final MemberService memberService;
     private final RegisterService registerService;
 
-    @Operation(summary = "test API", description = "test")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "success", content = {@Content(schema = @Schema(implementation = TestResult.class))}),
-            @ApiResponse(responseCode = "500", description = "fail")
-    })
-    @GetMapping("/test")
-    public TestResult test() {
-        TestResult testResult = new TestResult(true, "test message");
-        log.info("testResult = {}", testResult);
-        return testResult;
-    }
+//    @Operation(summary = "test API", description = "test")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "success", content = {@Content(schema = @Schema(implementation = TestResult.class))}),
+//            @ApiResponse(responseCode = "500", description = "fail")
+//    })
+//    @GetMapping("/test")
+//    public TestResult test() {
+//        TestResult testResult = new TestResult(true, "test message");
+//        log.info("testResult = {}", testResult);
+//        return testResult;
+//    }
 
 
 
@@ -61,21 +63,21 @@ public class MemberController {
                                                         @RequestBody @Valid CreateMemberRequestDTO request) {
 
 //        String email = userDetails.getUsername();
-        String message = "";
         try {
-            registerService.register(request);
+            CreateMemberResponse savedMemberResponse = registerService.register(request);
+            boolean duplicate = false;
+            log.info("message = {}", "회원 가입 성공");
+            return new CreateMemberResponse(duplicate, savedMemberResponse.getEmail(), savedMemberResponse.getUserId(),
+                    savedMemberResponse.getNickname(), savedMemberResponse.getBirthYear(), savedMemberResponse.getGender());
         } catch (IllegalArgumentException e) {
-            message = e.getMessage();
+            String message = e.getMessage();
+            boolean duplicate = true;
+            log.info("message = {}", message);
+            return new CreateMemberResponse(duplicate, request.getEmail(), null, request.getNickname(),
+                    request.getBirthYear(), request.getGender());
         }
 
-        boolean duplicate;
-        if (message.isEmpty()) {
-            duplicate = false;
-        } else duplicate = true;
-        log.info("message = {}", message);
-        log.info("duplicate = {}", duplicate);
 
-        return new CreateMemberResponse(duplicate, request.getEmail());
 //        Long userId = memberService.updateMemberInfo(request.email, request.getNickname(), request.getBirthYear(), request.getGender());
 
     }
@@ -87,14 +89,33 @@ public class MemberController {
             content = {@Content(schema = @Schema(implementation = ValidateResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
-    @GetMapping("/validate")
+    @GetMapping("/validate/nickname")
     public ValidateResponse validateNickname(
             @Parameter(name = "nickname", description = "Parameter Value", example = "몽글몽글", required = true)
             @RequestParam String nickname) {
 
-        boolean isDuplicate = memberService.validateDuplicateMember(nickname);
+        boolean isDuplicate = memberService.validateDuplicateNickname(nickname);
         ValidateResponse response = new ValidateResponse(isDuplicate);
         log.info("Nickname: {}", nickname);
+        log.info("Is duplicate: {}", isDuplicate);
+
+        return response;
+    }
+
+    @Operation(summary = "Email validate API", description = "이메일 중복 확인")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+            content = {@Content(schema = @Schema(implementation = ValidateResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "Fail")
+    })
+    @GetMapping("/validate/email")
+    public ValidateResponse validateEmail(
+            @Parameter(name = "email", description = "Parameter Value", example = "aaa@gmail.com", required = true)
+            @RequestParam String email) {
+
+        boolean isDuplicate = registerService.validateDuplicateEmail(email);
+        ValidateResponse response = new ValidateResponse(isDuplicate);
+        log.info("Email: {}", email);
         log.info("Is duplicate: {}", isDuplicate);
 
         return response;
@@ -103,6 +124,8 @@ public class MemberController {
     @Data
     @AllArgsConstructor
     @Schema(title = "MEM_REQ_01 : 회원 가입 요청 DTO")
+    @Builder
+    @NoArgsConstructor
     public static class CreateMemberRequestDTO {
 
         @NotBlank
@@ -121,18 +144,33 @@ public class MemberController {
 
         @Schema(description = "출생 년도", example = "1999")
         @NotBlank
-        private String BirthYear;
+        private String birthYear;
 
 
         @Schema(description = "성별", example = "male")
         @NotBlank
         private String gender;
 
+        private List<String> roles = new ArrayList<>();
+
+        public Member toEntity(String encodedPassword, List<String> roles) {
+            return Member.builder()
+                    .email(email)
+                    .password(encodedPassword)
+                    .nickname(nickname)
+                    .gender(gender)
+                    .roles(roles)
+                    .birthYear(birthYear)
+                    .build();
+        }
+
     }
 
     @Data
+    @Builder
+    @NoArgsConstructor
     @AllArgsConstructor
-    static class CreateMemberResponse {
+    public static class CreateMemberResponse {
 
         @Schema(description = "Email 중복 여부", example = "true")
         private boolean duplicate;
@@ -140,26 +178,54 @@ public class MemberController {
         @Schema(description = "입력한 email", example = "aaa@gmail.com")
         private String email;
 
+        private Long userId;
+
+        private String nickname;
+
+        private String birthYear;
+
+        private String gender;
+
+        static public CreateMemberResponse toDto(Member member) {
+            return CreateMemberResponse.builder()
+                    .userId(member.getUserId())
+                    .email(member.getEmail())
+                    .nickname(member.getNickname())
+                    .birthYear(member.getBirthYear())
+                    .gender(member.getGender())
+                    .build();
+        }
+
+        public Member toEntity() {
+            return Member.builder()
+                    .userId(userId)
+                    .email(email)
+                    .nickname(nickname)
+                    .birthYear(birthYear)
+                    .gender(gender)
+                    .build();
+        }
+
     }
 
     @Data
     @AllArgsConstructor
     static class ValidateResponse {
 
-        @Schema(description = "닉네임 중복 여부", example = "true")
+        @Schema(description = "중복 여부", example = "true")
         private boolean duplicate;
 
     }
 
-    @Data
-    @AllArgsConstructor
-    static class TestResult {
-        @Schema(description = "test용", example = "true")
-        private boolean test;
-
-        @Schema(description = "메세지", example = "test message")
-        private String message;
-    }
+//    @Data
+//    @AllArgsConstructor
+//    static class TestResult {
+//        @Schema(description = "test용", example = "true")
+//        private boolean test;
+//
+//        @Schema(description = "메세지", example = "test message")
+//        private String message;
+//    }
 
 
 }

@@ -53,9 +53,9 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests((authorizeRequest) -> authorizeRequest
 //                        .requestMatchers("/posts/new", "/comments/save").hasRole(MyRole.ADMIN.name())
-                        .requestMatchers(HttpMethod.GET, "/", "/css/**", "images/**", "/js/**", "/login/*", "/logout/*",
+                        .requestMatchers("/", "/css/**", "images/**", "/js/**", "/login/*", "/logout/*",
                                 "/posts/**", "/comments/**", "/api/**", "/swagger-resources/**", "/swagger-ui/**",
-                                "/api/user/*", "api/user/validate", "/login/oauth2/**", "/api/user/test").permitAll()
+                                "/api/user/*", "/login/oauth2/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .logout(
@@ -75,7 +75,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://52.78.127.145:8080",
-                "http://127.0.0.1:3000", "http://localhost:3000")); // 모든 origin 허용
+                "http://127.0.0.1:3000", "http://localhost:3000", "http://localhost:8080")); // 모든 origin 허용
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
