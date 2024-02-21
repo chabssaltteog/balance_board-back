@@ -1,4 +1,4 @@
-package chabssaltteog.balance_board.domain;
+package chabssaltteog.balance_board.domain.oauth;
 
 import lombok.Builder;
 import lombok.Getter;

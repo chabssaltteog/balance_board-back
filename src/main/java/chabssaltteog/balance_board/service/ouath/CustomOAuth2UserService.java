@@ -1,8 +1,8 @@
-package chabssaltteog.balance_board.service;
+package chabssaltteog.balance_board.service.ouath;
 
 //import chabssaltteog.balance_board.domain.Member;
-//import chabssaltteog.balance_board.domain.OAuthAttributes;
-//import chabssaltteog.balance_board.domain.SessionMember;
+//import chabssaltteog.balance_board.domain.oauth.OAuthAttributes;
+//import chabssaltteog.balance_board.domain.oauth.SessionMember;
 //import chabssaltteog.balance_board.repository.MemberRepository;
 //import jakarta.servlet.http.HttpSession;
 //import lombok.RequiredArgsConstructor;
