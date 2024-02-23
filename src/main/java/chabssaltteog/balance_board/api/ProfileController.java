@@ -22,10 +22,13 @@ public class ProfileController {
     @AllArgsConstructor
     static class ProfileResponse {
         private Long userId;
-        private String name;
         private String email;
         private int birthYear;
         private String gender;
         private String nickname;
     }
+    /**
+     * 전체 : 작성한 글 + 투표한 글
+     *
+     */
 }
