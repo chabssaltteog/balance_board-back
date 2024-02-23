@@ -42,7 +42,10 @@ public class PostService {
     public Comment addCommentToPost(Long postId, Comment comment) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
         comment.setPost(post);
-        return commentRepository.save(comment);
+        commentRepository.save(comment);
+        post.incrementCommentCount();
+        postRepository.save(post);
+        return comment;
     }
 
 

@@ -34,6 +34,8 @@ public class VoteService {
         // 참여한 투표를 저장
         voteMemberRepository.save(new VoteMember(vote, user, votedOption));
 
+        post.incrementVoteCount();
+
         // 참여한 투표 정보를 게시글에 업데이트
         postRepository.save(post);
     }

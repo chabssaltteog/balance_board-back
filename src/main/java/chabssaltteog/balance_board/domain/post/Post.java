@@ -52,4 +52,18 @@ public class Post extends BaseTimeEntity {
     @Column(name = "vote_count")
     private int voteCount;
 
+
+    public void incrementVoteCount() {
+        this.voteCount++;
+    }
+
+    public void incrementCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decrementCommentCount() {
+        this.commentCount--;
+    }
+
+
 }
