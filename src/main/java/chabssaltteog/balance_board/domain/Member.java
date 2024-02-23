@@ -1,6 +1,7 @@
 package chabssaltteog.balance_board.domain;
 
 
+import chabssaltteog.balance_board.domain.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,7 +27,7 @@ public class Member extends BaseTimeEntity implements UserDetails  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", updatable = false, nullable = false)
-    private long userId;        //pk
+    private Long userId;        //pk
 
     /**
     @Column(nullable = false, name = "provider_id")
@@ -52,6 +53,13 @@ public class Member extends BaseTimeEntity implements UserDetails  {
     private String birthYear;            //사용자 입력값
 
     private String gender;      //사용자 입력값
+
+    @OneToMany(mappedBy = "user") //읽기 전용
+    private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // 사용자가 참여한 투표 목록
+    private List<VoteMember> voteMembers = new ArrayList<>();
+
 
 
 //    @Column(name = "image_url")
@@ -83,12 +91,7 @@ public class Member extends BaseTimeEntity implements UserDetails  {
 //        this.imageUrl = imageUrl;
 //        return this;
 //    }
-//    public Member updateNickNameBirthYearGender(String nickname, int birthYear, String gender) {
-//        this.nickname = nickname;
-//        this.birthYear = birthYear;
-//        this.gender = gender;
-//        return this;
-//    }
+
 
     public Member(String email, String password, String nickname, String birthYear, String gender) {
         this.email = email;

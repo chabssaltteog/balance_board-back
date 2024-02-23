@@ -3,6 +3,7 @@ package chabssaltteog.balance_board.domain;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)  //시간 측정 기능
 public abstract class BaseTimeEntity {  //인스턴스 생성 x
 
-    @CreatedDate
+    @CreationTimestamp
     private LocalDateTime created;
 
     @UpdateTimestamp

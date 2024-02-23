@@ -1,7 +1,7 @@
-package chabssaltteog.balance_board.api;
+package chabssaltteog.balance_board.api.member;
 
 import chabssaltteog.balance_board.service.ouath.LoginService;
-import chabssaltteog.balance_board.service.MemberService;
+import chabssaltteog.balance_board.service.member.MemberService;
 import chabssaltteog.balance_board.util.JwtToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -1,8 +1,8 @@
-package chabssaltteog.balance_board.api;
+package chabssaltteog.balance_board.api.member;
 
 import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.service.MemberService;
-import chabssaltteog.balance_board.service.RegisterService;
+import chabssaltteog.balance_board.service.member.MemberService;
+import chabssaltteog.balance_board.service.member.RegisterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,14 +13,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;

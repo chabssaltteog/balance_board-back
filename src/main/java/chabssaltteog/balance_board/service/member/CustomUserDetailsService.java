@@ -1,4 +1,4 @@
-package chabssaltteog.balance_board.service;
+package chabssaltteog.balance_board.service.member;
 
 import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.repository.MemberRepository;

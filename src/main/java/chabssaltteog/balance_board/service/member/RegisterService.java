@@ -1,6 +1,5 @@
-package chabssaltteog.balance_board.service;
+package chabssaltteog.balance_board.service.member;
 
-import chabssaltteog.balance_board.api.MemberController;
 import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static chabssaltteog.balance_board.api.MemberController.*;
+import static chabssaltteog.balance_board.api.member.MemberController.*;
 
 @Service
 @RequiredArgsConstructor
