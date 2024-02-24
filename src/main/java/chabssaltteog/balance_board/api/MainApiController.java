@@ -21,17 +21,17 @@ public class MainApiController {
 
     private final PostService postService;
 
-    @GetMapping("/posts")
+    @GetMapping("/posts")//모든 게시글 조회
     public List<PostDTO> getAllPosts() {
         return mainService.getAllPosts();
     }
 
-    @GetMapping("/posts/{postId}")
+    @GetMapping("/posts/{postId}")//게시글 상세
     public PostDTO getPost(@PathVariable(name ="postId") Long postId) {
         return mainService.getPostByPostId(postId);
     }
 
-    @GetMapping("/{category}")
+    @GetMapping("/{category}")//카테고리 필터링
     public List<PostDTO> getPostByCategory(@PathVariable(name = "category") Category category) {
         return postService.getPostsByCategory(category);
     }
