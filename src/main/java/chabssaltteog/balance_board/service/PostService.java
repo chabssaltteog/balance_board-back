@@ -4,6 +4,7 @@ import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
+import chabssaltteog.balance_board.dto.PostDTO;
 import chabssaltteog.balance_board.repository.CommentRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,10 @@ public class PostService {
         return postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
-    public List<Post> getPostsByCategory(Category category) {
-        return postRepository.findByCategory(category);
+    public List<PostDTO> getPostsByCategory(Category category)
+    {
+        List<Post> posts = postRepository.findByCategory(category);
+        return posts.stream().map(PostDTO::toDTO).toList();
     }
 
     /*public List<Post> getLatestPosts(int count) {

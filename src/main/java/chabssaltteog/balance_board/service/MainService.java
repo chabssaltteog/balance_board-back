@@ -34,10 +34,10 @@ public class MainService {
         return PostDTO.toDTO(post);
     }
 
-    // 카테고리별 게시글
+   /* // 카테고리별 게시글
     public List<Post> getPostsByCategory(Category category) {
         return postService.getPostsByCategory(category);
-    }
+    }*/
 
     // 최신 게시글
     public List<Post> getLatestPosts() {
