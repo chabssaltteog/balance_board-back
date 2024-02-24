@@ -23,6 +23,10 @@ public class PostService {
         return postRepository.findAll();
     }
 
+    public Post getPostByPostId(Long postId) {
+        return postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+    }
+
     public List<Post> getPostsByCategory(Category category) {
         return postRepository.findByCategory(category);
     }
@@ -53,6 +57,7 @@ public class PostService {
         postRepository.save(post);
         return comment;
     }
+
 
 
 }

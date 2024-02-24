@@ -24,7 +24,14 @@ public class MainService {
     }*/
     public List<PostDTO> getAllPosts() {
         List<Post> posts = postService.getAllPosts();
-        return posts.stream().map(post -> PostDTO.toDTO(post)).collect(Collectors.toList());
+//        return posts.stream().map(post -> PostDTO.toDTO(post)).collect(Collectors.toList());
+        return posts.stream().map(PostDTO::toDTO).toList();
+    }
+
+    // 게시글 상세보기
+    public PostDTO getPostByPostId(Long postId) {
+        Post post = postService.getPostByPostId(postId);
+        return PostDTO.toDTO(post);
     }
 
     // 카테고리별 게시글
@@ -56,4 +63,6 @@ public class MainService {
     public void participateVote(Long postId, Long userId, String votedOption) {
         voteService.participateVote(postId, userId, votedOption);
     }
+
+
 }
