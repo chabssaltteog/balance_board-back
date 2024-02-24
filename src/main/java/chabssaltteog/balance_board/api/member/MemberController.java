@@ -146,7 +146,7 @@ public class MemberController {
         @NotBlank
         private String gender;
 
-        private List<String> roles = new ArrayList<>();
+        @Builder.Default private List<String> roles = new ArrayList<>();
 
         public Member toEntity(String encodedPassword, List<String> roles) {
             return Member.builder()
