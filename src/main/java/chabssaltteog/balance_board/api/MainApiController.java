@@ -22,8 +22,6 @@ public class MainApiController {
 
     private final MainService mainService;
 
-    private final PostService postService;
-
     @GetMapping("/posts")
     @Operation(summary = "모든 게시글 조회")
     public List<PostDTO> getAllPosts() {
@@ -39,6 +37,6 @@ public class MainApiController {
     @GetMapping("/{category}")//카테고리 필터링
     @Operation(summary = "카테고리 필터링")
     public List<PostDTO> getPostByCategory(@PathVariable(name = "category") Category category) {
-        return postService.getPostsByCategory(category);
+        return mainService.getPostsByCategory(category); //메인서비스
     }
 }

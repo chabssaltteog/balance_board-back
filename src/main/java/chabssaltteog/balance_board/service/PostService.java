@@ -28,10 +28,10 @@ public class PostService {
         return postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
-    public List<PostDTO> getPostsByCategory(Category category)
+    public List<Post> getPostsByCategory(Category category)
     {
-        List<Post> posts = postRepository.findByCategory(category);
-        return posts.stream().map(PostDTO::toDTO).toList();
+        return postRepository.findByCategory(category);
+
     }
 
     /*public List<Post> getLatestPosts(int count) {
