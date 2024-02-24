@@ -3,10 +3,12 @@ package chabssaltteog.balance_board.service;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
+import chabssaltteog.balance_board.dto.PostDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,8 +19,12 @@ public class MainService {
     private final VoteService voteService;
 
     // 모든 게시글
-    public List<Post> getAllPosts() {
+    /*public List<Post> getAllPosts() {
         return postService.getAllPosts();
+    }*/
+    public List<PostDTO> getAllPosts() {
+        List<Post> posts = postService.getAllPosts();
+        return posts.stream().map(post -> PostDTO.toDTO(post)).collect(Collectors.toList());
     }
 
     // 카테고리별 게시글

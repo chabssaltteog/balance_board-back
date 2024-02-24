@@ -27,12 +27,18 @@ public class PostService {
         return postRepository.findByCategory(category);
     }
 
-    public List<Post> getLatestPosts(int count) {
+    /*public List<Post> getLatestPosts(int count) {
         return postRepository.findTopNByOrderByCreatedDesc(count);
+    }*/
+    public List<Post> getLatestPosts(int count) {
+        return postRepository.findTopNByOrderByCreatedDesc();
     }
 
-    public List<Comment> getLatestCommentsForPost(Long postId, int count) {
+    /*public List<Comment> getLatestCommentsForPost(Long postId, int count) {
         return postRepository.findLatestCommentsByPostId(postId, count);
+    }*/
+    public List<Comment> getLatestCommentsForPost(Long postId, int count) {
+        return postRepository.findLatestCommentsByPostId(postId);
     }
 
     public Post createPost(Post post) {

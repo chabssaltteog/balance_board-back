@@ -3,6 +3,7 @@ package chabssaltteog.balance_board.domain.post;
 import chabssaltteog.balance_board.domain.BaseTimeEntity;
 import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.Vote;
+import chabssaltteog.balance_board.dto.PostDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -64,6 +65,5 @@ public class Post extends BaseTimeEntity {
     public void decrementCommentCount() {
         this.commentCount--;
     }
-
 
 }
