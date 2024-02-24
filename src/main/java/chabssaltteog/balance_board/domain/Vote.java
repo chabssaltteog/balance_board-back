@@ -40,4 +40,12 @@ public class Vote {
         }
     }
 
+    // 정적 팩토리 메서드
+    public static Vote create(String option1, String option2) {
+        Vote vote = new Vote();
+        vote.setOption1(option1);
+        vote.setOption2(option2);
+        return vote;
+    }
+
 }

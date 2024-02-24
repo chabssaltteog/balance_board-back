@@ -60,10 +60,9 @@ public class Member extends BaseTimeEntity implements UserDetails  {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // 사용자가 참여한 투표 목록
     private List<VoteMember> voteMembers = new ArrayList<>();
 
+    @Column(name = "image_url")
+    private String imageUrl;    //프로필 사진
 
-
-//    @Column(name = "image_url")
-//    private String imageUrl;    //프로필 사진
 
 //    @Enumerated(EnumType.STRING)
 //    @Column(nullable = false)

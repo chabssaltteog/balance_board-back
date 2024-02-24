@@ -146,7 +146,7 @@ public class MemberController {
         @NotBlank
         private String gender;
 
-        private List<String> roles = new ArrayList<>();
+        @Builder.Default private List<String> roles = new ArrayList<>();
 
         public Member toEntity(String encodedPassword, List<String> roles) {
             return Member.builder()
@@ -165,6 +165,7 @@ public class MemberController {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(title = "MEM_RES_01 : 회원 가입 응답 DTO")
     public static class CreateMemberResponse {
 
         @Schema(description = "Email 중복 여부", example = "true")
@@ -191,15 +192,15 @@ public class MemberController {
                     .build();
         }
 
-        public Member toEntity() {
-            return Member.builder()
-                    .userId(userId)
-                    .email(email)
-                    .nickname(nickname)
-                    .birthYear(birthYear)
-                    .gender(gender)
-                    .build();
-        }
+//        public Member toEntity() {
+//            return Member.builder()
+//                    .userId(userId)
+//                    .email(email)
+//                    .nickname(nickname)
+//                    .birthYear(birthYear)
+//                    .gender(gender)
+//                    .build();
+//        }
 
     }
 

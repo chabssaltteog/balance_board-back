@@ -3,6 +3,7 @@ package chabssaltteog.balance_board.domain.post;
 import chabssaltteog.balance_board.domain.BaseTimeEntity;
 import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.Vote;
+import chabssaltteog.balance_board.dto.PostDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -15,6 +16,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class Post extends BaseTimeEntity {
 
     @Id
@@ -52,6 +54,11 @@ public class Post extends BaseTimeEntity {
     @Column(name = "vote_count")
     private int voteCount;
 
+    // 투표 관련 메서드
+    public void setVoteOptions(String option1, String option2) {
+        this.vote = Vote.create(option1, option2);
+    }
+
 
     public void incrementVoteCount() {
         this.voteCount++;
@@ -64,6 +71,5 @@ public class Post extends BaseTimeEntity {
     public void decrementCommentCount() {
         this.commentCount--;
     }
-
 
 }
