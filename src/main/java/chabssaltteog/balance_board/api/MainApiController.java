@@ -29,6 +29,21 @@ public class MainApiController {
 
     private final MainService mainService;
 
+    @GetMapping("/posts") //게시글 20개씩 출력
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Fail")
+    })
+    public List<PostDTO> getAllPosts(
+            @RequestParam(defaultValue = "0", value="page")  int page,
+            @RequestParam(defaultValue = "20", value="size")  int size
+    ) {
+        log.info("== GET ALL POSTS ==");
+        return mainService.getAllPosts(page, size);
+
+    }
+
     @GetMapping("/posts/{postId}")
     @Operation(summary = "Post Detail", description = "게시글 상세")
     @ApiResponses(value = {

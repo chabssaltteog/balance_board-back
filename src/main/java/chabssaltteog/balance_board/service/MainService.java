@@ -31,11 +31,11 @@ public class MainService {
 
 
     // 메인 페이지
-    public List<PostDTO> getAllPosts(int pageNumber) { //페이지 사이즈 20
+    public List<PostDTO> getAllPosts(int pageNumber, int pageSize) {
         List<Post> posts = postService.getAllPosts();
 
-        int fromIndex = (pageNumber - 1) * 20;
-        int toIndex = Math.min(fromIndex + 20, posts.size());
+        int fromIndex = (pageNumber - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, posts.size());
 
         return posts.subList(fromIndex, toIndex)
                 .stream()
