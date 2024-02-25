@@ -11,6 +11,7 @@ import chabssaltteog.balance_board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ public class MainService {
     private final PostService postService;
     private final VoteService voteService;
     private final PostRepository postRepository;
+
 
     // 메인 페이지
     public List<PostDTO> getAllPosts(int pageNumber) { //페이지 사이즈 20
@@ -48,16 +50,18 @@ public class MainService {
         return PostDTO.toDTO(post);
     }
 
-    // 카테고리별 게시글
-    public List<PostDTO> getPostsByCategory(Category category) {
+    // 게시글 카테고리 필터링
+    public List<PostDTO> getPostsByCategory(Category category, int pageNumber, int pageSize) {
         List<Post> posts = postService.getPostsByCategory(category);
-        return posts.stream().map(PostDTO::toDTO).toList();
+        int fromIndex = (pageNumber - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, posts.size());
+
+        return posts.subList(fromIndex, toIndex)
+                .stream()
+                .map(PostDTO::toDTO)
+                .toList();
     }
 
-    // 최신 게시글
-    public List<Post> getLatestPosts() {
-        return postService.getLatestPosts(10); // 최신 10개의 게시글 가져오기
-    }
 
     // 게시글 작성
     public CreatePostResponseDTO createPost(CreatePostRequestDTO requestDTO) {
@@ -73,7 +77,7 @@ public class MainService {
                 .content(requestDTO.getContent())
                 .build();
 
-        // 태그들을 저장하기 위해 태그 엔티티 생성 및 저장
+        // 태그들 저장
         List<Tag> tags = new ArrayList<>();
         for (String tagName : requestDTO.getTags()) {
             Tag tag = Tag.builder().tagName(tagName).post(post).build();

@@ -29,19 +29,6 @@ public class MainApiController {
 
     private final MainService mainService;
 
-    @GetMapping("/posts") //페이지 사이즈 20
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success",
-                    content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
-            @ApiResponse(responseCode = "400", description = "Fail")
-    })
-    public List<PostDTO> getAllPosts(
-            @RequestParam(defaultValue = "0", value="page")  int page) {
-        log.info("== GET ALL POSTS ==");
-        return mainService.getAllPosts(page);
-
-    }
-
     @GetMapping("/posts/{postId}")
     @Operation(summary = "Post Detail", description = "게시글 상세")
     @ApiResponses(value = {
@@ -54,17 +41,23 @@ public class MainApiController {
         return mainService.getPostByPostId(postId);
     }
 
-    @GetMapping("/{category}")
+    @GetMapping("/{category}") //카테고리 필터링, 20개씩 출력
     @Operation(summary = "Category filtering", description = "카테고리 필터링")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
-    public List<PostDTO> getPostByCategory(@PathVariable(name = "category") Category category) {
+    public List<PostDTO> getPostByCategory(
+            @PathVariable(name = "category") Category category,
+            @RequestParam(defaultValue = "0", value="page")  int page,
+            @RequestParam(defaultValue = "20", value="size")  int size
+    ) {
         log.info("CATEGORY SEARCH : category = {}", category);
-        return mainService.getPostsByCategory(category);
+        return mainService.getPostsByCategory(category, page, size);
     }
+
+
 
     @PostMapping("/new/post")
     @Operation(summary = "Create POST", description = "게시글 작성")

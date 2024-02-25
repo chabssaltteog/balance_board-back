@@ -15,8 +15,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     public List<Post> findByCategory(Category category);
 
-
-    /*public List<Post> findTopNByOrderByCreatedDesc(int count);    //최근 게시글들 중에서 최대 count개의 게시글을 조회*/
-    public List<Post> findTopNByOrderByCreatedDesc();    //최근 게시글들 중에서 최대 count개의 게시글을 조회
-
 }

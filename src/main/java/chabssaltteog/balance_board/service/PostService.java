@@ -37,10 +37,6 @@ public class PostService {
 
     }
 
-    public List<Post> getLatestPosts(int count) {
-        return postRepository.findTopNByOrderByCreatedDesc();
-    }
-
     public Post createPost(Long userId, Post post) {
         Member user = memberRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
