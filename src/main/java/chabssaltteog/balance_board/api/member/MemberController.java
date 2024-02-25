@@ -206,6 +206,7 @@ public class MemberController {
 
     @Data
     @AllArgsConstructor
+    @Schema(title = "MEM_RES_02 : 중복 여부 응답 DTO")
     static class ValidateResponse {
 
         @Schema(description = "중복 여부", example = "true")

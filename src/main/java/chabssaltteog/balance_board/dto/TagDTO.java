@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(title = "POS_RES_00 : 게시글 내 Tags 응답 DTO")
 public class TagDTO {
 
     @Schema(description = "Tag ID", example = "3")

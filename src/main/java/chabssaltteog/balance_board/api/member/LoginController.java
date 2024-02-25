@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
 
     private final MemberService memberService;
-    private final LoginService loginService;
 
     @Operation(summary = "Login API", description = "Login")
     @ApiResponses(value = {
@@ -52,6 +51,7 @@ public class LoginController {
 
     @Data
     @AllArgsConstructor
+    @Schema(title = "MEM_REQ_02 : 로그인 요청 DTO")
     public static class LoginRequestDTO {
 
         @Schema(description = "email", example = "aaa@gamil.com")
@@ -67,6 +67,7 @@ public class LoginController {
 
     @Data
     @AllArgsConstructor
+    @Schema(title = "MEM_RES_03 : 로그인 성공 응답 DTO")
     static class LoginResponse {
 
         @Schema(description = "사용자가 입력한 email", example = "bbb@gmail.com")
@@ -81,6 +82,7 @@ public class LoginController {
     }
 
     @Data
+    @Schema(title = "MEM_RES_04 : 로그인 실패 응답 DTO")
     @AllArgsConstructor
     static class LoginFailResponse {
 

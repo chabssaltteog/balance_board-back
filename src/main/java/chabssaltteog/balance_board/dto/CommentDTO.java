@@ -1,5 +1,6 @@
 package chabssaltteog.balance_board.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ import chabssaltteog.balance_board.domain.post.Comment;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(title = "POS_RES_00 : 게시글 내 댓글들 응답 DTO")
 public class CommentDTO {
     private Long commentId;
     private Long userId;

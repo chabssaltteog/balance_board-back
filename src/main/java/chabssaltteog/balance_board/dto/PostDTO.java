@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(title = "POS_RES_00 : 게시글 응답 DTO")
 public class PostDTO {
 
     @Schema(description = "게시글 ID", example = "2")
