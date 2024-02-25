@@ -7,10 +7,14 @@ import chabssaltteog.balance_board.domain.post.Tag;
 import chabssaltteog.balance_board.dto.CreatePostRequestDTO;
 import chabssaltteog.balance_board.dto.CreatePostResponseDTO;
 import chabssaltteog.balance_board.dto.PostDTO;
+import chabssaltteog.balance_board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,11 +25,38 @@ public class MainService {
 
     private final PostService postService;
     private final VoteService voteService;
+    private final PostRepository postRepository;
 
-    public List<PostDTO> getAllPosts() {    // todo 전부 다 보내는게 맞는지?
+    /*public List<PostDTO> getAllPosts() {    // todo 전부 다 보내는게 맞는지?
         List<Post> posts = postService.getAllPosts();
         return posts.stream().map(PostDTO::toDTO).toList(); // 댓글은 최대 두개만
+    }*/
+
+
+    /*public List<PostDTO> getAllPosts(int pageNumber, int pageSize) {//페이지 사이즈 조정 가능한 메서드
+        List<Post> posts = postService.getAllPosts();
+
+        int fromIndex = (pageNumber - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, posts.size());
+
+        return posts.subList(fromIndex, toIndex)
+                .stream()
+                .map(PostDTO::toDTO)
+                .toList();
+    }*/
+
+    public List<PostDTO> getAllPosts(int pageNumber) { //페이지 사이즈 20
+        List<Post> posts = postService.getAllPosts();
+
+        int fromIndex = (pageNumber - 1) * 20;
+        int toIndex = Math.min(fromIndex + 20, posts.size());
+
+        return posts.subList(fromIndex, toIndex)
+                .stream()
+                .map(PostDTO::toDTO)
+                .toList();
     }
+
 
     // 게시글 상세보기
     public PostDTO getPostByPostId(Long postId) {
