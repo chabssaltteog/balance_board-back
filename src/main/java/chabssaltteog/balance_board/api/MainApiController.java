@@ -1,6 +1,7 @@
 package chabssaltteog.balance_board.api;
 
 import chabssaltteog.balance_board.domain.post.Category;
+import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.dto.CreatePostRequestDTO;
 import chabssaltteog.balance_board.dto.CreatePostResponseDTO;
 import chabssaltteog.balance_board.dto.PostDTO;
@@ -45,7 +46,7 @@ public class MainApiController {
         return mainService.getAllPosts();
     }*/
 
-    /*@GetMapping("/posts") //페이지 사이즈 수정 가능
+    @GetMapping("/posts") //게시글 20개씩 출력
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
@@ -53,26 +54,12 @@ public class MainApiController {
     })
     public List<PostDTO> getAllPosts(
             @RequestParam(defaultValue = "0", value="page")  int page,
-            @RequestParam(defaultValue = "10", value="size")  int size
+            @RequestParam(defaultValue = "20", value="size")  int size
     ) {
         log.info("GET ALL POSTS ==");
         return mainService.getAllPosts(page, size);
 
-    }*/
-
-    @GetMapping("/posts") //페이지 사이즈 20
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success",
-                    content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
-            @ApiResponse(responseCode = "400", description = "Fail")
-    })
-    public List<PostDTO> getAllPosts(
-            @RequestParam(defaultValue = "0", value="page")  int page) {
-        log.info("GET ALL POSTS ==");
-        return mainService.getAllPosts(page);
-
     }
-
 
 
     @GetMapping("/posts/{postId}")
@@ -87,17 +74,23 @@ public class MainApiController {
         return mainService.getPostByPostId(postId);
     }
 
-    @GetMapping("/{category}")
+    @GetMapping("/{category}") //카테고리 필터링, 20개씩 출력
     @Operation(summary = "Category filtering", description = "카테고리 필터링")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
-    public List<PostDTO> getPostByCategory(@PathVariable(name = "category") Category category) {
+    public List<PostDTO> getPostByCategory(
+            @PathVariable(name = "category") Category category,
+            @RequestParam(defaultValue = "0", value="page")  int page,
+            @RequestParam(defaultValue = "20", value="size")  int size
+    ) {
         log.info("CATEGORY SEARCH : category = {}", category);
-        return mainService.getPostsByCategory(category);
+        return mainService.getPostsByCategory(category, page, size);
     }
+
+
 
     @PostMapping("/new/post")
     @Operation(summary = "Create POST", description = "게시글 작성")

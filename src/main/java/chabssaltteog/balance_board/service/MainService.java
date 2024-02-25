@@ -10,6 +10,7 @@ import chabssaltteog.balance_board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,23 +33,11 @@ public class MainService {
     }*/
 
 
-    /*public List<PostDTO> getAllPosts(int pageNumber, int pageSize) {//페이지 사이즈 조정 가능한 메서드
+    public List<PostDTO> getAllPosts(int pageNumber, int pageSize) {//페이지 사이즈 조정 가능한 메서드
         List<Post> posts = postService.getAllPosts();
 
         int fromIndex = (pageNumber - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, posts.size());
-
-        return posts.subList(fromIndex, toIndex)
-                .stream()
-                .map(PostDTO::toDTO)
-                .toList();
-    }*/
-
-    public List<PostDTO> getAllPosts(int pageNumber) { //페이지 사이즈 20
-        List<Post> posts = postService.getAllPosts();
-
-        int fromIndex = (pageNumber - 1) * 20;
-        int toIndex = Math.min(fromIndex + 20, posts.size());
 
         return posts.subList(fromIndex, toIndex)
                 .stream()
@@ -64,10 +53,22 @@ public class MainService {
     }
 
     // 카테고리별 게시글
-    public List<PostDTO> getPostsByCategory(Category category) {
+    /*public List<PostDTO> getPostsByCategory(Category category) {
         List<Post> posts = postService.getPostsByCategory(category);
         return posts.stream().map(PostDTO::toDTO).toList();
+    }*/
+
+    public List<PostDTO> getPostsByCategory(Category category, int pageNumber, int pageSize) {
+        List<Post> posts = postService.getPostsByCategory(category);
+        int fromIndex = (pageNumber - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, posts.size());
+
+        return posts.subList(fromIndex, toIndex)
+                .stream()
+                .map(PostDTO::toDTO)
+                .toList();
     }
+
 
     // 최신 게시글
     public List<Post> getLatestPosts() {
