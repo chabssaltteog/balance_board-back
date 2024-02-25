@@ -32,7 +32,7 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "vote_id")   //관계 주인
     private Vote vote;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Tag> tags = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)

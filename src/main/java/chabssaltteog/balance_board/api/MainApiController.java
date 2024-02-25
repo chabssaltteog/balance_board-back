@@ -5,7 +5,6 @@ import chabssaltteog.balance_board.dto.CreatePostRequestDTO;
 import chabssaltteog.balance_board.dto.CreatePostResponseDTO;
 import chabssaltteog.balance_board.dto.PostDTO;
 import chabssaltteog.balance_board.service.MainService;
-import chabssaltteog.balance_board.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,9 +16,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,33 +29,6 @@ public class MainApiController {
 
     private final MainService mainService;
 
-    /*@GetMapping("/posts")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success",
-            content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
-            @ApiResponse(responseCode = "400", description = "Fail")
-    })
-    @Operation(summary = "All Posts", description = "모든 게시글 조회")
-    public List<PostDTO> getAllPosts() {
-        log.info("GET ALL POST ==");
-        return mainService.getAllPosts();
-    }*/
-
-    /*@GetMapping("/posts") //페이지 사이즈 수정 가능
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success",
-                    content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
-            @ApiResponse(responseCode = "400", description = "Fail")
-    })
-    public List<PostDTO> getAllPosts(
-            @RequestParam(defaultValue = "0", value="page")  int page,
-            @RequestParam(defaultValue = "10", value="size")  int size
-    ) {
-        log.info("GET ALL POSTS ==");
-        return mainService.getAllPosts(page, size);
-
-    }*/
-
     @GetMapping("/posts") //페이지 사이즈 20
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
@@ -68,12 +37,10 @@ public class MainApiController {
     })
     public List<PostDTO> getAllPosts(
             @RequestParam(defaultValue = "0", value="page")  int page) {
-        log.info("GET ALL POSTS ==");
+        log.info("== GET ALL POSTS ==");
         return mainService.getAllPosts(page);
 
     }
-
-
 
     @GetMapping("/posts/{postId}")
     @Operation(summary = "Post Detail", description = "게시글 상세")

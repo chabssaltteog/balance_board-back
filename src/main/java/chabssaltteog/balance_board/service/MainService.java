@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.print.Pageable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,24 +28,7 @@ public class MainService {
     private final VoteService voteService;
     private final PostRepository postRepository;
 
-    /*public List<PostDTO> getAllPosts() {    // todo 전부 다 보내는게 맞는지?
-        List<Post> posts = postService.getAllPosts();
-        return posts.stream().map(PostDTO::toDTO).toList(); // 댓글은 최대 두개만
-    }*/
-
-
-    /*public List<PostDTO> getAllPosts(int pageNumber, int pageSize) {//페이지 사이즈 조정 가능한 메서드
-        List<Post> posts = postService.getAllPosts();
-
-        int fromIndex = (pageNumber - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, posts.size());
-
-        return posts.subList(fromIndex, toIndex)
-                .stream()
-                .map(PostDTO::toDTO)
-                .toList();
-    }*/
-
+    // 메인 페이지
     public List<PostDTO> getAllPosts(int pageNumber) { //페이지 사이즈 20
         List<Post> posts = postService.getAllPosts();
 
@@ -89,18 +73,14 @@ public class MainService {
                 .content(requestDTO.getContent())
                 .build();
 
-
-        List<Tag> tags = requestDTO.getTags().stream()
-                .map(tagName -> Tag.builder().tagName(String.valueOf(tagName)).build())
-                .collect(Collectors.toList());
+        // 태그들을 저장하기 위해 태그 엔티티 생성 및 저장
+        List<Tag> tags = new ArrayList<>();
+        for (String tagName : requestDTO.getTags()) {
+            Tag tag = Tag.builder().tagName(tagName).post(post).build();
+            tags.add(tag);
+        }
         post.setTags(tags);
-
-        /**
-         *         // 요청으로부터 받은 태그들을 Tag 엔티티로 변환하여 Post 엔티티에 추가
-         *         requestDTO.getTags().stream()
-         *                 .map(tagName -> Tag.builder().tagName(String.valueOf(tagName)).build())
-         *                 .forEach(post::addTag);
-         */
+        log.info("CREATE POST Tags = {}", tags);
 
         post.setVoteOptions(requestDTO.getOption1(), requestDTO.getOption2());
 

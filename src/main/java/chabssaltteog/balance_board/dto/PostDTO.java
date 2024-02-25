@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Builder
 public class PostDTO {
+
     @Schema(description = "게시글 ID", example = "2")
     private Long postId;
 
@@ -48,8 +49,14 @@ public class PostDTO {
     @Schema(description = "등록된 투표의 옵션2 투표 수", example = "15")
     private Integer option2Count;
 
-    @Schema(description = "게시글에 달린 댓글들")
+    @Schema(description = "게시글에 달린 댓글들", example = "안녕?, 인정해")
     private List<CommentDTO> comments;
+
+    @Schema(description = "게시글에 달린 총 댓글 수", example = "6")
+    private Integer commentCount;
+
+    @Schema(description = "태그 목록", example = "이직, 직장, 고민")
+    private List<TagDTO> tags;
 
     public static PostDTO toDTO(Post post) {    //메인 페이지용
         return PostDTO.builder()
@@ -66,6 +73,8 @@ public class PostDTO {
                 .option1Count(post.getVote().getOption1Count())
                 .option2Count(post.getVote().getOption2Count())
                 .comments(CommentDTO.toDTOList(post.getComments())) // 댓글 정보 2개만 가져옴
+                .commentCount(post.getCommentCount())
+                .tags(post.getTags().stream().map(TagDTO::toDTO).collect(Collectors.toList()))
                 .build();
     }
 
@@ -84,6 +93,8 @@ public class PostDTO {
                 .option1Count(post.getVote().getOption1Count())
                 .option2Count(post.getVote().getOption2Count())
                 .comments(post.getComments().stream().map(comment -> CommentDTO.toDTO(comment)).collect(Collectors.toList())) // 댓글 다 가져옴
+                .commentCount(post.getCommentCount())
+                .tags(post.getTags().stream().map(TagDTO::toDTO).collect(Collectors.toList()))
                 .build();
     }
 }

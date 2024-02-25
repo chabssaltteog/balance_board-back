@@ -38,7 +38,7 @@ public class CreatePostRequestDTO {
 
     @Size(max = 5)
     @Schema(description = "게시글 태그들", example = "눈, 날씨, 겨울")
-    private List<Tag> tags = new ArrayList<>();
+    private List<String> tags = new ArrayList<>();
 
     @NotBlank
     @Schema(description = "등록된 투표의 옵션1", example = "살까?")
