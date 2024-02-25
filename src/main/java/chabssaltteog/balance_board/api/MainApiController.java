@@ -100,6 +100,7 @@ public class MainApiController {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @Schema(title = "POS_RES_02 : 게시글 작성 실패 응답 DTO")
     static class CreatePostFailResponseDTO {
         @Schema(description = "작성자 ID", example = "6")
         private Long userId;
