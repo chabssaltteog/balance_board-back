@@ -1,11 +1,13 @@
 package chabssaltteog.balance_board.domain.post;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Tag {
 
     @Id
@@ -17,7 +19,7 @@ public class Tag {
     private String tagName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tags")
+    @JoinColumn(name = "post_id")
     private Post post;
 
 }

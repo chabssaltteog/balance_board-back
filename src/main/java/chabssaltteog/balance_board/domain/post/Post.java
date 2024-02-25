@@ -59,6 +59,11 @@ public class Post extends BaseTimeEntity {
         this.vote = Vote.create(option1, option2);
     }
 
+    public void addTag(Tag tag) {
+        tags.add(tag);
+        tag.setPost(this);
+    }
+
 
     public void incrementVoteCount() {
         this.voteCount++;

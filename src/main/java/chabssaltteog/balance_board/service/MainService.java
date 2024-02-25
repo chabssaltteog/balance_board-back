@@ -3,6 +3,7 @@ package chabssaltteog.balance_board.service;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
+import chabssaltteog.balance_board.domain.post.Tag;
 import chabssaltteog.balance_board.dto.CreatePostRequestDTO;
 import chabssaltteog.balance_board.dto.CreatePostResponseDTO;
 import chabssaltteog.balance_board.dto.PostDTO;
@@ -55,8 +56,20 @@ public class MainService {
                 .title(requestDTO.getTitle())
                 .category(category)
                 .content(requestDTO.getContent())
-                .tags(requestDTO.getTags())
                 .build();
+
+
+        List<Tag> tags = requestDTO.getTags().stream()
+                .map(tagName -> Tag.builder().tagName(String.valueOf(tagName)).build())
+                .collect(Collectors.toList());
+        post.setTags(tags);
+
+        /**
+         *         // 요청으로부터 받은 태그들을 Tag 엔티티로 변환하여 Post 엔티티에 추가
+         *         requestDTO.getTags().stream()
+         *                 .map(tagName -> Tag.builder().tagName(String.valueOf(tagName)).build())
+         *                 .forEach(post::addTag);
+         */
 
         post.setVoteOptions(requestDTO.getOption1(), requestDTO.getOption2());
 
