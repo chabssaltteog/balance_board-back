@@ -32,19 +32,6 @@ public class MemberController {
     private final MemberService memberService;
     private final RegisterService registerService;
 
-//    @Operation(summary = "test API", description = "test")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "success", content = {@Content(schema = @Schema(implementation = TestResult.class))}),
-//            @ApiResponse(responseCode = "500", description = "fail")
-//    })
-//    @GetMapping("/test")
-//    public TestResult test() {
-//        TestResult testResult = new TestResult(true, "test message");
-//        log.info("testResult = {}", testResult);
-//        return testResult;
-//    }
-
-
 
     @Operation(summary = "Register API", description = "회원 가입")
     @ApiResponses(value = {
@@ -53,11 +40,8 @@ public class MemberController {
             @ApiResponse(responseCode = "400", description = "Fail")
     })
     @PostMapping("/register")
-    public CreateMemberResponse register(
-//            @AuthenticationPrincipal UserDetails userDetails,
-                                                        @RequestBody @Valid CreateMemberRequestDTO request) {
+    public CreateMemberResponse register(@RequestBody @Valid CreateMemberRequestDTO request) {
 
-//        String email = userDetails.getUsername();
         try {
             CreateMemberResponse savedMemberResponse = registerService.register(request);
             boolean duplicate = false;
@@ -71,9 +55,6 @@ public class MemberController {
             return new CreateMemberResponse(duplicate, request.getEmail(), null, request.getNickname(),
                     request.getBirthYear(), request.getGender());
         }
-
-
-//        Long userId = memberService.updateMemberInfo(request.email, request.getNickname(), request.getBirthYear(), request.getGender());
 
     }
 
@@ -161,6 +142,7 @@ public class MemberController {
 
     }
 
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -191,17 +173,6 @@ public class MemberController {
                     .gender(member.getGender())
                     .build();
         }
-
-//        public Member toEntity() {
-//            return Member.builder()
-//                    .userId(userId)
-//                    .email(email)
-//                    .nickname(nickname)
-//                    .birthYear(birthYear)
-//                    .gender(gender)
-//                    .build();
-//        }
-
     }
 
     @Data
@@ -213,16 +184,5 @@ public class MemberController {
         private boolean duplicate;
 
     }
-
-//    @Data
-//    @AllArgsConstructor
-//    static class TestResult {
-//        @Schema(description = "test용", example = "true")
-//        private boolean test;
-//
-//        @Schema(description = "메세지", example = "test message")
-//        private String message;
-//    }
-
 
 }

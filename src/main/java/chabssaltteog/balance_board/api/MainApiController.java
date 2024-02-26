@@ -31,6 +31,7 @@ public class MainApiController {
     private final VoteService voteService;
 
     @GetMapping("/posts") //게시글 20개씩 출력
+    @Operation(summary = "All Posts", description = "모든 게시글 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
