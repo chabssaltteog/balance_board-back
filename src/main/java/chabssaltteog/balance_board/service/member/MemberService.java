@@ -76,6 +76,7 @@ public class MemberService {
         Member member = optionalMember.get();
 
         JwtToken newToken = jwtTokenProvider.generateToken(authentication);
+        log.info("newToken = {}", newToken);
 
         return new LoginResponseDTO(
                 member.getEmail(),

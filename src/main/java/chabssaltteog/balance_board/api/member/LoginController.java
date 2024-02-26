@@ -71,7 +71,7 @@ public class LoginController {
     @PostMapping("/login/token")
     public Object refreshToken(@RequestHeader("Authorization") String token) {
         try {
-
+            log.info("token = {}", token);
             return memberService.getUserInfoAndGenerateToken(token);
 
         } catch (Exception e) {
