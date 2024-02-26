@@ -1,6 +1,7 @@
 package chabssaltteog.balance_board.service.member;
 
 import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.dto.LoginResponseDTO;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.util.JwtToken;
 import chabssaltteog.balance_board.util.JwtTokenProvider;
@@ -9,9 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @Service
@@ -54,31 +57,33 @@ public class MemberService {
         return byNickname.isPresent();
     }
 
-//    @Transactional
-//    public long updateMemberInfo(String email, String nickname, int birthYear, String gender) {
-//        Member member = memberRepository.findByEmail(email)
-//                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-//
-//        // 회원 정보(닉네임, 나이, 성별) 추가
-//        member.updateNickNameBirthYearGender(nickname, birthYear, gender);
-//        return member.getUserId();
-//    }
+    public LoginResponseDTO getUserInfoAndGenerateToken(String token) {
 
+        // 토큰 유효성 검사
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new RuntimeException("Invalid token");
+        }
 
-//
-//    // 추가 정보 확인
-//    public boolean confirmRequiredInfo(String email) {
-//
-//        Optional<Member> optionalMember = findMember(email);
-//
-//        return optionalMember.map(member ->
-//                member.getNickname() == null || member.getBirthYear() == 0 || member.getGender() == null
-//        ).orElse(false);
-//    }
-//
-//    public Optional<Member> findMember(String email) {
-//
-//        Optional<Member> optionalMember = memberRepository.findByEmail(email);
-//        return optionalMember;
-//    }
+        // 토큰에서 사용자 정보 추출
+        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        String email = authentication.getName();
+
+        // 사용자 정보 가져오기
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isEmpty()) {
+            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
+        }
+        Member member = optionalMember.get();
+
+        JwtToken newToken = jwtTokenProvider.generateToken(authentication);
+
+        return new LoginResponseDTO(
+                member.getEmail(),
+                newToken,
+                member.getUserId(),
+                member.getImageUrl(),
+                member.getNickname()
+        );
+    }
+
 }
