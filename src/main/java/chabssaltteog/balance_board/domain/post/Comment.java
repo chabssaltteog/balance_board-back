@@ -4,6 +4,7 @@ import chabssaltteog.balance_board.domain.BaseTimeEntity;
 import chabssaltteog.balance_board.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -30,5 +31,6 @@ public class Comment extends BaseTimeEntity {
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
+
 
 }

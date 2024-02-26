@@ -1,18 +1,15 @@
 package chabssaltteog.balance_board.service;
 
 import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.dto.CreateCommentRequestDTO;
-import chabssaltteog.balance_board.dto.PostDTO;
 import chabssaltteog.balance_board.repository.CommentRepository;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -40,7 +37,7 @@ public class PostService {
 
     public Post createPost(Long userId, Post post) {
         Member user = memberRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User 정보가 없습니다."));
         post.setUser(user);
         return postRepository.save(post);
     }
@@ -49,15 +46,12 @@ public class PostService {
         Long userId = requestDTO.getUserId();
         Long postId = requestDTO.getPostId();
 
-        // 게시글 정보 가져오기
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글 정보가 없습니다."));
 
-        // 사용자 정보 가져오기
         Member user = memberRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User 정보가 없습니다."));
 
-        // 댓글 생성
         Comment comment = Comment.builder()
                 .content(requestDTO.getContent())
                 .user(user)
@@ -70,10 +64,7 @@ public class PostService {
         // 댓글 수 증가
         post.incrementCommentCount();
 
-        postRepository.save(post);
         return commentRepository.save(comment);
     }
-
-
 
 }

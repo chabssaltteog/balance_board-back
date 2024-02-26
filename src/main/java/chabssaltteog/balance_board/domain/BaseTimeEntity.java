@@ -2,6 +2,7 @@ package chabssaltteog.balance_board.domain;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -19,4 +20,5 @@ public abstract class BaseTimeEntity {  //인스턴스 생성 x
 
     @UpdateTimestamp
     private LocalDateTime updated;
+
 }

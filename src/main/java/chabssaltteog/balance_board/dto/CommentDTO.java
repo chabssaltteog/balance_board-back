@@ -18,11 +18,23 @@ import chabssaltteog.balance_board.domain.post.Comment;
 @Builder
 @Schema(title = "COM_RES_01 : 댓글 작성 및 조회 응답 DTO")
 public class CommentDTO {
+
+    @Schema(description = "댓글 ID", example = "1")
     private Long commentId;
+
+    @Schema(description = "User ID", example = "6")
     private Long userId;
+
+    @Schema(description = "User 닉네임", example = "몽글몽글")
     private String nickname;
+
+    @Schema(description = "User 프로필 사진", example = "www.dsa..")
     private String imageUrl;
+
+    @Schema(description = "댓글 내용", example = "저도 동의합니다.")
     private String content;
+
+    @Schema(description = "댓글 생성 시간", example = "2024-02-26 19:34:28.683605")
     private LocalDateTime created;
 
     public static CommentDTO toDTO(Comment comment) {
