@@ -101,8 +101,8 @@ public class MainService {
     }
 
     // 게시글에 투표 참여
-    public void participateVote(Long postId, Long userId, String votedOption) {
-        voteService.participateVote(postId, userId, votedOption);
+    public void participateVote(VoteRequestDTO voteRequestDTO) {
+        voteService.participateVote(voteRequestDTO);
     }
 
 

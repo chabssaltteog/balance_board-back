@@ -1,8 +1,10 @@
 package chabssaltteog.balance_board.api;
 
+import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.dto.*;
 import chabssaltteog.balance_board.service.MainService;
+import chabssaltteog.balance_board.service.VoteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,6 +28,7 @@ import java.util.List;
 public class MainApiController {
 
     private final MainService mainService;
+    private final VoteService voteService;
 
     @GetMapping("/posts") //게시글 20개씩 출력
     @ApiResponses(value = {
@@ -113,6 +116,20 @@ public class MainApiController {
             log.info("exception message = {}", message);
             return new CreateCommentFailResponseDTO(requestDTO.getUserId(), "댓글 작성 실패");
         }
+
+    }
+
+    @PostMapping("/new/vote")
+    public VoteResponseDTO doVote(@RequestBody VoteRequestDTO voteRequestDTO){
+
+
+        VoteMember voteMember = voteService.participateVote(voteRequestDTO);
+        log.info("user_id={}",voteMember.getUser().getUserId());
+        log.info("vote_id={}",voteMember.getVote().getVoteId());
+        return VoteResponseDTO.builder()
+                .voteId(voteMember.getVote().getVoteId())
+                .userId(voteMember.getUser().getUserId())
+                .selectedOption(voteRequestDTO.getSelectedOption()).build();
 
     }
 

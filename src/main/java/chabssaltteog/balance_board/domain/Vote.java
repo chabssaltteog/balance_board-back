@@ -17,6 +17,8 @@ public class Vote {
 
     @OneToOne(mappedBy = "vote", fetch = FetchType.LAZY)    //읽기 전용
     private Post post;
+    /*@OneToOne(fetch = FetchType.LAZY)    //읽기 전용
+    private Post post;*/
 
     @Column(nullable = false)
     private String option1;
@@ -31,9 +33,9 @@ public class Vote {
     private int option2Count;
 
     public void participate(Long userId, String votedOption) {
-        if ("option1".equals(votedOption)) {
+        if (option1.equals(votedOption)) {
             option1Count++;
-        } else if ("option2".equals(votedOption)) {
+        } else if (option2.equals(votedOption)) {
             option2Count++;
         } else {
             throw new IllegalArgumentException("Invalid voted option");

@@ -1,5 +1,6 @@
 package chabssaltteog.balance_board.repository;
 
+
 import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Category;
@@ -9,7 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
-public interface VoteMemberRepository extends JpaRepository<VoteMember, Long> {
 
+public interface VoteRepository extends JpaRepository<Vote, Long> {
+
+//    public Vote findByVoteId(Long voteId);
 }
