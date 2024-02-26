@@ -25,8 +25,6 @@ public class MainService {
 
     private final PostService postService;
     private final VoteService voteService;
-    private final PostRepository postRepository;
-
 
     // 메인 페이지
     public List<PostDTO> getAllPosts(int pageNumber, int pageSize) {
@@ -45,7 +43,7 @@ public class MainService {
     // 게시글 상세보기
     public PostDTO getPostByPostId(Long postId) {
         Post post = postService.getPostByPostId(postId);
-        return PostDTO.toDTO(post);
+        return PostDTO.toDetailDTO(post);
     }
 
     // 게시글 카테고리 필터링
