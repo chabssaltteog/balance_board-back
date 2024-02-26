@@ -122,7 +122,6 @@ public class MemberController {
         @NotBlank
         private String birthYear;
 
-
         @Schema(description = "성별", example = "male")
         @NotBlank
         private String gender;
@@ -141,7 +140,6 @@ public class MemberController {
         }
 
     }
-
 
     @Data
     @Builder

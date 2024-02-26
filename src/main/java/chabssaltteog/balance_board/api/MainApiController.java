@@ -121,16 +121,28 @@ public class MainApiController {
     }
 
     @PostMapping("/new/vote")
-    public VoteResponseDTO doVote(@RequestBody VoteRequestDTO voteRequestDTO){
+    @Operation(summary = "Create VOTE", description = "투표 실행")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = VoteResponseDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Fail",
+                    content = {@Content(schema = @Schema(implementation = VoteFailResponseDTO.class))})
+    })
+    public Object doVote(@RequestBody VoteRequestDTO voteRequestDTO){
 
-
-        VoteMember voteMember = voteService.participateVote(voteRequestDTO);
-        log.info("user_id={}",voteMember.getUser().getUserId());
-        log.info("vote_id={}",voteMember.getVote().getVoteId());
-        return VoteResponseDTO.builder()
-                .voteId(voteMember.getVote().getVoteId())
-                .userId(voteMember.getUser().getUserId())
-                .selectedOption(voteRequestDTO.getSelectedOption()).build();
+        try {
+            VoteMember voteMember = voteService.participateVote(voteRequestDTO);
+            log.info("user_id={}", voteMember.getUser().getUserId());
+            log.info("vote_id={}", voteMember.getVote().getVoteId());
+            return VoteResponseDTO.builder()
+                    .voteId(voteMember.getVote().getVoteId())
+                    .userId(voteMember.getUser().getUserId())
+                    .selectedOption(voteRequestDTO.getSelectedOption()).build();
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            log.info("==VOTE FAIL==");
+            return new VoteFailResponseDTO(voteRequestDTO.getUserId(), voteRequestDTO.getVoteId(), "Vote Fail");
+        }
 
     }
 
@@ -157,6 +169,22 @@ public class MainApiController {
         @Schema(description = "실패 메세지", example = "댓글 작성 실패")
         private String message;
     }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(title = "VOT_RES_02 : 투표 실패 응답 DTO")
+    static class VoteFailResponseDTO {
+        @Schema(description = "작성자 ID", example = "6")
+        private Long userId;
+
+        @Schema(description = "투표 ID == postId", example = "3")
+        private Long voteId;
+
+        @Schema(description = "실패 메세지", example = "투표 실패")
+        private String message;
+    }
+
 
 
 }
