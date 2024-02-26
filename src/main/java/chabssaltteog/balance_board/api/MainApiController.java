@@ -1,9 +1,7 @@
 package chabssaltteog.balance_board.api;
 
 import chabssaltteog.balance_board.domain.post.Category;
-import chabssaltteog.balance_board.dto.CreatePostRequestDTO;
-import chabssaltteog.balance_board.dto.CreatePostResponseDTO;
-import chabssaltteog.balance_board.dto.PostDTO;
+import chabssaltteog.balance_board.dto.*;
 import chabssaltteog.balance_board.service.MainService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -72,8 +70,6 @@ public class MainApiController {
         return mainService.getPostsByCategory(category, page, size);
     }
 
-
-
     @PostMapping("/new/post")
     @Operation(summary = "Create POST", description = "게시글 작성")
     @ApiResponses(value = {
@@ -92,7 +88,30 @@ public class MainApiController {
         } catch (Exception e) {
             String message = e.getMessage();
             log.info("exception message = {}", message);
-            return new CreatePostFailResponseDTO(requestDTO.getUserId(), "Post Creation Fail");
+            return new CreatePostFailResponseDTO(requestDTO.getUserId(), "게시글 작성 실패");
+        }
+
+    }
+
+    @PostMapping("/new/comment")
+    @Operation(summary = "Create COMMENT", description = "댓글 작성")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = CommentDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Fail",
+                    content = {@Content(schema = @Schema(implementation = CreateCommentFailResponseDTO.class))})
+    })
+    public Object createComment(@RequestBody CreateCommentRequestDTO requestDTO) {
+        try {
+            CommentDTO commentDTO = mainService.addCommentToPost(requestDTO);
+            log.info("CREATE COMMENT : userID = {}", commentDTO.getUserId());
+            log.info("CREATE COMMENT : nickname = {}", commentDTO.getNickname());
+            log.info("CREATE COMMENT : Created Time = {}", commentDTO.getCreated());
+            return commentDTO;
+        } catch (Exception e) {
+            String message = e.getMessage();
+            log.info("exception message = {}", message);
+            return new CreateCommentFailResponseDTO(requestDTO.getUserId(), "댓글 작성 실패");
         }
 
     }
@@ -104,6 +123,20 @@ public class MainApiController {
     static class CreatePostFailResponseDTO {
         @Schema(description = "작성자 ID", example = "6")
         private Long userId;
+
+        @Schema(description = "실패 메세지", example = "게시글 작성 실패")
+        private String message;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(title = "COM_RES_02 : 댓글 작성 실패 응답 DTO")
+    static class CreateCommentFailResponseDTO {
+        @Schema(description = "작성자 ID", example = "6")
+        private Long userId;
+
+        @Schema(description = "실패 메세지", example = "댓글 작성 실패")
         private String message;
     }
 

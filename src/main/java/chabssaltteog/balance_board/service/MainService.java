@@ -4,9 +4,7 @@ import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.domain.post.Tag;
-import chabssaltteog.balance_board.dto.CreatePostRequestDTO;
-import chabssaltteog.balance_board.dto.CreatePostResponseDTO;
-import chabssaltteog.balance_board.dto.PostDTO;
+import chabssaltteog.balance_board.dto.*;
 import chabssaltteog.balance_board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,13 +76,11 @@ public class MainService {
                 .build();
 
         // 태그들 저장
-        List<Tag> tags = new ArrayList<>();
         for (String tagName : requestDTO.getTags()) {
-            Tag tag = Tag.builder().tagName(tagName).post(post).build();
-            tags.add(tag);
+            Tag tag = Tag.builder().tagName(tagName).build();
+            post.addTag(tag);
         }
-        post.setTags(tags);
-        log.info("CREATE POST Tags = {}", tags);
+        log.info("CREATE POST Tags = {}", requestDTO.getTags());
 
         post.setVoteOptions(requestDTO.getOption1(), requestDTO.getOption2());
 
@@ -98,8 +94,11 @@ public class MainService {
     }
 
     // 게시글에 댓글 달기
-    public Comment addCommentToPost(Long postId, Comment comment) {
-        return postService.addCommentToPost(postId, comment);
+    public CommentDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
+
+        Comment addedComment = postService.addCommentToPost(requestDTO);
+
+        return CommentDTO.toDTO(addedComment);
     }
 
     // 게시글에 투표 참여

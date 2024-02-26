@@ -3,12 +3,14 @@ package chabssaltteog.balance_board.domain.post;
 import chabssaltteog.balance_board.domain.BaseTimeEntity;
 import chabssaltteog.balance_board.domain.Member;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Comment extends BaseTimeEntity {
 
     @Id

@@ -16,12 +16,12 @@ import chabssaltteog.balance_board.domain.post.Comment;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(title = "POS_RES_00 : 게시글 내 댓글들 응답 DTO")
+@Schema(title = "COM_RES_01 : 댓글 작성 및 조회 응답 DTO")
 public class CommentDTO {
     private Long commentId;
     private Long userId;
-    private String Nickname;
-    private String ImageUrl;
+    private String nickname;
+    private String imageUrl;
     private String content;
     private LocalDateTime created;
 
@@ -29,8 +29,8 @@ public class CommentDTO {
         return CommentDTO.builder()
                 .commentId(comment.getCommentId())
                 .userId(comment.getUser().getUserId())
-                .Nickname(comment.getUser().getNickname())
-                .ImageUrl(comment.getUser().getImageUrl())
+                .nickname(comment.getUser().getNickname())
+                .imageUrl(comment.getUser().getImageUrl())
                 .content(comment.getContent())
                 .created(comment.getCreated())
                 .build();

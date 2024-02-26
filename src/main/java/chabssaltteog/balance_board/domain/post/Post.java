@@ -60,10 +60,20 @@ public class Post extends BaseTimeEntity {
     }
 
     public void addTag(Tag tag) {
+        if (tags == null) {
+            tags = new ArrayList<>();
+        }
         tags.add(tag);
         tag.setPost(this);
     }
 
+    public void addComments(Comment comment) {
+        if (comments == null) {
+            comments = new ArrayList<>();
+        }
+        comments.add(comment);
+        comment.setPost(this);
+    }
 
     public void incrementVoteCount() {
         this.voteCount++;
