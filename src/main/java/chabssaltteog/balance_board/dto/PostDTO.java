@@ -93,7 +93,7 @@ public class PostDTO {
                 .option2(post.getVote().getOption2())
                 .option1Count(post.getVote().getOption1Count())
                 .option2Count(post.getVote().getOption2Count())
-                .comments(post.getComments().stream().map(comment -> CommentDTO.toDTO(comment)).collect(Collectors.toList())) // 댓글 다 가져옴
+                .comments(post.getComments().stream().map(CommentDTO::toDTO).collect(Collectors.toList())) // 댓글 다 가져옴
                 .commentCount(post.getCommentCount())
                 .tags(post.getTags().stream().map(TagDTO::toDTO).collect(Collectors.toList()))
                 .build();
