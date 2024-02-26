@@ -50,13 +50,13 @@ public class PostDTO {
     @Schema(description = "등록된 투표의 옵션2 투표 수", example = "15")
     private Integer option2Count;
 
-    @Schema(description = "게시글에 달린 댓글들", example = "안녕?, 인정해")
+    @Schema(description = "게시글에 달린 댓글들")
     private List<CommentDTO> comments;
 
     @Schema(description = "게시글에 달린 총 댓글 수", example = "6")
     private Integer commentCount;
 
-    @Schema(description = "태그 목록", example = "이직, 직장, 고민")
+    @Schema(description = "태그 목록")
     private List<TagDTO> tags;
 
     public static PostDTO toDTO(Post post) {    //메인 페이지용
