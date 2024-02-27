@@ -60,44 +60,17 @@ public class Member extends BaseTimeEntity implements UserDetails  {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // 사용자가 참여한 투표 목록
     private List<VoteMember> voteMembers = new ArrayList<>();
 
-    @Column(name = "image_url")
-    private String imageUrl;    //프로필 사진
+    @Column(name = "image_type")
+    private int imageType;    //프로필 사진
 
 
-//    @Enumerated(EnumType.STRING)
-//    @Column(nullable = false)
-//    private MyRole role;
-
-//    @Builder
-//    public Member(String providerId, String provider, String email, String name, String nickname, int birthYear, String gender, String imageUrl, MyRole role) {
-//        this.providerId = providerId;
-//        this.provider = provider;
-//        this.email = email;
-//        this.name = name;
-//        this.nickname = nickname;
-//        this.birthYear = birthYear;
-//        this.gender = gender;
-//        this.imageUrl = imageUrl;
-//        this.role = role;
-//    }
-
-//    public String getRoleKey() {
-//        return this.role.getKey();
-//    }
-
-//    public Member updateGoogle(String name, String imageUrl) { // todo
-//        this.name = name;
-//        this.imageUrl = imageUrl;
-//        return this;
-//    }
-
-
-    public Member(String email, String password, String nickname, String birthYear, String gender) {
+    public Member(String email, String password, String nickname, String birthYear, String gender, int imageType) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.birthYear = birthYear;
         this.gender = gender;
+        this.imageType = imageType;
     }
 
     @ElementCollection(fetch = FetchType.EAGER)

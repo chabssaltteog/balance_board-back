@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import static chabssaltteog.balance_board.api.member.MemberController.*;
 
@@ -26,8 +27,11 @@ public class RegisterService {
         String encodedPassword = passwordEncoder.encode(requestDTO.getPassword());
         List<String> roles = new ArrayList<>();
         roles.add("USER");
+        Member member = requestDTO.toEntity(encodedPassword, roles);
+        int randomNum = new Random().nextInt(5) + 1;
+        member.setImageType(randomNum);
 
-        return CreateMemberResponse.toDto(memberRepository.save(requestDTO.toEntity(encodedPassword, roles)));
+        return CreateMemberResponse.toDto(memberRepository.save(member));
     }
 
     public boolean validateDuplicateEmail(String email) {

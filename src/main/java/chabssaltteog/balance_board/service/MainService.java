@@ -5,20 +5,13 @@ import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.domain.post.Tag;
 import chabssaltteog.balance_board.dto.*;
-import chabssaltteog.balance_board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.print.Pageable;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +20,6 @@ import java.util.stream.Collectors;
 public class MainService {
 
     private final PostService postService;
-    private final VoteService voteService;
 
     // 메인 페이지
     public List<PostDTO> getAllPosts(int pageNumber, int pageSize) {

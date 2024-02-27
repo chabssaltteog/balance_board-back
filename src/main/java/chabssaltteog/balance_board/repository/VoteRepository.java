@@ -13,5 +13,4 @@ import java.util.List;
 
 public interface VoteRepository extends JpaRepository<Vote, Long> {
 
-//    public Vote findByVoteId(Long voteId);
 }

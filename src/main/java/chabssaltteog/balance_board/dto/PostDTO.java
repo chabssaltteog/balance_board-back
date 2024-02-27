@@ -17,8 +17,8 @@ public class PostDTO {
     @Schema(description = "게시글 ID", example = "2")
     private Long postId;
 
-    @Schema(description = "user image", example = "image_url")
-    private String imageUrl;
+    @Schema(description = "user image", example = "1")
+    private int imageType;
 
     @Schema(description = "user nickname", example = "몽글몽글")
     private String nickname;
@@ -62,7 +62,7 @@ public class PostDTO {
     public static PostDTO toDTO(Post post) {    //메인 페이지용
         return PostDTO.builder()
                 .postId(post.getPostId())
-                .imageUrl(post.getUser().getImageUrl())
+                .imageType(post.getUser().getImageType())
                 .nickname(post.getUser().getNickname())
                 .title(post.getTitle())
                 .created(post.getCreated())
@@ -82,7 +82,7 @@ public class PostDTO {
     public static PostDTO toDetailDTO(Post post){   //상세 페이지용
         return PostDTO.builder()
                 .postId(post.getPostId())
-                .imageUrl(post.getUser().getImageUrl())
+                .imageType(post.getUser().getImageType())
                 .nickname(post.getUser().getNickname())
                 .title(post.getTitle())
                 .created(post.getCreated())

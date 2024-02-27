@@ -46,13 +46,13 @@ public class LoginController {
 
             Optional<Member> optionalMember = memberRepository.findByEmail(loginRequestDTO.getEmail());
             Long userId = optionalMember.get().getUserId();
-            String imageUrl = optionalMember.get().getImageUrl();
+            int imageType = optionalMember.get().getImageType();
             String nickname = optionalMember.get().getNickname();
 
             log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
             log.info("request email = {}, password = {}", loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
 
-            return new LoginResponseDTO(loginRequestDTO.getEmail(), jwtToken, userId, imageUrl, nickname);
+            return new LoginResponseDTO(loginRequestDTO.getEmail(), jwtToken, userId, imageType, nickname);
 
         } catch (Exception e) {
             return new LoginFailResponse(loginRequestDTO.getEmail(), loginRequestDTO.getPassword(), e.getMessage());

@@ -28,8 +28,8 @@ public class CommentDTO {
     @Schema(description = "User 닉네임", example = "몽글몽글")
     private String nickname;
 
-    @Schema(description = "User 프로필 사진", example = "www.dsa..")
-    private String imageUrl;
+    @Schema(description = "User 프로필 사진", example = "2")
+    private int imageType;
 
     @Schema(description = "댓글 내용", example = "저도 동의합니다.")
     private String content;
@@ -42,7 +42,7 @@ public class CommentDTO {
                 .commentId(comment.getCommentId())
                 .userId(comment.getUser().getUserId())
                 .nickname(comment.getUser().getNickname())
-                .imageUrl(comment.getUser().getImageUrl())
+                .imageType(comment.getUser().getImageType())
                 .content(comment.getContent())
                 .created(comment.getCreated())
                 .build();

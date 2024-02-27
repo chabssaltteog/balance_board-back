@@ -40,20 +40,19 @@ public class MemberController {
             @ApiResponse(responseCode = "400", description = "Fail")
     })
     @PostMapping("/register")
-    public CreateMemberResponse register(@RequestBody @Valid CreateMemberRequestDTO request) {
+    public Object register(@RequestBody @Valid CreateMemberRequestDTO request) {
 
         try {
             CreateMemberResponse savedMemberResponse = registerService.register(request);
             boolean duplicate = false;
             log.info("message = {}", "회원 가입 성공");
-            return new CreateMemberResponse(duplicate, savedMemberResponse.getEmail(), savedMemberResponse.getUserId(),
+            return new CreateMemberResponse(duplicate, savedMemberResponse.getEmail(), savedMemberResponse.getUserId(), savedMemberResponse.getImageType(),
                     savedMemberResponse.getNickname(), savedMemberResponse.getBirthYear(), savedMemberResponse.getGender());
         } catch (IllegalArgumentException e) {
             String message = e.getMessage();
             boolean duplicate = true;
             log.info("message = {}", message);
-            return new CreateMemberResponse(duplicate, request.getEmail(), null, request.getNickname(),
-                    request.getBirthYear(), request.getGender());
+            return new CreateMemberFailResponse(duplicate, request.getEmail(), request.getNickname(), request.getBirthYear(), request.getGender());
         }
 
     }
@@ -154,12 +153,19 @@ public class MemberController {
         @Schema(description = "입력한 email", example = "aaa@gmail.com")
         private String email;
 
+        @Schema(description = "사용자 ID", example = "6")
         private Long userId;
 
+        @Schema(description = "사용자 프로필 사진(1~5)", example = "2")
+        private int imageType;
+
+        @Schema(description = "사용자 닉네임", example = "몽글몽글")
         private String nickname;
 
+        @Schema(description = "사용자 출생년도", example = "1999")
         private String birthYear;
 
+        @Schema(description = "사용자 성별", example = "male")
         private String gender;
 
         static public CreateMemberResponse toDto(Member member) {
@@ -168,14 +174,37 @@ public class MemberController {
                     .email(member.getEmail())
                     .nickname(member.getNickname())
                     .birthYear(member.getBirthYear())
+                    .imageType(member.getImageType())
                     .gender(member.getGender())
                     .build();
         }
     }
 
+
     @Data
     @AllArgsConstructor
-    @Schema(title = "MEM_RES_02 : 중복 여부 응답 DTO")
+    @NoArgsConstructor
+    @Schema(title = "MEM_RES_02 : 회원 가입 실패 응답 DTO")
+    static class CreateMemberFailResponse {
+        @Schema(description = "Email 중복 여부", example = "true")
+        private boolean duplicate;
+
+        @Schema(description = "입력한 email", example = "aaa@gmail.com")
+        private String email;
+
+        @Schema(description = "사용자 닉네임", example = "몽글몽글")
+        private String nickname;
+
+        @Schema(description = "사용자 출생년도", example = "1999")
+        private String birthYear;
+
+        @Schema(description = "사용자 성별", example = "male")
+        private String gender;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @Schema(title = "MEM_RES_03 : 중복 여부 응답 DTO")
     static class ValidateResponse {
 
         @Schema(description = "중복 여부", example = "true")

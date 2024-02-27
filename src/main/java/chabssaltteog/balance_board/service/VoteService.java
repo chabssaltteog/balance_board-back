@@ -1,11 +1,8 @@
 package chabssaltteog.balance_board.service;
 
-import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
-import chabssaltteog.balance_board.dto.CommentDTO;
-import chabssaltteog.balance_board.dto.PostDTO;
 import chabssaltteog.balance_board.dto.VoteRequestDTO;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;

@@ -10,11 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.Optional;
 
 @Service
@@ -82,7 +80,7 @@ public class MemberService {
                 member.getEmail(),
                 newToken,
                 member.getUserId(),
-                member.getImageUrl(),
+                member.getImageType(),
                 member.getNickname()
         );
     }
