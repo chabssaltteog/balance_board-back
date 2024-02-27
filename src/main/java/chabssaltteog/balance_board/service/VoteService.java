@@ -33,13 +33,13 @@ public class VoteService {
     public VoteMember participateVote(VoteRequestDTO voteRequestDTO) {
 
         try {
-            Optional<Vote> vote1 = voteRepository.findById(voteRequestDTO.getVoteId());//투표 찾고
+            Optional<Vote> optionalVote = voteRepository.findById(voteRequestDTO.getVoteId());//투표 찾고
 
-            if (vote1.isEmpty()) {
+            if (optionalVote.isEmpty()) {
                 throw new RuntimeException("Vote not found");
             }
 
-            Vote vote = vote1.get();
+            Vote vote = optionalVote.get();
 
             // 중복 투표 확인
             boolean checkVoted = voteMemberRepository.existsByVoteAndUser_UserId(vote, voteRequestDTO.getUserId());
@@ -49,17 +49,16 @@ public class VoteService {
 
             vote.participate(voteRequestDTO.getUserId(), voteRequestDTO.getSelectedOption());//투표항목 투표수 증가
 
-            //게시글 찾고
+
             Post post = postRepository.findById(voteRequestDTO.getPostId()).orElseThrow(() -> new RuntimeException("Post not found"));
 
-            //게시글 투표 참여자 수 증가
             post.incrementVoteCount();
 
-            //업데이트된 투표정보 저장
             postRepository.save(post);
 
-            //voteMember 레코드값 저장
-            return voteMemberRepository.save(new VoteMember(vote, memberRepository.findByUserId(voteRequestDTO.getUserId()), voteRequestDTO.getSelectedOption()));
+            return voteMemberRepository.save(new VoteMember(vote, memberRepository.findByUserId(voteRequestDTO.getUserId()),
+                    voteRequestDTO.getSelectedOption()));
+
         } catch (Exception e) {
             log.error("Error in participateVote method.", e);
             throw new RuntimeException("Error participating in vote.", e);

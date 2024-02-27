@@ -37,7 +37,7 @@ public class CommentDTO {
     @Schema(description = "댓글 생성 시간", example = "2024-02-26 19:34:28.683605")
     private LocalDateTime created;
 
-    public static CommentDTO toDTO(Comment comment) {
+    public static CommentDTO toDTO(Comment comment) {   // 상세 페이지용 -> 댓글 전부 다 보냄
         return CommentDTO.builder()
                 .commentId(comment.getCommentId())
                 .userId(comment.getUser().getUserId())
@@ -48,7 +48,7 @@ public class CommentDTO {
                 .build();
     }
 
-    public static List<CommentDTO> toDTOList(List<Comment> comments) {
+    public static List<CommentDTO> toDTOList(List<Comment> comments) {  // 메인 페이지용 -> 댓글 2개만 보냄
         return comments.stream()
                 .limit(2) // 최대 2개의 댓글
                 .map(CommentDTO::toDTO)

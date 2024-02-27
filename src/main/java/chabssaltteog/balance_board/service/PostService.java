@@ -9,6 +9,7 @@ import chabssaltteog.balance_board.repository.CommentRepository;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +23,8 @@ public class PostService {
     private final MemberRepository memberRepository;
 
     public List<Post> getAllPosts() {
-        return postRepository.findAll();
+        Sort sort = Sort.by(Sort.Direction.DESC, "created");
+        return postRepository.findAll(sort);
     }
 
     public Post getPostByPostId(Long postId) {
