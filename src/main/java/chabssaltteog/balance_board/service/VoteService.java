@@ -30,7 +30,6 @@ public class VoteService {
 
 
     @Transactional
-//    public VoteResponseDTO participateVote(Long postId, Long userId, String selectedOption) {
     public VoteMember participateVote(VoteRequestDTO voteRequestDTO) {
 
         try {
@@ -53,28 +52,5 @@ public class VoteService {
             log.error("Error in participateVote method.", e);
             throw new RuntimeException("Error participating in vote.", e);
         }
-
-        /*Member user = memberRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        Vote vote = post.getVote();
-        if (vote == null) {
-            throw new RuntimeException("Vote not found for the post");
-        }
-
-        // 투표 항목에 참여
-        vote.participate(userId, selectedOption);
-
-        // 참여한 투표를 저장
-        voteMemberRepository.save(new VoteMember(vote, user, selectedOption));
-
-        post.incrementVoteCount();
-
-        // 참여한 투표 정보를 게시글에 업데이트
-        postRepository.save(post);*/
-
-        /*return posts.subList(fromIndex, toIndex)
-                .stream()
-                .map(PostDTO::toDTO)*/
-
-
     }
 }

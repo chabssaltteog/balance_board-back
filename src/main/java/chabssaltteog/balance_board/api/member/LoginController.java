@@ -49,7 +49,6 @@ public class LoginController {
             String imageUrl = optionalMember.get().getImageUrl();
             String nickname = optionalMember.get().getNickname();
 
-
             log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
             log.info("request email = {}, password = {}", loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
 

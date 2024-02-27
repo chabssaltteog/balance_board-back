@@ -131,7 +131,6 @@ public class MainApiController {
                 .voteId(voteMember.getVote().getVoteId())
                 .userId(voteMember.getUser().getUserId())
                 .selectedOption(voteRequestDTO.getSelectedOption()).build();
-
     }
 
     @Data
