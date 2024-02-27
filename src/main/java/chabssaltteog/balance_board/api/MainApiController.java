@@ -143,15 +143,6 @@ public class MainApiController {
             log.info("==VOTE FAIL==");
             return new VoteFailResponseDTO(voteRequestDTO.getUserId(), voteRequestDTO.getVoteId(), "Vote Fail");
         }
-
-
-        VoteMember voteMember = voteService.participateVote(voteRequestDTO);
-        log.info("user_id={}",voteMember.getUser().getUserId());
-        log.info("vote_id={}",voteMember.getVote().getVoteId());
-        return VoteResponseDTO.builder()
-                .voteId(voteMember.getVote().getVoteId())
-                .userId(voteMember.getUser().getUserId())
-                .selectedOption(voteRequestDTO.getSelectedOption()).build();
     }
 
     @Data
