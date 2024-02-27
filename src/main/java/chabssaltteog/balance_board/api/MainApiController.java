@@ -57,9 +57,13 @@ public class MainApiController {
                     content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
-    public PostDTO getPost(@PathVariable(name ="postId") Long postId) {
+    public PostDTO getPost(@PathVariable(name ="postId") Long postId, @RequestHeader(value = "Authorization", required = false) String token) {
         log.info("POST DETAIL : postId = {}", postId);
-        return mainService.getPostByPostId(postId);
+        if (token == null) {
+            log.info("==NO TOKEN 상세 페이지 조회==");
+            return mainService.getPostByPostId(postId);
+        }
+        return mainService.getPostByPostId(postId, token);
     }
 
     @GetMapping("/{category}") //카테고리 필터링, 20개씩 출력

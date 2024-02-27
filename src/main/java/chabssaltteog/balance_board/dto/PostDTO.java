@@ -1,10 +1,15 @@
 package chabssaltteog.balance_board.dto;
 
+import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data
@@ -12,6 +17,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Builder
 @Schema(title = "POS_RES_00 : 게시글 응답 DTO")
+@Slf4j
 public class PostDTO {
 
     @Schema(description = "게시글 ID", example = "2")
@@ -59,6 +65,9 @@ public class PostDTO {
     @Schema(description = "태그 목록")
     private List<TagDTO> tags;
 
+    @Schema(description = "사용자가 선택한 투표 옵션", example = "살까?")
+    private String selectedOption;
+
     // todo selectedOption 추가!! 로그인 시에는 selectedOption, 비로그인시에는 null
     // todo 상세 페이지 -> 메인 페이지 순서로 개발
     public static PostDTO toDTO(Post post) {    //메인 페이지용
@@ -78,10 +87,45 @@ public class PostDTO {
                 .comments(CommentDTO.toDTOList(post.getComments())) // 댓글 정보 2개만 가져옴
                 .commentCount(post.getCommentCount())
                 .tags(post.getTags().stream().map(TagDTO::toDTO).collect(Collectors.toList()))
+                .selectedOption(null)   //todo selectedOption add
                 .build();
     }
 
-    public static PostDTO toDetailDTO(Post post){   //상세 페이지용
+    public static PostDTO toDetailDTO(Post post, Long userId){   //상세 페이지용 - token이 있을 때
+        PostDTOBuilder builder = PostDTO.builder()
+                .postId(post.getPostId())
+                .imageType(post.getUser().getImageType())
+                .nickname(post.getUser().getNickname())
+                .title(post.getTitle())
+                .created(post.getCreated())
+                .category(post.getCategory().name())
+                .content(post.getContent())
+                .voteCount(post.getVoteCount())
+                .option1(post.getVote().getOption1())
+                .option2(post.getVote().getOption2())
+                .option1Count(post.getVote().getOption1Count())
+                .option2Count(post.getVote().getOption2Count())
+                .comments(post.getComments().stream().map(CommentDTO::toDTO).collect(Collectors.toList())) // 댓글 다 가져옴
+                .commentCount(post.getCommentCount())
+                .tags(post.getTags().stream().map(TagDTO::toDTO).collect(Collectors.toList()))
+                .selectedOption(null);
+
+        // 로그인을 했는지 확인
+        if (userId != null) {
+            Member user = post.getUser();
+            if (user != null) {
+                Optional<VoteMember> voteMember = user.getVoteMembers()
+                        .stream()
+                        .filter(vm -> vm.getVote().getPost().equals(post))
+                        .findFirst();
+                log.info("==로그인 사용자 상세 페이지 조회==");
+                voteMember.ifPresent(vm -> builder.selectedOption(vm.getVotedOption()));    // selectedOption null X
+            }
+        }
+
+        return builder.build();
+    }
+    public static PostDTO toDetailDTO(Post post){   //상세 페이지용 - token 없을 때
         return PostDTO.builder()
                 .postId(post.getPostId())
                 .imageType(post.getUser().getImageType())
@@ -98,7 +142,9 @@ public class PostDTO {
                 .comments(post.getComments().stream().map(CommentDTO::toDTO).collect(Collectors.toList())) // 댓글 다 가져옴
                 .commentCount(post.getCommentCount())
                 .tags(post.getTags().stream().map(TagDTO::toDTO).collect(Collectors.toList()))
+                .selectedOption(null)
                 .build();
+
     }
 }
 

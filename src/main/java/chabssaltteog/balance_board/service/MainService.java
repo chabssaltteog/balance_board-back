@@ -1,17 +1,22 @@
 package chabssaltteog.balance_board.service;
 
+import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.domain.post.Tag;
 import chabssaltteog.balance_board.dto.*;
+import chabssaltteog.balance_board.repository.MemberRepository;
+import chabssaltteog.balance_board.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +25,9 @@ import java.util.List;
 public class MainService {
 
     private final PostService postService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final MemberRepository memberRepository;
+
 
     // 메인 페이지
     public List<PostDTO> getAllPosts(int pageNumber, int pageSize) {
@@ -40,11 +48,31 @@ public class MainService {
                 .toList();
     }
 
-
     // 게시글 상세보기
     public PostDTO getPostByPostId(Long postId) {
+
         Post post = postService.getPostByPostId(postId);
         return PostDTO.toDetailDTO(post);
+    }
+
+    // 게시글 상세보기
+    public PostDTO getPostByPostId(Long postId, String token) {
+
+        Post post = postService.getPostByPostId(postId);
+
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        String email = authentication.getName();
+
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isEmpty()) {
+            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
+        }
+        Long userId = optionalMember.get().getUserId();
+        return PostDTO.toDetailDTO(post, userId);
     }
 
     // 게시글 카테고리 필터링
