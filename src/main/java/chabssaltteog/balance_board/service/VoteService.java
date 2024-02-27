@@ -32,7 +32,6 @@ public class VoteService {
     @Transactional
     public VoteMember participateVote(VoteRequestDTO voteRequestDTO) {
 
-        try {
             Optional<Vote> optionalVote = voteRepository.findById(voteRequestDTO.getVoteId());//투표 찾고
 
             if (optionalVote.isEmpty()) {
@@ -59,9 +58,5 @@ public class VoteService {
             return voteMemberRepository.save(new VoteMember(vote, memberRepository.findByUserId(voteRequestDTO.getUserId()),
                     voteRequestDTO.getSelectedOption()));
 
-        } catch (Exception e) {
-            log.error("Error in participateVote method.", e);
-            throw new RuntimeException("Error participating in vote.", e);
-        }
     }
 }
