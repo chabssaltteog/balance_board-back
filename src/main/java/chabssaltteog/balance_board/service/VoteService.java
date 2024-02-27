@@ -34,7 +34,19 @@ public class VoteService {
 
         try {
             Optional<Vote> vote1 = voteRepository.findById(voteRequestDTO.getVoteId());//투표 찾고
+
+            if (vote1.isEmpty()) {
+                throw new RuntimeException("Vote not found");
+            }
+
             Vote vote = vote1.get();
+
+            // 중복 투표 확인
+            boolean checkVoted = voteMemberRepository.existsByVoteAndUser_UserId(vote, voteRequestDTO.getUserId());
+            if (checkVoted) {
+                throw new RuntimeException("User has already voted for this poll");
+            }
+
             vote.participate(voteRequestDTO.getUserId(), voteRequestDTO.getSelectedOption());//투표항목 투표수 증가
 
             //게시글 찾고
