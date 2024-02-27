@@ -22,7 +22,11 @@ public class VoteResponseDTO {
     @Schema(description = "사용자가 선택한 투표 옵션", example = "살까?")
     private String selectedOption;
 
-    // todo count값을 넘겨줘야하나?
+    @Schema(description = "옵션 1 Count", example = "11")
+    private int option1Count;
+
+    @Schema(description = "옵션 2 Count", example = "15")
+    private int option2Count;
 
 }
 
