@@ -31,20 +31,37 @@ public class VoteService {
 
     @Transactional
     public VoteMember participateVote(VoteRequestDTO voteRequestDTO) {
-        Optional<Vote> optionalVote = voteRepository.findById(voteRequestDTO.getVoteId());
-        if (!optionalVote.isPresent()) {
-            throw new RuntimeException("투표 정보가 없습니다.");
+
+        try {
+            Optional<Vote> optionalVote = voteRepository.findById(voteRequestDTO.getVoteId());//투표 찾고
+
+            if (optionalVote.isEmpty()) {
+                throw new RuntimeException("Vote not found");
+            }
+
+            Vote vote = optionalVote.get();
+
+            // 중복 투표 확인
+            boolean checkVoted = voteMemberRepository.existsByVoteAndUser_UserId(vote, voteRequestDTO.getUserId());
+            if (checkVoted) {
+                throw new RuntimeException("User has already voted for this poll");
+            }
+
+            vote.participate(voteRequestDTO.getUserId(), voteRequestDTO.getSelectedOption());//투표항목 투표수 증가
+
+
+            Post post = postRepository.findById(voteRequestDTO.getPostId()).orElseThrow(() -> new RuntimeException("Post not found"));
+
+            post.incrementVoteCount();
+
+            postRepository.save(post);
+
+            return voteMemberRepository.save(new VoteMember(vote, memberRepository.findByUserId(voteRequestDTO.getUserId()),
+                    voteRequestDTO.getSelectedOption()));
+
+        } catch (Exception e) {
+            log.error("Error in participateVote method.", e);
+            throw new RuntimeException("Error participating in vote.", e);
         }
-        Vote vote = optionalVote.get();
-        vote.participate(voteRequestDTO.getUserId(), voteRequestDTO.getSelectedOption());
-
-        Post post = postRepository.findById(voteRequestDTO.getPostId()).orElseThrow(() -> new RuntimeException("Post not found"));
-
-        post.incrementVoteCount();
-
-        postRepository.save(post);
-
-        return voteMemberRepository.save(new VoteMember(vote, memberRepository.findByUserId(voteRequestDTO.getUserId()),
-                voteRequestDTO.getSelectedOption()));
     }
 }

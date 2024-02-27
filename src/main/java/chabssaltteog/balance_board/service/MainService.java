@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,12 @@ public class MainService {
     // 메인 페이지
     public List<PostDTO> getAllPosts(int pageNumber, int pageSize) {
         List<Post> posts = postService.getAllPosts();
+
+        int totalPages = (int) Math.ceil((double) posts.size() / pageSize); //총 페이지 개수 계산
+
+        if (pageNumber < 1 || pageNumber > totalPages) { // 페이지 번호가 유효하지 않은 경우 빈 배열 반환
+            return Collections.emptyList();
+        }
 
         int fromIndex = (pageNumber - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, posts.size());
@@ -99,11 +106,5 @@ public class MainService {
 
         return CommentDTO.toDTO(addedComment);
     }
-
-    // 게시글에 투표 참여
-    public void participateVote(VoteRequestDTO voteRequestDTO) {
-        voteService.participateVote(voteRequestDTO);
-    }
-
 
 }

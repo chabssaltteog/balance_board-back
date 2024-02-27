@@ -12,4 +12,5 @@ import java.util.List;
 @Repository
 public interface VoteMemberRepository extends JpaRepository<VoteMember, Long> {
 
+    boolean existsByVoteAndUser_UserId(Vote vote, Long userId);
 }

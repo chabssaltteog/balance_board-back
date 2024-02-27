@@ -143,7 +143,6 @@ public class MainApiController {
             log.info("==VOTE FAIL==");
             return new VoteFailResponseDTO(voteRequestDTO.getUserId(), voteRequestDTO.getVoteId(), "Vote Fail");
         }
-
     }
 
     @Data
