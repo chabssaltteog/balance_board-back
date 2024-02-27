@@ -1,8 +1,10 @@
 package chabssaltteog.balance_board.api;
 
+import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.dto.*;
+import chabssaltteog.balance_board.repository.VoteRepository;
 import chabssaltteog.balance_board.service.MainService;
 import chabssaltteog.balance_board.service.VoteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/main")
@@ -29,6 +32,7 @@ public class MainApiController {
 
     private final MainService mainService;
     private final VoteService voteService;
+    private final VoteRepository voteRepository;
 
     @GetMapping("/posts") //게시글 20개씩 출력
     @Operation(summary = "All Posts", description = "모든 게시글 조회")
@@ -132,12 +136,20 @@ public class MainApiController {
 
         try {
             VoteMember voteMember = voteService.participateVote(voteRequestDTO);
+
+            Optional<Vote> optionalVote = voteRepository.findById(voteRequestDTO.getVoteId());
+            int option1Count = optionalVote.get().getOption1Count();
+            int option2Count = optionalVote.get().getOption2Count();
+
             log.info("user_id={}", voteMember.getUser().getUserId());
             log.info("vote_id={}", voteMember.getVote().getVoteId());
             return VoteResponseDTO.builder()
                     .voteId(voteMember.getVote().getVoteId())
                     .userId(voteMember.getUser().getUserId())
-                    .selectedOption(voteRequestDTO.getSelectedOption()).build();
+                    .selectedOption(voteRequestDTO.getSelectedOption())
+                    .option1Count(option1Count)
+                    .option2Count(option2Count)
+                    .build();
         } catch (Exception e) {
             log.info(e.getMessage());
             log.info("==VOTE FAIL==");

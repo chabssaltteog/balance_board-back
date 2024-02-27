@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Slf4j
 public class MainService {
 
@@ -68,6 +69,7 @@ public class MainService {
 
 
     // 게시글 작성
+    @Transactional
     public CreatePostResponseDTO createPost(CreatePostRequestDTO requestDTO) {
 
         Category category = Category.valueOf(requestDTO.getCategory());
@@ -100,6 +102,7 @@ public class MainService {
     }
 
     // 게시글에 댓글 달기
+    @Transactional
     public CommentDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
 
         Comment addedComment = postService.addCommentToPost(requestDTO);

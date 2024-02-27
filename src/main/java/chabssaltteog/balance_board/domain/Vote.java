@@ -17,8 +17,6 @@ public class Vote {
 
     @OneToOne(mappedBy = "vote", fetch = FetchType.LAZY)    //읽기 전용
     private Post post;
-    /*@OneToOne(fetch = FetchType.LAZY)    //읽기 전용
-    private Post post;*/
 
     @Column(nullable = false)
     private String option1;
@@ -32,7 +30,7 @@ public class Vote {
     @Column(name = "option2_count")
     private int option2Count;
 
-    public void participate(Long userId, String votedOption) {
+    public void participate(String votedOption) {
         if (option1.equals(votedOption)) {
             option1Count++;
         } else if (option2.equals(votedOption)) {

@@ -46,7 +46,7 @@ public class VoteService {
                 throw new RuntimeException("User has already voted for this poll");
             }
 
-            vote.participate(voteRequestDTO.getUserId(), voteRequestDTO.getSelectedOption());//투표항목 투표수 증가
+            vote.participate(voteRequestDTO.getSelectedOption());//투표항목 투표수 증가
 
 
             Post post = postRepository.findById(voteRequestDTO.getPostId()).orElseThrow(() -> new RuntimeException("Post not found"));
