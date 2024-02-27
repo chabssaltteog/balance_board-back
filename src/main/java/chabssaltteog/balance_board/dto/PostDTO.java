@@ -59,6 +59,8 @@ public class PostDTO {
     @Schema(description = "태그 목록")
     private List<TagDTO> tags;
 
+    // todo selectedOption 추가!! 로그인 시에는 selectedOption, 비로그인시에는 null
+    // todo 상세 페이지 -> 메인 페이지 순서로 개발
     public static PostDTO toDTO(Post post) {    //메인 페이지용
         return PostDTO.builder()
                 .postId(post.getPostId())
