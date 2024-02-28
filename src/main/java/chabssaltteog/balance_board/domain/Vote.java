@@ -4,6 +4,9 @@ import chabssaltteog.balance_board.domain.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter @Setter
 @AllArgsConstructor
@@ -15,7 +18,7 @@ public class Vote {
     @Column(name = "vote_id")
     private Long voteId;
 
-    @OneToOne(mappedBy = "vote", fetch = FetchType.LAZY)    //읽기 전용
+    @OneToOne(mappedBy = "vote", fetch = FetchType.LAZY, cascade = CascadeType.ALL)    //읽기 전용
     private Post post;
 
     @Column(nullable = false)
@@ -29,6 +32,9 @@ public class Vote {
 
     @Column(name = "option2_count")
     private int option2Count;
+
+    @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VoteMember> voteMembers = new ArrayList<>();
 
     public void participate(String votedOption) {
         if (option1.equals(votedOption)) {
