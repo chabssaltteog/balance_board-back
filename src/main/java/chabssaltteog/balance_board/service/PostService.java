@@ -80,26 +80,8 @@ public class PostService {
     @Transactional
     public void deletePost(Long postId) {
 
-        /*// 현재 사용자 정보 가져오기
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-
-        Optional<Member> optionalMember = memberRepository.findByEmail(email);
-
-        if (optionalMember.isEmpty()) {
-            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
-        }
-        Member member = optionalMember.get();
-
-        Long currentUserId = member.getUserId();*/
-
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
-
-        /*// 현재 사용자와 게시글 작성자 비교
-        if (!post.getUser().getUserId().equals(currentUserId)) {
-            throw new RuntimeException("해당 게시글의 작성자만이 삭제 할 수 있습니다.");
-        }*/
 
         Vote vote = voteRepository.findByPostPostId(postId)
                 .orElseThrow(() -> new RuntimeException("해당 postId에 대한 투표가 존재하지 않습니다."));
