@@ -48,14 +48,14 @@ public class MainService {
                 .toList();
     }
 
-    // 게시글 상세보기
+    // 게시글 상세보기 -> 비로그인 상태
     public PostDTO getPostByPostId(Long postId) {
 
         Post post = postService.getPostByPostId(postId);
         return PostDTO.toDetailDTO(post);
     }
 
-    // 게시글 상세보기
+    // 게시글 상세보기 -> 로그인 상태
     public PostDTO getPostByPostId(Long postId, String token) {
 
         Post post = postService.getPostByPostId(postId);
