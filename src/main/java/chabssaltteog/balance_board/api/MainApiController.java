@@ -6,6 +6,7 @@ import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.dto.*;
 import chabssaltteog.balance_board.repository.VoteRepository;
 import chabssaltteog.balance_board.service.MainService;
+import chabssaltteog.balance_board.service.PostService;
 import chabssaltteog.balance_board.service.VoteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +19,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +36,7 @@ public class MainApiController {
     private final MainService mainService;
     private final VoteService voteService;
     private final VoteRepository voteRepository;
+    private final PostService postService;
 
     @GetMapping("/posts") //게시글 20개씩 출력
     @Operation(summary = "All Posts", description = "모든 게시글 조회")
@@ -158,6 +162,27 @@ public class MainApiController {
             log.info(e.getMessage());
             log.info("==VOTE FAIL==");
             return new VoteFailResponseDTO(voteRequestDTO.getUserId(), voteRequestDTO.getVoteId(), "Vote Fail");
+        }
+    }
+
+    @DeleteMapping("/{postId}")
+    @Operation(summary = "Delete Post", description = "게시글 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = {@Content(schema = @Schema(implementation = String.class))})
+    })
+    public ResponseEntity<String> deletePost(@PathVariable(name = "postId") Long postId) {
+        try {
+            postService.deletePost(postId);
+            return ResponseEntity.ok("게시글이 성공적으로 삭제되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("게시글 삭제 중 오류가 발생했습니다.");
         }
     }
 

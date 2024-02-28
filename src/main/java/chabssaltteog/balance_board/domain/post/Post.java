@@ -4,6 +4,8 @@ import chabssaltteog.balance_board.domain.BaseTimeEntity;
 import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.dto.PostDTO;
+import chabssaltteog.balance_board.repository.PostRepository;
+import chabssaltteog.balance_board.repository.VoteRepository;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -19,6 +21,9 @@ import java.util.List;
 @Builder
 public class Post extends BaseTimeEntity {
 
+    private transient VoteRepository voteRepository;
+    private transient PostRepository postRepository;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id", updatable = false, nullable = false)
@@ -28,14 +33,14 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private Member user;    //글 작성 회원
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "vote_id")   //관계 주인
     private Vote vote;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tag> tags = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("created DESC")
     private List<Comment> comments = new ArrayList<>();
 
@@ -54,6 +59,17 @@ public class Post extends BaseTimeEntity {
 
     @Column(name = "vote_count")
     private int voteCount;
+
+    @Builder
+    public Post(
+            // ... (기존 필드 생략)
+            VoteRepository voteRepository,
+            PostRepository postRepository
+    ) {
+        // ... (기존 생성자 내용 생략)
+        this.voteRepository = voteRepository;
+        this.postRepository = postRepository;
+    }
 
     // 투표 관련 메서드
     public void setVoteOptions(String option1, String option2) {
@@ -74,6 +90,29 @@ public class Post extends BaseTimeEntity {
         }
         comments.add(comment);
         comment.setPost(this);
+    }
+
+    public void deletePost() {
+        if (this.comments != null) {
+            for (Comment comment : this.comments) {
+                comment.setPost(null);
+            }
+            this.comments.clear();
+        }
+
+        if (this.tags != null) {
+            for (Tag tag : this.tags) {
+                tag.setPost(null);
+            }
+            this.tags.clear();
+        }
+
+        if (this.vote != null) {
+            this.vote.setPost(null);
+        }
+
+        this.user = null;
+
     }
 
     public void incrementVoteCount() {
