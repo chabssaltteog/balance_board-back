@@ -4,6 +4,7 @@ import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.dto.VoteRequestDTO;
+import chabssaltteog.balance_board.exception.DuplicateVoteException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteMemberRepository;
@@ -40,7 +41,7 @@ public class VoteService {
             // 중복 투표 확인
             boolean checkVoted = voteMemberRepository.existsByVoteAndUser_UserId(vote, voteRequestDTO.getUserId());
             if (checkVoted) {
-                throw new RuntimeException("User has already voted for this poll");
+                throw new DuplicateVoteException("User has already voted for this poll");
             }
 
             vote.participate(voteRequestDTO.getSelectedOption());//투표항목 투표수 증가
