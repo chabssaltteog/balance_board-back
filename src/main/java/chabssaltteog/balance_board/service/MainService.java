@@ -1,6 +1,7 @@
 package chabssaltteog.balance_board.service;
 
 import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
@@ -71,8 +72,25 @@ public class MainService {
         if (optionalMember.isEmpty()) {
             throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
         }
-        Long userId = optionalMember.get().getUserId();
-        return PostDTO.toDetailDTO(post, userId);
+        Member member = optionalMember.get();
+
+        Long userId = member.getUserId();
+        log.info("게시글 상세 조회 userId = {}", userId);
+
+        String selectedOption = getSelectedOption(post, member);
+
+        return PostDTO.toDetailDTO(post, selectedOption);
+    }
+
+    // 해당 사용자의 ID를 사용하여 투표한 결과 가져오기
+    private String getSelectedOption(Post post, Member member) {
+        Optional<VoteMember> voteMember = member.getVoteMembers()
+                .stream()
+                .filter(vm -> vm.getVote().getPost().equals(post))
+                .findFirst();
+        log.info("===voteMember=== {}", voteMember);
+
+        return voteMember.map(VoteMember::getVotedOption).orElse(null);
     }
 
     // 게시글 카테고리 필터링

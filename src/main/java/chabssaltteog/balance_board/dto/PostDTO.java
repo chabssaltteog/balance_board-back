@@ -91,7 +91,7 @@ public class PostDTO {
                 .build();
     }
 
-    public static PostDTO toDetailDTO(Post post, Long userId){   //상세 페이지용 - token이 있을 때
+    public static PostDTO toDetailDTO(Post post, String selectedOption){   //상세 페이지용 - token이 있을 때
         PostDTOBuilder builder = PostDTO.builder()
                 .postId(post.getPostId())
                 .imageType(post.getUser().getImageType())
@@ -108,23 +108,11 @@ public class PostDTO {
                 .comments(post.getComments().stream().map(CommentDTO::toDTO).collect(Collectors.toList())) // 댓글 다 가져옴
                 .commentCount(post.getCommentCount())
                 .tags(post.getTags().stream().map(TagDTO::toDTO).collect(Collectors.toList()))
-                .selectedOption(null);
-
-        // 로그인을 했는지 확인
-        if (userId != null) {
-            Member user = post.getUser();
-            if (user != null) {
-                Optional<VoteMember> voteMember = user.getVoteMembers()
-                        .stream()
-                        .filter(vm -> vm.getVote().getPost().equals(post))
-                        .findFirst();
-                log.info("==로그인 사용자 상세 페이지 조회==");
-                voteMember.ifPresent(vm -> builder.selectedOption(vm.getVotedOption()));    // selectedOption null X
-            }
-        }
+                .selectedOption(selectedOption);
 
         return builder.build();
     }
+
     public static PostDTO toDetailDTO(Post post){   //상세 페이지용 - token 없을 때
         return PostDTO.builder()
                 .postId(post.getPostId())
