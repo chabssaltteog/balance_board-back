@@ -146,9 +146,9 @@ public class MainApiController {
         try {
             VoteMember voteMember = voteService.participateVote(voteRequestDTO);
 
-            Optional<Vote> optionalVote = voteRepository.findById(voteRequestDTO.getVoteId());
-            int option1Count = optionalVote.get().getOption1Count();
-            int option2Count = optionalVote.get().getOption2Count();
+            Vote vote = voteRepository.findById(voteRequestDTO.getVoteId()).get();
+            int option1Count = vote.getOption1Count();
+            int option2Count = vote.getOption2Count();
 
             log.info("user_id={}", voteMember.getUser().getUserId());
             log.info("vote_id={}", voteMember.getVote().getVoteId());
