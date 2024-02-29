@@ -1,7 +1,5 @@
 package chabssaltteog.balance_board.dto;
 
-import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -9,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data
@@ -68,9 +65,8 @@ public class PostDTO {
     @Schema(description = "사용자가 선택한 투표 옵션", example = "살까?")
     private String selectedOption;
 
-    // todo selectedOption 추가!! 로그인 시에는 selectedOption, 비로그인시에는 null
-    // todo 상세 페이지 -> 메인 페이지 순서로 개발
-    public static PostDTO toDTO(Post post) {    //메인 페이지용
+
+    public static PostDTO toDTO(Post post) {    //메인 페이지용 - token 없을 때
         return PostDTO.builder()
                 .postId(post.getPostId())
                 .imageType(post.getUser().getImageType())
@@ -87,7 +83,28 @@ public class PostDTO {
                 .comments(CommentDTO.toDTOList(post.getComments())) // 댓글 정보 2개만 가져옴
                 .commentCount(post.getCommentCount())
                 .tags(post.getTags().stream().map(TagDTO::toDTO).collect(Collectors.toList()))
-                .selectedOption(null)   //todo selectedOption add
+                .selectedOption(null)
+                .build();
+    }
+
+    public static PostDTO toDTO(Post post, String selectedOption) {    //메인 페이지용 - token이 있을 때
+        return PostDTO.builder()
+                .postId(post.getPostId())
+                .imageType(post.getUser().getImageType())
+                .nickname(post.getUser().getNickname())
+                .title(post.getTitle())
+                .created(post.getCreated())
+                .category(post.getCategory().name())
+                .content(post.getContent())
+                .voteCount(post.getVoteCount())
+                .option1(post.getVote().getOption1())
+                .option2(post.getVote().getOption2())
+                .option1Count(post.getVote().getOption1Count())
+                .option2Count(post.getVote().getOption2Count())
+                .comments(CommentDTO.toDTOList(post.getComments())) // 댓글 정보 2개만 가져옴
+                .commentCount(post.getCommentCount())
+                .tags(post.getTags().stream().map(TagDTO::toDTO).collect(Collectors.toList()))
+                .selectedOption(selectedOption)
                 .build();
     }
 

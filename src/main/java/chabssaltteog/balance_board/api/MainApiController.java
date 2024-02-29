@@ -39,7 +39,7 @@ public class MainApiController {
     private final VoteRepository voteRepository;
     private final PostService postService;
 
-    @GetMapping("/posts") //게시글 20개씩 출력
+    @GetMapping("/posts")
     @Operation(summary = "All Posts", description = "모든 게시글 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
@@ -48,11 +48,15 @@ public class MainApiController {
     })
     public List<PostDTO> getAllPosts(
             @RequestParam(defaultValue = "0", value="page")  int page,
-            @RequestParam(defaultValue = "20", value="size")  int size
+            @RequestParam(defaultValue = "20", value="size")  int size,
+            @RequestHeader(value = "Authorization", required = false) String token
     ) {
         log.info("== GET ALL POSTS ==");
-        return mainService.getAllPosts(page, size);
-
+        if (token == null) {
+            log.info("==NO TOKEN 메인 페이지 조회==");
+            return mainService.getAllPosts(page, size);
+        }
+        return mainService.getAllPosts(page, size, token);
     }
 
     @GetMapping("/posts/{postId}")

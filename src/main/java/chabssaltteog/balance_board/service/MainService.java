@@ -30,7 +30,7 @@ public class MainService {
     private final MemberRepository memberRepository;
 
 
-    // 메인 페이지
+    // 메인 페이지 -> 비로그인
     public List<PostDTO> getAllPosts(int pageNumber, int pageSize) {
         List<Post> posts = postService.getAllPosts();
 
@@ -49,18 +49,64 @@ public class MainService {
                 .toList();
     }
 
-    // 게시글 상세보기 -> 비로그인 상태
+    // 메인 페이지 -> 로그인
+    public List<PostDTO> getAllPosts(int pageNumber, int pageSize, String token) {
+
+        Member member = getMember(token);
+        Long userId = member.getUserId();
+        log.info("모든 게시글 조회 userId = {}", userId);
+
+        List<Post> posts = postService.getAllPosts();
+
+        int totalPages = (int) Math.ceil((double) posts.size() / pageSize); //총 페이지 개수 계산
+
+        if (pageNumber < 1 || pageNumber > totalPages) { // 페이지 번호가 유효하지 않은 경우 빈 배열 반환
+            return Collections.emptyList();
+        }
+
+        int fromIndex = (pageNumber - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, posts.size());
+
+        return posts.subList(fromIndex, toIndex)
+                .stream()
+                .map(post -> {
+                    String selectedOption = getSelectedOption(post, member);
+                    return PostDTO.toDTO(post, selectedOption);
+                })
+                .toList();
+    }
+
+    // 상세 게시글 -> 비로그인
+
     public PostDTO getPostByPostId(Long postId) {
 
         Post post = postService.getPostByPostId(postId);
         return PostDTO.toDetailDTO(post);
     }
+    // 상세 게시글 -> 로그인
 
-    // 게시글 상세보기 -> 로그인 상태
     public PostDTO getPostByPostId(Long postId, String token) {
+
+        Member member = getMember(token);
+        Long userId = member.getUserId();
+        log.info("상세 게시글 조회 userId = {}", userId);
 
         Post post = postService.getPostByPostId(postId);
 
+        String selectedOption = getSelectedOption(post, member);
+        return PostDTO.toDetailDTO(post, selectedOption);
+    }
+    private String getSelectedOption(Post post, Member member) {
+        Optional<VoteMember> voteMember = member.getVoteMembers()
+                .stream()
+                .filter(vm -> vm.getVote().getPost().equals(post))
+                .findFirst();
+        log.info("===voteMember=== {}", voteMember);
+
+        return voteMember.map(VoteMember::getVotedOption).orElse(null);
+    }
+
+    private Member getMember(String token) {
         if (!jwtTokenProvider.validateToken(token)) {
             throw new RuntimeException("Invalid token");
         }
@@ -74,27 +120,15 @@ public class MainService {
         }
         Member member = optionalMember.get();
 
-        Long userId = member.getUserId();
-        log.info("게시글 상세 조회 userId = {}", userId);
 
-        String selectedOption = getSelectedOption(post, member);
-
-        return PostDTO.toDetailDTO(post, selectedOption);
+        return member;
     }
 
-    // 해당 사용자의 ID를 사용하여 투표한 결과 가져오기
-    private String getSelectedOption(Post post, Member member) {
-        Optional<VoteMember> voteMember = member.getVoteMembers()
-                .stream()
-                .filter(vm -> vm.getVote().getPost().equals(post))
-                .findFirst();
-        log.info("===voteMember=== {}", voteMember);
-
-        return voteMember.map(VoteMember::getVotedOption).orElse(null);
-    }
 
     // 게시글 카테고리 필터링
+
     public List<PostDTO> getPostsByCategory(Category category, int pageNumber, int pageSize) {
+        log.info("카테고리 필터링 조회 category = {}", category);
         List<Post> posts = postService.getPostsByCategory(category);
         int fromIndex = (pageNumber - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, posts.size());
@@ -104,7 +138,6 @@ public class MainService {
                 .map(PostDTO::toDTO)
                 .toList();
     }
-
 
     // 게시글 작성
     @Transactional
