@@ -4,6 +4,7 @@ import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.dto.*;
+import chabssaltteog.balance_board.exception.DuplicateVoteException;
 import chabssaltteog.balance_board.repository.VoteRepository;
 import chabssaltteog.balance_board.service.MainService;
 import chabssaltteog.balance_board.service.PostService;
@@ -158,10 +159,14 @@ public class MainApiController {
                     .option1Count(option1Count)
                     .option2Count(option2Count)
                     .build();
+        } catch (DuplicateVoteException e) {
+            log.info(e.getMessage());
+            log.info("==DUPLICATE VOTE==");
+            return new VoteFailResponseDTO(voteRequestDTO.getUserId(), voteRequestDTO.getVoteId(), "이미 참여한 투표입니다.");
         } catch (Exception e) {
             log.info(e.getMessage());
             log.info("==VOTE FAIL==");
-            return new VoteFailResponseDTO(voteRequestDTO.getUserId(), voteRequestDTO.getVoteId(), "Vote Fail");
+            return new VoteFailResponseDTO(voteRequestDTO.getUserId(), voteRequestDTO.getVoteId(), "잘못된 요청입니다.");
         }
     }
 
