@@ -77,14 +77,13 @@ public class MainService {
     }
 
     // 상세 게시글 -> 비로그인
-
     public PostDTO getPostByPostId(Long postId) {
 
         Post post = postService.getPostByPostId(postId);
         return PostDTO.toDetailDTO(post);
     }
-    // 상세 게시글 -> 로그인
 
+    // 상세 게시글 -> 로그인
     public PostDTO getPostByPostId(Long postId, String token) {
 
         Member member = getMember(token);
@@ -96,38 +95,29 @@ public class MainService {
         String selectedOption = getSelectedOption(post, member);
         return PostDTO.toDetailDTO(post, selectedOption);
     }
-    private String getSelectedOption(Post post, Member member) {
-        Optional<VoteMember> voteMember = member.getVoteMembers()
+
+    // 게시글 카테고리 필터링 -> 로그인
+    public List<PostDTO> getPostsByCategory(Category category, int pageNumber, int pageSize, String token) {
+        log.info("카테고리 필터링 조회 category = {}", category);
+
+        Member member = getMember(token);
+
+        List<Post> posts = postService.getPostsByCategory(category);
+        int fromIndex = (pageNumber - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, posts.size());
+
+        return posts.subList(fromIndex, toIndex)
                 .stream()
-                .filter(vm -> vm.getVote().getPost().equals(post))
-                .findFirst();
-        log.info("===voteMember=== {}", voteMember);
-
-        return voteMember.map(VoteMember::getVotedOption).orElse(null);
+                .map(post -> {
+                    String selectedOption = getSelectedOption(post, member);
+                    return PostDTO.toDTO(post, selectedOption);
+                })
+                .toList();
     }
 
-    private Member getMember(String token) {
-        if (!jwtTokenProvider.validateToken(token)) {
-            throw new RuntimeException("Invalid token");
-        }
-
-        Authentication authentication = jwtTokenProvider.getAuthentication(token);
-        String email = authentication.getName();
-
-        Optional<Member> optionalMember = memberRepository.findByEmail(email);
-        if (optionalMember.isEmpty()) {
-            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
-        }
-        Member member = optionalMember.get();
-
-
-        return member;
-    }
-
-
-    // 게시글 카테고리 필터링
-
+    // 게시글 카테고리 필터링 -> 비로그인
     public List<PostDTO> getPostsByCategory(Category category, int pageNumber, int pageSize) {
+
         log.info("카테고리 필터링 조회 category = {}", category);
         List<Post> posts = postService.getPostsByCategory(category);
         int fromIndex = (pageNumber - 1) * pageSize;
@@ -180,5 +170,34 @@ public class MainService {
 
         return CommentDTO.toDTO(addedComment);
     }
+
+
+    private Member getMember(String token) {
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        String email = authentication.getName();
+
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isEmpty()) {
+            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
+        }
+        Member member = optionalMember.get();
+
+        return member;
+    }
+
+    private String getSelectedOption(Post post, Member member) {
+        Optional<VoteMember> voteMember = member.getVoteMembers()
+                .stream()
+                .filter(vm -> vm.getVote().getPost().equals(post))
+                .findFirst();
+        log.info("===voteMember=== {}", voteMember);
+
+        return voteMember.map(VoteMember::getVotedOption).orElse(null);
+    }
+
 
 }

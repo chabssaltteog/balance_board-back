@@ -39,9 +39,9 @@ public class PostService {
         return postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
-    public List<Post> getPostsByCategory(Category category)
-    {
-        return postRepository.findByCategory(category);
+    public List<Post> getPostsByCategory(Category category) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "created");
+        return postRepository.findByCategory(category, sort);
 
     }
 

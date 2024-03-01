@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    public List<Post> findByCategory(Category category);
+    public List<Post> findByCategory(Category category, Sort sort);
 
     public List<Post> findAll(Sort sort);
 }

@@ -85,10 +85,16 @@ public class MainApiController {
     public List<PostDTO> getPostByCategory(
             @PathVariable(name = "category") Category category,
             @RequestParam(defaultValue = "0", value="page")  int page,
-            @RequestParam(defaultValue = "20", value="size")  int size
+            @RequestParam(defaultValue = "20", value="size")  int size,
+            @RequestHeader(value = "Authorization", required = false) String token
     ) {
+        if (token == null) {
+            log.info("==NO TOKEN 카테고리 필터링 조회==");
+            return mainService.getPostsByCategory(category, page, size);
+        }
         log.info("CATEGORY SEARCH : category = {}", category);
-        return mainService.getPostsByCategory(category, page, size);
+        log.info("==카테고리 필터링 조회==");
+        return mainService.getPostsByCategory(category, page, size, token);
     }
 
     @PostMapping("/new/post")
