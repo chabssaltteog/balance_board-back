@@ -1,4 +1,4 @@
-package chabssaltteog.balance_board.dto;
+package chabssaltteog.balance_board.dto.member;
 
 import chabssaltteog.balance_board.domain.post.Post;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -35,7 +34,14 @@ public class ProfilePostDTO {
     @Schema(description = "총 투표 수", example = "46")
     private Integer voteCount;
 
-    public static ProfilePostDTO toDTO(Post post) {    //메인 페이지용
+    @Schema(description = "투표 게시글 확인", example = "false")
+    private boolean isVoted;
+
+    @Schema(description = "작성 게시글 확인", example = "true")
+    private boolean isWrited;
+
+
+    public static ProfilePostDTO toDTO(Post post, boolean isWrited, boolean isVoted) {
         return ProfilePostDTO.builder()
                 .postId(post.getPostId())
                 .title(post.getTitle())
@@ -43,6 +49,8 @@ public class ProfilePostDTO {
                 .category(post.getCategory().name())
                 .content(post.getContent())
                 .voteCount(post.getVoteCount())
+                .isWrited(isWrited)
+                .isVoted(isVoted)
                 .build();
     }
 }

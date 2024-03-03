@@ -1,4 +1,4 @@
-package chabssaltteog.balance_board.dto;
+package chabssaltteog.balance_board.dto.member;
 
 import chabssaltteog.balance_board.util.JwtToken;
 import io.swagger.v3.oas.annotations.media.Schema;

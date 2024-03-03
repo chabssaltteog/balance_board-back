@@ -1,4 +1,4 @@
-package chabssaltteog.balance_board.dto;
+package chabssaltteog.balance_board.dto.member;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -6,15 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Schema(title = "PRO_RES_01 : 프로필 응답 DTO")
-public class ProfileResponseDTO {
+public class ProfileInfoResponseDTO {
 
     @Schema(description = "사용자 ID", example = "2")
     private Long userId;
@@ -28,10 +25,10 @@ public class ProfileResponseDTO {
     @Schema(description = "프로필 사진", example = "4")
     private int imageType;
 
-    @Schema(description = "사용자가 작성한 글 리스트")
-    private List<ProfilePostDTO> userPosts;
-
-    @Schema(description = "사용자가 투표한 글 리스트")
-    private List<ProfilePostDTO> votedPosts;
+//    @Schema(description = "사용자가 작성한 글 리스트")
+//    private List<ProfilePostDTO> userPosts;
+//
+//    @Schema(description = "사용자가 투표한 글 리스트")
+//    private List<ProfilePostDTO> votedPosts;
 
 }

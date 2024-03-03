@@ -6,7 +6,7 @@ import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.domain.post.Tag;
-import chabssaltteog.balance_board.dto.*;
+import chabssaltteog.balance_board.dto.post.*;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;

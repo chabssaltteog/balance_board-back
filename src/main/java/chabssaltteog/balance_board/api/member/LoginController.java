@@ -1,8 +1,8 @@
 package chabssaltteog.balance_board.api.member;
 
 import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.dto.LoginRequestDTO;
-import chabssaltteog.balance_board.dto.LoginResponseDTO;
+import chabssaltteog.balance_board.dto.member.LoginRequestDTO;
+import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.service.member.MemberService;
 import chabssaltteog.balance_board.util.JwtToken;

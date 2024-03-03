@@ -3,7 +3,9 @@ package chabssaltteog.balance_board.api;
 import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Category;
-import chabssaltteog.balance_board.dto.*;
+import chabssaltteog.balance_board.dto.post.*;
+import chabssaltteog.balance_board.dto.vote.VoteRequestDTO;
+import chabssaltteog.balance_board.dto.vote.VoteResponseDTO;
 import chabssaltteog.balance_board.exception.DuplicateVoteException;
 import chabssaltteog.balance_board.repository.VoteRepository;
 import chabssaltteog.balance_board.service.MainService;
@@ -25,7 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/main")

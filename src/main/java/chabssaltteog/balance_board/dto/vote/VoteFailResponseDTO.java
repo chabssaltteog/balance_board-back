@@ -1,4 +1,4 @@
-package chabssaltteog.balance_board.dto;
+package chabssaltteog.balance_board.dto.vote;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

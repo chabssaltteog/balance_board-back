@@ -1,4 +1,4 @@
-package chabssaltteog.balance_board.dto;
+package chabssaltteog.balance_board.dto.vote;
 
 import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.Vote;

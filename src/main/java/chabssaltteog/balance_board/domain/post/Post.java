@@ -3,7 +3,6 @@ package chabssaltteog.balance_board.domain.post;
 import chabssaltteog.balance_board.domain.BaseTimeEntity;
 import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.Vote;
-import chabssaltteog.balance_board.dto.PostDTO;
 import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteRepository;
 import jakarta.persistence.*;
