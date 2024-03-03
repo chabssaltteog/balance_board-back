@@ -151,6 +151,9 @@ public class MainService {
         }
         log.info("CREATE POST Tags = {}", requestDTO.getTags());
 
+        if (requestDTO.getOption1().equals(requestDTO.getOption2())) {
+            throw new RuntimeException("투표의 투표 옵션들이 같습니다.");
+        }
         post.setVoteOptions(requestDTO.getOption1(), requestDTO.getOption2());
 
         Post createdPost = postService.createPost(userId, post);
@@ -172,7 +175,7 @@ public class MainService {
     }
 
 
-    private Member getMember(String token) {
+    public Member getMember(String token) {
         if (!jwtTokenProvider.validateToken(token)) {
             throw new RuntimeException("Invalid token");
         }

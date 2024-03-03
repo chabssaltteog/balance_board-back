@@ -152,24 +152,14 @@ public class MainApiController {
             @ApiResponse(responseCode = "400", description = "Fail",
                     content = {@Content(schema = @Schema(implementation = VoteFailResponseDTO.class))})
     })
-    public Object doVote(@RequestBody VoteRequestDTO voteRequestDTO){
+    public Object doVote(
+            @RequestBody VoteRequestDTO voteRequestDTO,
+            @RequestHeader(value = "Authorization") String token){
 
         try {
-            VoteMember voteMember = voteService.participateVote(voteRequestDTO);
 
-            Vote vote = voteRepository.findById(voteRequestDTO.getVoteId()).get();
-            int option1Count = vote.getOption1Count();
-            int option2Count = vote.getOption2Count();
+            return voteService.participateVote(voteRequestDTO, token);
 
-            log.info("user_id={}", voteMember.getUser().getUserId());
-            log.info("vote_id={}", voteMember.getVote().getVoteId());
-            return VoteResponseDTO.builder()
-                    .voteId(voteMember.getVote().getVoteId())
-                    .userId(voteMember.getUser().getUserId())
-                    .selectedOption(voteRequestDTO.getSelectedOption())
-                    .option1Count(option1Count)
-                    .option2Count(option2Count)
-                    .build();
         } catch (DuplicateVoteException e) {
             log.info(e.getMessage());
             log.info("==DUPLICATE VOTE==");

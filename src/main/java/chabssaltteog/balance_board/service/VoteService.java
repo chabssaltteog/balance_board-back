@@ -1,10 +1,13 @@
 package chabssaltteog.balance_board.service;
 
+import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.dto.vote.VoteRequestDTO;
+import chabssaltteog.balance_board.dto.vote.VoteResponseDTO;
 import chabssaltteog.balance_board.exception.DuplicateVoteException;
+import chabssaltteog.balance_board.exception.ValidUserException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteMemberRepository;
@@ -25,36 +28,51 @@ public class VoteService {
     private final VoteMemberRepository voteMemberRepository;
     private final MemberRepository memberRepository;
     private final VoteRepository voteRepository;
+    private final MainService mainService;
 
 
     @Transactional
-    public VoteMember participateVote(VoteRequestDTO voteRequestDTO) {
+    public VoteResponseDTO participateVote(VoteRequestDTO voteRequestDTO, String token) {
 
-            Optional<Vote> optionalVote = voteRepository.findById(voteRequestDTO.getVoteId());//투표 찾고
+        Member member = mainService.getMember(token);
+        if (member.getUserId() != voteRequestDTO.getUserId()) {
+            throw new ValidUserException("사용자 정보가 맞지 않습니다.");
+        }
 
-            if (optionalVote.isEmpty()) {
-                throw new RuntimeException("Vote not found");
-            }
+        Optional<Vote> optionalVote = voteRepository.findById(voteRequestDTO.getVoteId());
+        if (optionalVote.isEmpty()) {
+            throw new RuntimeException("올바른 투표가 아닙니다.");
+        }
+        Vote vote = optionalVote.get();
 
-            Vote vote = optionalVote.get();
-
-            // 중복 투표 확인
-            boolean checkVoted = voteMemberRepository.existsByVoteAndUser_UserId(vote, voteRequestDTO.getUserId());
-            if (checkVoted) {
-                throw new DuplicateVoteException("User has already voted for this poll");
-            }
-
-            vote.participate(voteRequestDTO.getSelectedOption());//투표항목 투표수 증가
+        int option1Count = vote.getOption1Count();
+        int option2Count = vote.getOption2Count();
 
 
-            Post post = postRepository.findById(voteRequestDTO.getPostId()).orElseThrow(() -> new RuntimeException("Post not found"));
+        // 중복 투표 확인
+        boolean checkVoted = voteMemberRepository.existsByVoteAndUser_UserId(vote, voteRequestDTO.getUserId());
+        if (checkVoted) {
+            throw new DuplicateVoteException("이미 투표하였습니다.");
+        }
 
-            post.incrementVoteCount();
+        vote.participate(voteRequestDTO.getSelectedOption());
 
-            postRepository.save(post);
+        Post post = postRepository.findById(voteRequestDTO.getPostId()).orElseThrow(() -> new RuntimeException("Post not found"));
 
-            return voteMemberRepository.save(new VoteMember(vote, memberRepository.findByUserId(voteRequestDTO.getUserId()),
-                    voteRequestDTO.getSelectedOption()));
+        post.incrementVoteCount();
+
+        postRepository.save(post);
+
+        VoteMember voteMember = voteMemberRepository.save(new VoteMember(vote, memberRepository.findByUserId(voteRequestDTO.getUserId()),
+                voteRequestDTO.getSelectedOption()));
+
+        return VoteResponseDTO.builder()
+                .voteId(voteMember.getVote().getVoteId())
+                .userId(voteMember.getUser().getUserId())
+                .selectedOption(voteRequestDTO.getSelectedOption())
+                .option1Count(option1Count)
+                .option2Count(option2Count)
+                .build();
 
     }
 }
