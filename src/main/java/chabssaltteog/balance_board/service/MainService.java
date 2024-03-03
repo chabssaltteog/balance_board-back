@@ -187,9 +187,7 @@ public class MainService {
         if (optionalMember.isEmpty()) {
             throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
         }
-        Member member = optionalMember.get();
-
-        return member;
+        return optionalMember.get();
     }
 
     private String getSelectedOption(Post post, Member member) {
