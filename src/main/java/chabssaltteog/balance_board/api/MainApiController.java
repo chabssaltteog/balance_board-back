@@ -192,6 +192,27 @@ public class MainApiController {
         }
     }
 
+    @DeleteMapping("/comments/{commentId}")
+    @Operation(summary = "Delete Comment", description = "댓글 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = {@Content(schema = @Schema(implementation = String.class))})
+    })
+    public ResponseEntity<String> deleteComment(@RequestBody CommentDeleteDTO requestDTO){
+        try{
+            postService.deleteComment(requestDTO);
+            return ResponseEntity.ok("댓글이 성공적으로 삭제되었습니다.");
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("댓글 삭제 중 오류가 발생했습니다.");
+        }
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor

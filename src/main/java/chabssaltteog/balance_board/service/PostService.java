@@ -6,10 +6,12 @@ import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.dto.post.CreateCommentRequestDTO;
+import chabssaltteog.balance_board.dto.post.CommentDeleteDTO;
 import chabssaltteog.balance_board.repository.CommentRepository;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteRepository;
+import chabssaltteog.balance_board.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final VoteRepository voteRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public List<Post> getAllPosts() {
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
@@ -95,4 +98,28 @@ public class PostService {
         }
     }
 
+    @Transactional
+    public void deleteComment(CommentDeleteDTO requestDTO){
+
+        Comment comment = commentRepository.findById(requestDTO.getCommentId())
+                .orElseThrow(() -> new IllegalArgumentException("삭제할 댓글을 찾을 수 없습니다."));
+
+        // 댓글 작성자의 userId 가져오기
+        Long commentAuthorId = comment.getUser().getUserId();
+
+        Long currentUserId = requestDTO.getCurrentUserId();
+
+        // 현재 사용자와 댓글 작성자가 같은지 확인
+        if (!currentUserId.equals(commentAuthorId)) {
+            throw new IllegalArgumentException("현재 사용자는 이 댓글을 삭제할 권한이 없습니다.");
+        }
+
+        Post post = comment.getPost();
+
+        if(post != null){
+            post.decrementCommentCount();
+        }
+
+        commentRepository.delete(comment);
+    }
 }
