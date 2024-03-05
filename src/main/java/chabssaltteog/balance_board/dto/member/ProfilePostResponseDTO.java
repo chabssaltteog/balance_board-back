@@ -16,7 +16,13 @@ import java.util.List;
 public class ProfilePostResponseDTO {
 
     @Schema(description = "총 게시글 갯수", example = "43")
-    private int totalPosts;
+    private int totalCount;
+
+    @Schema(description = "작성 게시글 갯수", example = "20")
+    private int writedCount;
+
+    @Schema(description = "투표 게시글 갯수", example = "23")
+    private int votedCount;
 
     @Schema(description = "profile post List")
     private List<ProfilePostDTO> profilePosts;

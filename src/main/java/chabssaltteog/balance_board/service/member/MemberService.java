@@ -131,11 +131,13 @@ public class MemberService {
                 .orElseThrow(() -> new RuntimeException("유효하지 않은 사용자입니다."));
 
         List<ProfilePostDTO> profilePosts = new ArrayList<>();
+        List<Post> writedPosts = new ArrayList<>();
+        List<Post> votedPosts = new ArrayList<>();
 
         if (listType == 1) {
             List<VoteMember> voteMembers = voteMemberRepository.findByUser(member);
-            List<Post> writedPosts = member.getPosts();
-            List<Post> votedPosts = voteMembers.stream().map(voteMember -> voteMember.getVote().getPost()).toList();
+            writedPosts = member.getPosts();
+            votedPosts = voteMembers.stream().map(voteMember -> voteMember.getVote().getPost()).toList();
 
             Set<Post> uniquePosts = new HashSet<>(writedPosts);
             uniquePosts.addAll(votedPosts);
@@ -151,13 +153,16 @@ public class MemberService {
                     profilePosts.add(ProfilePostDTO.toDTO(post, isWrited, isVoted));
                 }
             }
-        } else if (listType == 2) {
-            profilePosts = member.getPosts().stream().map(post -> {
+        }
+        else if (listType == 2) {
+            writedPosts = member.getPosts();
+            profilePosts = writedPosts.stream().map(post -> {
                 return ProfilePostDTO.toDTO(post, true, false);
             }).toList();
-        } else if (listType == 3) {
+        }
+        else if (listType == 3) {
             List<VoteMember> voteMembers = voteMemberRepository.findByUser(member);
-            List<Post> votedPosts = voteMembers.stream().map(voteMember -> voteMember.getVote().getPost()).toList();
+            votedPosts = voteMembers.stream().map(voteMember -> voteMember.getVote().getPost()).toList();
             profilePosts = votedPosts.stream().map(post -> {
                 return ProfilePostDTO.toDTO(post, false, true);
             }).toList();
@@ -168,19 +173,17 @@ public class MemberService {
                 .collect(Collectors.toList());
 
         int pageSize = 10;
-        int totalPages = (int) Math.ceil((double) sortedPosts.size() / pageSize); //총 페이지 개수 계산
+        int totalPages = (int) Math.ceil((double) sortedPosts.size() / pageSize);
 
-        if (page < 1 || page > totalPages) { // 페이지 번호가 유효하지 않은 경우 빈 배열 반환
-            return new ProfilePostResponseDTO(0, Collections.emptyList());
+        if (page < 1 || page > totalPages) {
+            return new ProfilePostResponseDTO(0, 0, 0, Collections.emptyList());
         }
 
         int fromIndex = (page - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, sortedPosts.size());
         List<ProfilePostDTO> pagePosts = sortedPosts.subList(fromIndex, toIndex);
 
-        return new ProfilePostResponseDTO(profilePosts.size(), pagePosts);
+        return new ProfilePostResponseDTO(profilePosts.size(), writedPosts.size(), votedPosts.size(), pagePosts);
     }
-
-
 
 }

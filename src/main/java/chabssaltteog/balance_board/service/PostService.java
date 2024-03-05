@@ -11,12 +11,15 @@ import chabssaltteog.balance_board.repository.CommentRepository;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteRepository;
+import chabssaltteog.balance_board.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +30,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final VoteRepository voteRepository;
-    private final MainService mainService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public List<Post> getAllPosts() {
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
@@ -103,7 +106,7 @@ public class PostService {
         Long commentAuthorId = comment.getUser().getUserId();
         Long currentUserId = requestDTO.getCurrentUserId();
 
-        Member member = mainService.getMember(token);
+        Member member = getMember(token);
         Long userId = member.getUserId();
 
         if (!currentUserId.equals(commentAuthorId) || !currentUserId.equals(userId)) {
@@ -117,5 +120,20 @@ public class PostService {
         }
 
         commentRepository.delete(comment);
+    }
+
+    private Member getMember(String token) {
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        String email = authentication.getName();
+
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isEmpty()) {
+            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
+        }
+        return optionalMember.get();
     }
 }
