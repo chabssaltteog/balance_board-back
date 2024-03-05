@@ -69,10 +69,7 @@ public class PostService {
                 .post(post)
                 .build();
 
-        // 댓글을 게시글에 추가
         post.addComments(comment);
-
-        // 댓글 수 증가
         post.incrementCommentCount();
 
         return commentRepository.save(comment);
@@ -89,8 +86,6 @@ public class PostService {
 
         // Vote 엔티티에서 post 속성에 null 할당
         vote.setPost(null);
-
-        // Vote 엔티티 삭제
         voteRepository.delete(vote);
 
         if (post != null) {
@@ -114,8 +109,6 @@ public class PostService {
         if (!currentUserId.equals(commentAuthorId) || !currentUserId.equals(userId)) {
             throw new IllegalArgumentException("현재 사용자는 이 댓글을 삭제할 권한이 없습니다.");
         }
-
-
 
         Post post = comment.getPost();
 
