@@ -185,6 +185,7 @@ public class MainApiController {
         try {
             postService.deletePost(postId);
             return ResponseEntity.ok("게시글이 성공적으로 삭제되었습니다.");
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {
@@ -202,11 +203,15 @@ public class MainApiController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = {@Content(schema = @Schema(implementation = String.class))})
     })
-    public ResponseEntity<String> deleteComment(@RequestBody CommentDeleteDTO requestDTO){
+    public ResponseEntity<String> deleteComment(
+            @RequestBody CommentDeleteDTO requestDTO,
+            @RequestHeader(value = "Authorization") String token){
+
         try{
-            postService.deleteComment(requestDTO);
+            postService.deleteComment(requestDTO, token);
             return ResponseEntity.ok("댓글이 성공적으로 삭제되었습니다.");
-        }catch (IllegalArgumentException e){
+
+        } catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("댓글 삭제 중 오류가 발생했습니다.");
