@@ -181,9 +181,11 @@ public class MainApiController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = {@Content(schema = @Schema(implementation = String.class))})
     })
-    public ResponseEntity<String> deletePost(@PathVariable(name = "postId") Long postId) {
+    public ResponseEntity<String> deletePost(
+            @PathVariable(name = "postId") Long postId,
+            @RequestHeader(value = "Authorization") String token) {
         try {
-            postService.deletePost(postId);
+            postService.deletePost(postId, token);
             return ResponseEntity.ok("게시글이 성공적으로 삭제되었습니다.");
 
         } catch (IllegalArgumentException e) {

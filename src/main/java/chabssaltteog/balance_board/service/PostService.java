@@ -79,15 +79,20 @@ public class PostService {
     }
 
     @Transactional
-    public void deletePost(Long postId) {
+    public void deletePost(Long postId, String token) {
 
+        Member member = getMember(token);
+        Long userId = member.getUserId();
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+        Long postUserId = post.getUser().getUserId();
+        if (!userId.equals(postUserId)) {
+            throw new IllegalArgumentException("게시글을 삭제할 권한이 없습니다.");
+        }
 
-        Vote vote = voteRepository.findByPostPostId(postId)
+        Vote vote = voteRepository.findPostByPostId(postId)
                 .orElseThrow(() -> new RuntimeException("해당 postId에 대한 투표가 존재하지 않습니다."));
 
-        // Vote 엔티티에서 post 속성에 null 할당
         vote.setPost(null);
         voteRepository.delete(vote);
 

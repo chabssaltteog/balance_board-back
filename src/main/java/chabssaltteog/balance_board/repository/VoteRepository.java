@@ -14,5 +14,5 @@ import java.util.Optional;
 
 public interface VoteRepository extends JpaRepository<Vote, Long> {
 
-    Optional<Vote> findByPostPostId(Long postId);
+    Optional<Vote> findPostByPostId(Long postId);
 }
