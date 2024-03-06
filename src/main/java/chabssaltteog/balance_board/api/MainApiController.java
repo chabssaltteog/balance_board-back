@@ -38,7 +38,6 @@ public class MainApiController {
 
     private final MainService mainService;
     private final VoteService voteService;
-    private final VoteRepository voteRepository;
     private final PostService postService;
 
     @GetMapping("/posts")
