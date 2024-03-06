@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -83,9 +84,17 @@ public class MainApiController {
                     content = {@Content(schema = @Schema(implementation = CommentDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
-    public List<CommentDTO> getCommentsForPost(@PathVariable(name = "postId") Long postId) {
-        log.info("게시글 댓글 조회 : postId = {}", postId);
-        return postService.getCommentsByPostId(postId);
+    public List<CommentDTO> getCommentsForPost(
+            @PathVariable(name = "postId") Long postId,
+            @RequestParam int page) {
+
+        log.info("게시글 댓글 조회 API : postId = {}", postId);
+        log.info("게시글 댓글 조회 API : page = {}", page);
+        List<CommentDTO> comments = postService.getCommentsByPostId(postId, page);
+        if (comments == null) {
+            return Collections.emptyList();
+        }
+        return comments;
     }
 
     @GetMapping("/{category}") //카테고리 필터링, 20개씩 출력

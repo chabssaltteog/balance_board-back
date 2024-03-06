@@ -50,7 +50,11 @@ public class MainService {
     }
 
     // 메인 페이지 -> 로그인
-    public List<PostDTO> getAllPosts(int pageNumber, int pageSize, String token) {
+    public List<PostDTO> getAllPosts(int page, int pageSize, String token) {
+
+        if (page < 1) {
+            return Collections.emptyList();
+        }
 
         Member member = getMember(token);
         Long userId = member.getUserId();
@@ -60,11 +64,11 @@ public class MainService {
 
         int totalPages = (int) Math.ceil((double) posts.size() / pageSize); //총 페이지 개수 계산
 
-        if (pageNumber < 1 || pageNumber > totalPages) { // 페이지 번호가 유효하지 않은 경우 빈 배열 반환
+        if (page > totalPages) { // todo 의미없는 요청에 쿼리가 발생
             return Collections.emptyList();
         }
 
-        int fromIndex = (pageNumber - 1) * pageSize;
+        int fromIndex = (page - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, posts.size());
 
         return posts.subList(fromIndex, toIndex)
@@ -97,13 +101,13 @@ public class MainService {
     }
 
     // 게시글 카테고리 필터링 -> 로그인
-    public List<PostDTO> getPostsByCategory(Category category, int pageNumber, int pageSize, String token) {
+    public List<PostDTO> getPostsByCategory(Category category, int page, int pageSize, String token) {
         log.info("카테고리 필터링 조회 category = {}", category);
 
         Member member = getMember(token);
 
         List<Post> posts = postService.getPostsByCategory(category);
-        int fromIndex = (pageNumber - 1) * pageSize;
+        int fromIndex = (page - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, posts.size());
 
         return posts.subList(fromIndex, toIndex)
@@ -116,11 +120,11 @@ public class MainService {
     }
 
     // 게시글 카테고리 필터링 -> 비로그인
-    public List<PostDTO> getPostsByCategory(Category category, int pageNumber, int pageSize) {
+    public List<PostDTO> getPostsByCategory(Category category, int page, int pageSize) {
 
         log.info("카테고리 필터링 조회 category = {}", category);
         List<Post> posts = postService.getPostsByCategory(category);
-        int fromIndex = (pageNumber - 1) * pageSize;
+        int fromIndex = (page - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, posts.size());
 
         return posts.subList(fromIndex, toIndex)

@@ -5,6 +5,8 @@ import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
+import chabssaltteog.balance_board.dto.member.ProfilePostDTO;
+import chabssaltteog.balance_board.dto.member.ProfilePostResponseDTO;
 import chabssaltteog.balance_board.dto.post.CommentDTO;
 import chabssaltteog.balance_board.dto.post.CreateCommentRequestDTO;
 import chabssaltteog.balance_board.dto.post.CommentDeleteDTO;
@@ -19,6 +21,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,12 +47,33 @@ public class PostService {
         return postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
-    public List<CommentDTO> getCommentsByPostId(Long postId){ //게시글 댓글 불러오는 메서드
+    public List<CommentDTO> getCommentsByPostId(Long postId, int page){
+
+        if (page < 1) {
+            return null;
+        }
 
         List<Comment> comments = commentRepository.findByPost_PostId(postId);
-        return comments.stream()
+
+        List<CommentDTO> collect = comments.stream()
                 .map(CommentDTO::toDTO)
-                .collect(Collectors.toList());
+                .toList();
+
+        List<CommentDTO> sortedComments = collect.stream()
+                .sorted(Comparator.comparing(CommentDTO::getCreated).reversed())
+                .toList();
+
+        int pageSize = 10;
+        int totalPages = (int) Math.ceil((double) sortedComments.size() / pageSize);
+
+        if (page > totalPages) {       // todo 의미없는 요청에 쿼리가 발생함.
+            return null;
+        }
+
+        int fromIndex = (page - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, sortedComments.size());
+
+        return sortedComments.subList(fromIndex, toIndex);
     }
 
     public List<Post> getPostsByCategory(Category category) {
