@@ -5,6 +5,7 @@ import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
+import chabssaltteog.balance_board.dto.post.CommentDTO;
 import chabssaltteog.balance_board.dto.post.CreateCommentRequestDTO;
 import chabssaltteog.balance_board.dto.post.CommentDeleteDTO;
 import chabssaltteog.balance_board.repository.CommentRepository;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,14 @@ public class PostService {
 
     public Post getPostByPostId(Long postId) {
         return postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+    }
+
+    public List<CommentDTO> getCommentsByPostId(Long postId){ //게시글 댓글 불러오는 메서드
+
+        List<Comment> comments = commentRepository.findByPost_PostId(postId);
+        return comments.stream()
+                .map(CommentDTO::toDTO)
+                .collect(Collectors.toList());
     }
 
     public List<Post> getPostsByCategory(Category category) {
@@ -90,7 +100,7 @@ public class PostService {
             throw new IllegalArgumentException("게시글을 삭제할 권한이 없습니다.");
         }
 
-        Vote vote = voteRepository.findPostByPostId(postId)
+        Vote vote = voteRepository.findByPost_PostId(postId)
                 .orElseThrow(() -> new RuntimeException("해당 postId에 대한 투표가 존재하지 않습니다."));
 
         vote.setPost(null);

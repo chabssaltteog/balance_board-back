@@ -76,6 +76,18 @@ public class MainApiController {
         return mainService.getPostByPostId(postId, token);
     }
 
+    @GetMapping("/posts/{postId}/comments")
+    @Operation(summary = "게시글 댓글", description = "게시글에 대한 댓글을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = CommentDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Fail")
+    })
+    public List<CommentDTO> getCommentsForPost(@PathVariable(name = "postId") Long postId) {
+        log.info("게시글 댓글 조회 : postId = {}", postId);
+        return postService.getCommentsByPostId(postId);
+    }
+
     @GetMapping("/{category}") //카테고리 필터링, 20개씩 출력
     @Operation(summary = "Category filtering", description = "카테고리 필터링")
     @ApiResponses(value = {
