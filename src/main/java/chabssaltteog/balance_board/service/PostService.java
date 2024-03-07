@@ -16,6 +16,8 @@ import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteRepository;
 import chabssaltteog.balance_board.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -48,32 +50,16 @@ public class PostService {
     }
 
     public List<CommentDTO> getCommentsByPostId(Long postId, int page){
-
-        if (page < 1) {
+        if (page < 0) {
             return null;
         }
 
-        List<Comment> comments = commentRepository.findByPost_PostId(postId);
+        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "created"));
+        List<Comment> comments = commentRepository.findByPost_PostId(postId, pageRequest);
 
-        List<CommentDTO> collect = comments.stream()
+        return comments.stream()
                 .map(CommentDTO::toDTO)
                 .toList();
-
-        List<CommentDTO> sortedComments = collect.stream()
-                .sorted(Comparator.comparing(CommentDTO::getCreated).reversed())
-                .toList();
-
-        int pageSize = 10;
-        int totalPages = (int) Math.ceil((double) sortedComments.size() / pageSize);
-
-        if (page > totalPages) {       // todo 의미없는 요청에 쿼리가 발생함.
-            return null;
-        }
-
-        int fromIndex = (page - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, sortedComments.size());
-
-        return sortedComments.subList(fromIndex, toIndex);
     }
 
     public List<Post> getPostsByCategory(Category category) {

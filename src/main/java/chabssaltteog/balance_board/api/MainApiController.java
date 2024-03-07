@@ -38,7 +38,6 @@ public class MainApiController {
 
     private final MainService mainService;
     private final VoteService voteService;
-    private final VoteRepository voteRepository;
     private final PostService postService;
 
     @GetMapping("/posts")
@@ -86,7 +85,7 @@ public class MainApiController {
     })
     public List<CommentDTO> getCommentsForPost(
             @PathVariable(name = "postId") Long postId,
-            @RequestParam int page) {
+            @RequestParam(defaultValue = "0") int page) {
 
         log.info("게시글 댓글 조회 API : postId = {}", postId);
         log.info("게시글 댓글 조회 API : page = {}", page);
