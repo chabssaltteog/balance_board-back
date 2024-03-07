@@ -123,7 +123,7 @@ public class MemberService {
      *                 1 -> 작성한 글
      *                 2 -> 투표한 글
      */
-    //todo 페이징 변경
+    //todo 페이징 변경, 코드 전체 리펙토링 -> 필터링
     public ProfilePostResponseDTO getProfilePosts(Long userId, int listType, int page) {
 
         Member member = memberRepository.findById(userId)
@@ -178,7 +178,7 @@ public class MemberService {
             return new ProfilePostResponseDTO(0, 0, 0, Collections.emptyList());
         }
 
-        int fromIndex = (page - 1) * pageSize;
+        int fromIndex = page * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, sortedPosts.size());
         List<ProfilePostDTO> pagePosts = sortedPosts.subList(fromIndex, toIndex);
 
