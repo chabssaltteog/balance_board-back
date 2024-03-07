@@ -119,12 +119,11 @@ public class MemberService {
     }
 
     /**
-     * @param listType 1 -> 전체
-     *                 2 -> 작성한 글
-     *                 3 -> 투표한 글
+     * @param listType 0 -> 전체
+     *                 1 -> 작성한 글
+     *                 2 -> 투표한 글
      */
-
-    //todo 페이징 방법 수정
+    //todo 페이징 변경
     public ProfilePostResponseDTO getProfilePosts(Long userId, int listType, int page) {
 
         Member member = memberRepository.findById(userId)
@@ -134,7 +133,7 @@ public class MemberService {
         List<Post> writedPosts = new ArrayList<>();
         List<Post> votedPosts = new ArrayList<>();
 
-        if (listType == 1) {
+        if (listType == 0) {
             List<VoteMember> voteMembers = voteMemberRepository.findByUser(member);
             writedPosts = member.getPosts();
             votedPosts = voteMembers.stream().map(voteMember -> voteMember.getVote().getPost()).toList();
@@ -154,13 +153,13 @@ public class MemberService {
                 }
             }
         }
-        else if (listType == 2) {
+        else if (listType == 1) {
             writedPosts = member.getPosts();
             profilePosts = writedPosts.stream().map(post -> {
                 return ProfilePostDTO.toDTO(post, true, false);
             }).toList();
         }
-        else if (listType == 3) {
+        else if (listType == 2) {
             List<VoteMember> voteMembers = voteMemberRepository.findByUser(member);
             votedPosts = voteMembers.stream().map(voteMember -> voteMember.getVote().getPost()).toList();
             profilePosts = votedPosts.stream().map(post -> {
@@ -175,7 +174,7 @@ public class MemberService {
         int pageSize = 10;
         int totalPages = (int) Math.ceil((double) sortedPosts.size() / pageSize);
 
-        if (page < 1 || page > totalPages) {
+        if (page > totalPages) {
             return new ProfilePostResponseDTO(0, 0, 0, Collections.emptyList());
         }
 

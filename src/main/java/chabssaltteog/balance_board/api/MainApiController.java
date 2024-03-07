@@ -49,15 +49,17 @@ public class MainApiController {
     })
     public List<PostDTO> getAllPosts(
             @RequestParam(defaultValue = "0", value="page")  int page,
-            @RequestParam(defaultValue = "20", value="size")  int size,
             @RequestHeader(value = "Authorization", required = false) String token
     ) {
         log.info("== GET ALL POSTS ==");
+        if (page < 0) {
+            return Collections.emptyList();
+        }
         if (token == null) {
             log.info("==NO TOKEN 메인 페이지 조회==");
-            return mainService.getAllPosts(page, size);
+            return mainService.getAllPosts(page);
         }
-        return mainService.getAllPosts(page, size, token);
+        return mainService.getAllPosts(page, token);
     }
 
     @GetMapping("/posts/{postId}")

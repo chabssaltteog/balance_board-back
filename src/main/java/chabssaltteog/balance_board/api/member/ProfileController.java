@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -55,10 +56,13 @@ public class ProfileController {
     @GetMapping("/profile/{userId}/posts")
     public Object profilePosts(
             @PathVariable Long userId,
-            @RequestParam(name = "listType") int listType,
-            @RequestParam(name = "page") int page
+            @RequestParam(defaultValue = "0") int listType, // 0, 1, 2
+            @RequestParam(defaultValue = "0") int page
     ) {
         try {
+            if (page < 0) {
+                return Collections.emptyList();
+            }
             return memberService.getProfilePosts(userId, listType, page);
         } catch (Exception e) {
             log.info(e.getMessage());

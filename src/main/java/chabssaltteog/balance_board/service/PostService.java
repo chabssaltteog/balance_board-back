@@ -40,9 +40,9 @@ public class PostService {
     private final VoteRepository voteRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public List<Post> getAllPosts() {
-        Sort sort = Sort.by(Sort.Direction.DESC, "created");
-        return postRepository.findAll(sort);
+    public Page<Post> getAllPosts(int page) {
+        PageRequest pageRequest = PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "created"));
+        return postRepository.findAll(pageRequest);
     }
 
     public Post getPostByPostId(Long postId) {
