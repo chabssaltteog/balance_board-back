@@ -62,9 +62,10 @@ public class PostService {
                 .toList();
     }
 
-    public List<Post> getPostsByCategory(Category category) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "created");
-        return postRepository.findByCategory(category, sort);
+    public List<Post> getPostsByCategory(Category category, int page) {
+
+        PageRequest pageRequest = PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "created"));
+        return postRepository.findByCategory(category, pageRequest);
 
     }
 

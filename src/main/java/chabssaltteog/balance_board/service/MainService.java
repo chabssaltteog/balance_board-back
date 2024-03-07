@@ -101,17 +101,13 @@ public class MainService {
     }
 
     // 게시글 카테고리 필터링 -> 로그인
-    public List<PostDTO> getPostsByCategory(Category category, int page, int pageSize, String token) {
+    public List<PostDTO> getPostsByCategory(Category category, int page, String token) {
         log.info("카테고리 필터링 조회 category = {}", category);
-
         Member member = getMember(token);
 
-        List<Post> posts = postService.getPostsByCategory(category);
-        int fromIndex = (page - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, posts.size());
+        List<Post> posts = postService.getPostsByCategory(category, page);
 
-        return posts.subList(fromIndex, toIndex)
-                .stream()
+        return posts.stream()
                 .map(post -> {
                     String selectedOption = getSelectedOption(post, member);
                     return PostDTO.toDTO(post, selectedOption);
@@ -120,15 +116,12 @@ public class MainService {
     }
 
     // 게시글 카테고리 필터링 -> 비로그인
-    public List<PostDTO> getPostsByCategory(Category category, int page, int pageSize) {
+    public List<PostDTO> getPostsByCategory(Category category, int page) {
 
         log.info("카테고리 필터링 조회 category = {}", category);
-        List<Post> posts = postService.getPostsByCategory(category);
-        int fromIndex = (page - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, posts.size());
+        List<Post> posts = postService.getPostsByCategory(category, page);
 
-        return posts.subList(fromIndex, toIndex)
-                .stream()
+        return posts.stream()
                 .map(PostDTO::toDTO)
                 .toList();
     }
