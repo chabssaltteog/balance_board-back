@@ -3,10 +3,8 @@ package chabssaltteog.balance_board.service.member;
 import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
-import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
-import chabssaltteog.balance_board.dto.member.ProfilePostDTO;
-import chabssaltteog.balance_board.dto.member.ProfilePostResponseDTO;
-import chabssaltteog.balance_board.dto.member.ProfileInfoResponseDTO;
+import chabssaltteog.balance_board.dto.member.*;
+import chabssaltteog.balance_board.exception.ValidUserException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteMemberRepository;
@@ -183,6 +181,35 @@ public class MemberService {
         List<ProfilePostDTO> pagePosts = sortedPosts.subList(fromIndex, toIndex);
 
         return new ProfilePostResponseDTO(profilePosts.size(), writedPosts.size(), votedPosts.size(), pagePosts);
+    }
+
+
+    @Transactional
+    public String changeNickname(NicknameRequestDTO requestDTO, String token) {
+        String newNickname = requestDTO.getNickname();
+        Long userId = requestDTO.getUserId();
+        Member member = getMember(token);
+
+        if (!member.getUserId().equals(userId)) {
+            throw new ValidUserException("올바른 사용자의 요청이 아닙니다.");
+        }
+        member.setNickname(newNickname);
+        return newNickname;
+    }
+
+    private Member getMember(String token) {
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        String email = authentication.getName();
+
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isEmpty()) {
+            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
+        }
+        return optionalMember.get();
     }
 
 }
