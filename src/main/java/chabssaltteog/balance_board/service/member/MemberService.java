@@ -3,10 +3,8 @@ package chabssaltteog.balance_board.service.member;
 import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
-import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
-import chabssaltteog.balance_board.dto.member.ProfilePostDTO;
-import chabssaltteog.balance_board.dto.member.ProfilePostResponseDTO;
-import chabssaltteog.balance_board.dto.member.ProfileInfoResponseDTO;
+import chabssaltteog.balance_board.dto.member.*;
+import chabssaltteog.balance_board.exception.ValidUserException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteMemberRepository;
@@ -119,12 +117,11 @@ public class MemberService {
     }
 
     /**
-     * @param listType 1 -> 전체
-     *                 2 -> 작성한 글
-     *                 3 -> 투표한 글
+     * @param listType 0 -> 전체
+     *                 1 -> 작성한 글
+     *                 2 -> 투표한 글
      */
-
-    //todo 페이징 방법 수정
+    //todo 페이징 변경, 코드 전체 리펙토링 -> 필터링
     public ProfilePostResponseDTO getProfilePosts(Long userId, int listType, int page) {
 
         Member member = memberRepository.findById(userId)
@@ -134,7 +131,7 @@ public class MemberService {
         List<Post> writedPosts = new ArrayList<>();
         List<Post> votedPosts = new ArrayList<>();
 
-        if (listType == 1) {
+        if (listType == 0) {
             List<VoteMember> voteMembers = voteMemberRepository.findByUser(member);
             writedPosts = member.getPosts();
             votedPosts = voteMembers.stream().map(voteMember -> voteMember.getVote().getPost()).toList();
@@ -154,13 +151,13 @@ public class MemberService {
                 }
             }
         }
-        else if (listType == 2) {
+        else if (listType == 1) {
             writedPosts = member.getPosts();
             profilePosts = writedPosts.stream().map(post -> {
                 return ProfilePostDTO.toDTO(post, true, false);
             }).toList();
         }
-        else if (listType == 3) {
+        else if (listType == 2) {
             List<VoteMember> voteMembers = voteMemberRepository.findByUser(member);
             votedPosts = voteMembers.stream().map(voteMember -> voteMember.getVote().getPost()).toList();
             profilePosts = votedPosts.stream().map(post -> {
@@ -175,15 +172,44 @@ public class MemberService {
         int pageSize = 10;
         int totalPages = (int) Math.ceil((double) sortedPosts.size() / pageSize);
 
-        if (page < 1 || page > totalPages) {
+        if (page > totalPages) {
             return new ProfilePostResponseDTO(0, 0, 0, Collections.emptyList());
         }
 
-        int fromIndex = (page - 1) * pageSize;
+        int fromIndex = page * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, sortedPosts.size());
         List<ProfilePostDTO> pagePosts = sortedPosts.subList(fromIndex, toIndex);
 
         return new ProfilePostResponseDTO(profilePosts.size(), writedPosts.size(), votedPosts.size(), pagePosts);
+    }
+
+
+    @Transactional
+    public String changeNickname(NicknameRequestDTO requestDTO, String token) {
+        String newNickname = requestDTO.getNickname();
+        Long userId = requestDTO.getUserId();
+        Member member = getMember(token);
+
+        if (!member.getUserId().equals(userId)) {
+            throw new ValidUserException("올바른 사용자의 요청이 아닙니다.");
+        }
+        member.setNickname(newNickname);
+        return newNickname;
+    }
+
+    private Member getMember(String token) {
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        String email = authentication.getName();
+
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isEmpty()) {
+            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
+        }
+        return optionalMember.get();
     }
 
 }

@@ -11,6 +11,7 @@ import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,47 +32,25 @@ public class MainService {
 
 
     // 메인 페이지 -> 비로그인
-    public List<PostDTO> getAllPosts(int pageNumber, int pageSize) {
-        List<Post> posts = postService.getAllPosts();
+    public List<PostDTO> getAllPosts(int page) {
+        Page<Post> posts = postService.getAllPosts(page);
 
-        int totalPages = (int) Math.ceil((double) posts.size() / pageSize); //총 페이지 개수 계산
-
-        if (pageNumber < 1 || pageNumber > totalPages) { // 페이지 번호가 유효하지 않은 경우 빈 배열 반환
-            return Collections.emptyList();
-        }
-
-        int fromIndex = (pageNumber - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, posts.size());
-
-        return posts.subList(fromIndex, toIndex)
+        return posts.getContent()
                 .stream()
                 .map(PostDTO::toDTO)
                 .toList();
     }
 
     // 메인 페이지 -> 로그인
-    public List<PostDTO> getAllPosts(int page, int pageSize, String token) {
-
-        if (page < 1) {
-            return Collections.emptyList();
-        }
+    public List<PostDTO> getAllPosts(int page, String token) {
 
         Member member = getMember(token);
         Long userId = member.getUserId();
         log.info("모든 게시글 조회 userId = {}", userId);
 
-        List<Post> posts = postService.getAllPosts();
+        Page<Post> posts = postService.getAllPosts(page);
 
-        int totalPages = (int) Math.ceil((double) posts.size() / pageSize); //총 페이지 개수 계산
-
-        if (page > totalPages) { // todo 의미없는 요청에 쿼리가 발생
-            return Collections.emptyList();
-        }
-
-        int fromIndex = (page - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, posts.size());
-
-        return posts.subList(fromIndex, toIndex)
+        return posts.getContent()
                 .stream()
                 .map(post -> {
                     String selectedOption = getSelectedOption(post, member);
@@ -101,17 +80,13 @@ public class MainService {
     }
 
     // 게시글 카테고리 필터링 -> 로그인
-    public List<PostDTO> getPostsByCategory(Category category, int page, int pageSize, String token) {
+    public List<PostDTO> getPostsByCategory(Category category, int page, String token) {
         log.info("카테고리 필터링 조회 category = {}", category);
-
         Member member = getMember(token);
 
-        List<Post> posts = postService.getPostsByCategory(category);
-        int fromIndex = (page - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, posts.size());
+        List<Post> posts = postService.getPostsByCategory(category, page);
 
-        return posts.subList(fromIndex, toIndex)
-                .stream()
+        return posts.stream()
                 .map(post -> {
                     String selectedOption = getSelectedOption(post, member);
                     return PostDTO.toDTO(post, selectedOption);
@@ -120,15 +95,12 @@ public class MainService {
     }
 
     // 게시글 카테고리 필터링 -> 비로그인
-    public List<PostDTO> getPostsByCategory(Category category, int page, int pageSize) {
+    public List<PostDTO> getPostsByCategory(Category category, int page) {
 
         log.info("카테고리 필터링 조회 category = {}", category);
-        List<Post> posts = postService.getPostsByCategory(category);
-        int fromIndex = (page - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, posts.size());
+        List<Post> posts = postService.getPostsByCategory(category, page);
 
-        return posts.subList(fromIndex, toIndex)
-                .stream()
+        return posts.stream()
                 .map(PostDTO::toDTO)
                 .toList();
     }

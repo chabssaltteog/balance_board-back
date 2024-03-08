@@ -38,7 +38,6 @@ public class MainApiController {
 
     private final MainService mainService;
     private final VoteService voteService;
-    private final VoteRepository voteRepository;
     private final PostService postService;
 
     @GetMapping("/posts")
@@ -50,15 +49,17 @@ public class MainApiController {
     })
     public List<PostDTO> getAllPosts(
             @RequestParam(defaultValue = "0", value="page")  int page,
-            @RequestParam(defaultValue = "20", value="size")  int size,
             @RequestHeader(value = "Authorization", required = false) String token
     ) {
         log.info("== GET ALL POSTS ==");
+        if (page < 0) {
+            return Collections.emptyList();
+        }
         if (token == null) {
             log.info("==NO TOKEN 메인 페이지 조회==");
-            return mainService.getAllPosts(page, size);
+            return mainService.getAllPosts(page);
         }
-        return mainService.getAllPosts(page, size, token);
+        return mainService.getAllPosts(page, token);
     }
 
     @GetMapping("/posts/{postId}")
@@ -86,7 +87,7 @@ public class MainApiController {
     })
     public List<CommentDTO> getCommentsForPost(
             @PathVariable(name = "postId") Long postId,
-            @RequestParam int page) {
+            @RequestParam(defaultValue = "0") int page) {
 
         log.info("게시글 댓글 조회 API : postId = {}", postId);
         log.info("게시글 댓글 조회 API : page = {}", page);
@@ -106,17 +107,19 @@ public class MainApiController {
     })
     public List<PostDTO> getPostByCategory(
             @PathVariable(name = "category") Category category,
-            @RequestParam(defaultValue = "0", value="page")  int page,
-            @RequestParam(defaultValue = "20", value="size")  int size,
+            @RequestParam(defaultValue = "0")  int page,
             @RequestHeader(value = "Authorization", required = false) String token
     ) {
+        if (page < 0) {
+            return Collections.emptyList();
+        }
         if (token == null) {
             log.info("==NO TOKEN 카테고리 필터링 조회==");
-            return mainService.getPostsByCategory(category, page, size);
+            return mainService.getPostsByCategory(category, page);
         }
         log.info("CATEGORY SEARCH : category = {}", category);
         log.info("==카테고리 필터링 조회==");
-        return mainService.getPostsByCategory(category, page, size, token);
+        return mainService.getPostsByCategory(category, page, token);
     }
 
     @PostMapping("/new/post")
