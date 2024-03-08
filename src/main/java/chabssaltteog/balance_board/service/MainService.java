@@ -76,17 +76,17 @@ public class MainService {
                 .toList();
     }
 
-    // 상세 게시글 -> 비로그인
-    public PostDTO getPostByPostId(Long postId) {
+    // 상세 게시글
+    public PostDTO getPostByPostId(Long postId, Authentication authentication) {
 
-        Post post = postService.getPostByPostId(postId);
-        return PostDTO.toDetailDTO(post);
-    }
+        if (authentication == null) {
+            log.info("==비로그인 상세 페이지 조회==");
+            Post post = postService.getPostByPostId(postId);
+            return PostDTO.toDetailDTO(post);
+        }
 
-    // 상세 게시글 -> 로그인
-    public PostDTO getPostByPostId(Long postId, String token) {
+        Member member = getMember(authentication);
 
-        Member member = getMember(token);
         Long userId = member.getUserId();
         log.info("상세 게시글 조회 userId = {}", userId);
 
@@ -95,6 +95,8 @@ public class MainService {
         String selectedOption = getSelectedOption(post, member);
         return PostDTO.toDetailDTO(post, selectedOption);
     }
+
+
 
     // 게시글 카테고리 필터링 -> 로그인
     public List<PostDTO> getPostsByCategory(Category category, int pageNumber, int pageSize, String token) {
@@ -174,22 +176,6 @@ public class MainService {
         return CommentDTO.toDTO(addedComment);
     }
 
-
-    public Member getMember(String token) {
-        if (!jwtTokenProvider.validateToken(token)) {
-            throw new RuntimeException("Invalid token");
-        }
-
-        Authentication authentication = jwtTokenProvider.getAuthentication(token);
-        String email = authentication.getName();
-
-        Optional<Member> optionalMember = memberRepository.findByEmail(email);
-        if (optionalMember.isEmpty()) {
-            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
-        }
-        return optionalMember.get();
-    }
-
     private String getSelectedOption(Post post, Member member) {
         Optional<VoteMember> voteMember = member.getVoteMembers()
                 .stream()
@@ -200,5 +186,13 @@ public class MainService {
         return voteMember.map(VoteMember::getVotedOption).orElse(null);
     }
 
+    private Member getMember(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isEmpty()) {
+            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
+        }
+        return optionalMember.get();
+    }
 
 }

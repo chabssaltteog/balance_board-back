@@ -1,10 +1,14 @@
 package chabssaltteog.balance_board.api.member;
 
 import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.domain.RefreshToken;
 import chabssaltteog.balance_board.dto.member.LoginRequestDTO;
 import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
+import chabssaltteog.balance_board.exception.TokenNotFoundException;
 import chabssaltteog.balance_board.repository.MemberRepository;
+import chabssaltteog.balance_board.repository.RefreshTokenRepository;
 import chabssaltteog.balance_board.service.member.MemberService;
+import chabssaltteog.balance_board.service.member.RefreshTokenService;
 import chabssaltteog.balance_board.util.JwtToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,13 +16,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Tag(name = "Login", description = "Login API")
@@ -30,6 +39,8 @@ public class LoginController {
 
     private final MemberService memberService;
     private final MemberRepository memberRepository;
+    private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Operation(summary = "Login API", description = "Login")
     @ApiResponses(value = {
@@ -43,11 +54,13 @@ public class LoginController {
 
         try {
             JwtToken jwtToken = memberService.signIn(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
-
             Optional<Member> optionalMember = memberRepository.findByEmail(loginRequestDTO.getEmail());
             Long userId = optionalMember.get().getUserId();
             int imageType = optionalMember.get().getImageType();
             String nickname = optionalMember.get().getNickname();
+
+            // refreshToken을 db에 저장
+            refreshTokenService.saveToken(jwtToken.getRefreshToken(), userId);
 
             log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
             log.info("request email = {}, password = {}", loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
@@ -64,20 +77,43 @@ public class LoginController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content(schema = @Schema(implementation = LoginResponseDTO.class))}),
-            @ApiResponse(responseCode = "400", description = "Invalid Token",
+            @ApiResponse(responseCode = "401", description = "Invalid Token",
                     content = {@Content(schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @PostMapping("/login/token")
-    public Object refreshToken(@RequestHeader("Authorization") String token) {
+    @GetMapping("/login/token")
+    public Object refreshToken( //todo token 로그인 시, accessToken은 만료됨 -> refreshToken 써서 accessToken 재발급 받아야함.
+            @RequestHeader("Authorization") String accessToken) {   //todo refreshToken도 받아야함
         try {
-            log.info("token = {}", token);
-            return memberService.getUserInfoAndGenerateToken(token);
+            log.info("accessToken = {}", accessToken);
+            LoginResponseDTO loginResponseDTO = memberService.getUserInfoAndGenerateToken(accessToken);
+
+            return loginResponseDTO;    // todo jwtToken 말고 accessToken 발급으로 변경 / refreshToken expired -> 401 재로그인
 
         } catch (Exception e) {
             return new ErrorResponse("Invalid token");
         }
     }
 
+//    @GetMapping("/refresh")
+//    public JwtToken refresh(HttpServletRequest request, Authentication authentication) {
+//        validateExistHeader(request);
+//        String email = authentication.getName();
+//        String refreshToken = request.getHeader("Refresh-Token");
+//        Long userId = refreshTokenService.matches(refreshToken, email);
+//        JwtToken jwtToken = refreshTokenService.generateToken(authentication);
+//        refreshTokenRepository.save(
+//                RefreshToken.builder().token(jwtToken.getRefreshToken()).userId(userId).build()
+//        );
+//        return jwtToken;
+//    }
+//
+//    private void validateExistHeader(HttpServletRequest request) {
+//        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+//        String refreshTokenHeader = request.getHeader("Refresh-Token");
+//        if (Objects.isNull(authorizationHeader) || Objects.isNull(refreshTokenHeader)) {
+//            throw new TokenNotFoundException("Token is null");
+//        }
+//    }
 
     @Data
     @Schema(title = "MEM_RES_04 : 로그인 실패 응답 DTO")

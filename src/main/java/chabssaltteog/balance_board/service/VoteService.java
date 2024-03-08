@@ -7,7 +7,7 @@ import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.dto.vote.VoteRequestDTO;
 import chabssaltteog.balance_board.dto.vote.VoteResponseDTO;
 import chabssaltteog.balance_board.exception.DuplicateVoteException;
-import chabssaltteog.balance_board.exception.ValidUserException;
+import chabssaltteog.balance_board.exception.InvalidUserException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteMemberRepository;
@@ -36,7 +36,7 @@ public class VoteService {
 
         Member member = mainService.getMember(token);
         if (member.getUserId() != voteRequestDTO.getUserId()) {
-            throw new ValidUserException("사용자 정보가 맞지 않습니다.");
+            throw new InvalidUserException("사용자 정보가 맞지 않습니다.");
         }
 
         Optional<Vote> optionalVote = voteRepository.findById(voteRequestDTO.getVoteId());

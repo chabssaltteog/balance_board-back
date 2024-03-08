@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,7 +38,6 @@ public class MainApiController {
 
     private final MainService mainService;
     private final VoteService voteService;
-    private final VoteRepository voteRepository;
     private final PostService postService;
 
     @GetMapping("/posts")
@@ -67,13 +67,11 @@ public class MainApiController {
                     content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
-    public PostDTO getPost(@PathVariable(name ="postId") Long postId, @RequestHeader(value = "Authorization", required = false) String token) {
+    public PostDTO getPost(@PathVariable(name ="postId") Long postId,
+                           Authentication authentication) {
         log.info("POST DETAIL : postId = {}", postId);
-        if (token == null) {
-            log.info("==NO TOKEN 상세 페이지 조회==");
-            return mainService.getPostByPostId(postId);
-        }
-        return mainService.getPostByPostId(postId, token);
+
+        return mainService.getPostByPostId(postId, authentication);
     }
 
     @GetMapping("/{category}") //카테고리 필터링, 20개씩 출력

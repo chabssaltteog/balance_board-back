@@ -7,6 +7,7 @@ import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
 import chabssaltteog.balance_board.dto.member.ProfilePostDTO;
 import chabssaltteog.balance_board.dto.member.ProfilePostResponseDTO;
 import chabssaltteog.balance_board.dto.member.ProfileInfoResponseDTO;
+import chabssaltteog.balance_board.exception.TokenNotFoundException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteMemberRepository;
@@ -70,7 +71,7 @@ public class MemberService {
 
         // 토큰 유효성 검사
         if (!jwtTokenProvider.validateToken(token)) {
-            throw new RuntimeException("Invalid token");
+            throw new TokenNotFoundException("Invalid token");
         }
 
         // 토큰에서 사용자 정보 추출
