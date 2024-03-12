@@ -1,10 +1,7 @@
 package chabssaltteog.balance_board.dto.post;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +9,8 @@ import java.util.stream.Collectors;
 
 import chabssaltteog.balance_board.domain.post.Comment;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

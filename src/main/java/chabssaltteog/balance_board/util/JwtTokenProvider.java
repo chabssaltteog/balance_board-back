@@ -1,8 +1,10 @@
 package chabssaltteog.balance_board.util;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -24,15 +25,20 @@ public class JwtTokenProvider {
 
     private final Key key;
 
-    public JwtTokenProvider() {
-        this.key = generateSecretKey();
-    }
+//    public JwtTokenProvider() {
+//        this.key = generateSecretKey();
+//    }
+//
+//    // 랜덤한 암호 키 생성 메서드
+//    private Key generateSecretKey() {
+//        byte[] keyBytes = new byte[32];
+//        new SecureRandom().nextBytes(keyBytes);
+//        return Keys.hmacShaKeyFor(keyBytes);
+//    }
 
-    // 랜덤한 암호 키 생성 메서드
-    private Key generateSecretKey() {
-        byte[] keyBytes = new byte[32];
-        new SecureRandom().nextBytes(keyBytes);
-        return Keys.hmacShaKeyFor(keyBytes);
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     // Member 정보를 가지고 AccessToken, RefreshToken을 생성하는 메서드
@@ -141,14 +147,17 @@ public class JwtTokenProvider {
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
+            return false;
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT Token", e);
+            return false;
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT Token", e);
+            return false;
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
+            return false;
         }
-        return false;
     }
 
 

@@ -8,21 +8,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-//@Entity
+@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class RefreshToken {
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "refresh_token_id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "refresh_token_id")
     private Long id;
 
-//    @Column(name = "user_id")
+    @Column(name = "user_id")
     private Long userId;
 
-//    @Column(name = "token")
+    @Column(name = "token")
     private String token;
 
     public void validateSameToken(String token) {

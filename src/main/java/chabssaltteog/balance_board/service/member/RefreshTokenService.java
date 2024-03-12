@@ -6,9 +6,9 @@ import chabssaltteog.balance_board.exception.InvalidRefreshTokenException;
 import chabssaltteog.balance_board.exception.InvalidUserException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.RefreshTokenRepository;
-import chabssaltteog.balance_board.util.JwtToken;
 import chabssaltteog.balance_board.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +17,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
@@ -46,7 +47,23 @@ public class RefreshTokenService {
 
     @Transactional
     public void saveToken(String token, Long userId) {
-        RefreshToken refreshToken = RefreshToken.builder().id(userId).token(token).build();
-        refreshTokenRepository.save(refreshToken);
+        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByUserId(userId);
+        if (optionalRefreshToken.isEmpty()) {   // 최초 로그인
+            log.info("==최초 로그인==");
+            log.info("refreshToken save to DB");
+            RefreshToken savedToken = refreshTokenRepository.save(RefreshToken.builder().userId(userId).token(token).build());
+            return;
+        }
+
+        refreshTokenRepository.delete(optionalRefreshToken.get());  // 삭제 후 저장
+        refreshTokenRepository.save(RefreshToken.builder().userId(userId).token(token).build());
+    }
+
+    public Authentication getAuthentication(String accessToken) {
+        return jwtTokenProvider.getAuthentication(accessToken);
+    }
+
+    public boolean validateRefreshToken(String refreshToken) {
+        return jwtTokenProvider.validateToken(refreshToken);
     }
 }

@@ -4,6 +4,7 @@ import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.RefreshToken;
 import chabssaltteog.balance_board.dto.member.LoginRequestDTO;
 import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
+import chabssaltteog.balance_board.dto.member.LoginTokenResponseDTO;
 import chabssaltteog.balance_board.exception.TokenNotFoundException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.RefreshTokenRepository;
@@ -23,8 +24,10 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
@@ -40,7 +43,6 @@ public class LoginController {
     private final MemberService memberService;
     private final MemberRepository memberRepository;
     private final RefreshTokenService refreshTokenService;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     @Operation(summary = "Login API", description = "Login")
     @ApiResponses(value = {
@@ -54,10 +56,11 @@ public class LoginController {
 
         try {
             JwtToken jwtToken = memberService.signIn(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
-            Optional<Member> optionalMember = memberRepository.findByEmail(loginRequestDTO.getEmail());
-            Long userId = optionalMember.get().getUserId();
-            int imageType = optionalMember.get().getImageType();
-            String nickname = optionalMember.get().getNickname();
+            Member member = memberRepository.findByEmail(loginRequestDTO.getEmail())
+                    .orElseThrow(() -> new RuntimeException("잘못된 이메일입니다."));
+            Long userId = member.getUserId();
+            int imageType = member.getImageType();
+            String nickname = member.getNickname();
 
             // refreshToken을 db에 저장
             refreshTokenService.saveToken(jwtToken.getRefreshToken(), userId);
@@ -73,47 +76,87 @@ public class LoginController {
 
     }
 
-    @Operation(summary = "Token Login API", description = "Token Refresh & Get User Data")
+    @Operation(summary = "Token Login API", description = "Access Token Refresh & Get User Data")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
-                    content = {@Content(schema = @Schema(implementation = LoginResponseDTO.class))}),
+                    content = {@Content(schema = @Schema(implementation = LoginTokenResponseDTO.class))}),
             @ApiResponse(responseCode = "401", description = "Invalid Token",
                     content = {@Content(schema = @Schema(implementation = ErrorResponse.class))})
     })
     @GetMapping("/login/token")
-    public Object refreshToken( //todo token 로그인 시, accessToken은 만료됨 -> refreshToken 써서 accessToken 재발급 받아야함.
-            @RequestHeader("Authorization") String accessToken) {   //todo refreshToken도 받아야함
-        try {
-            log.info("accessToken = {}", accessToken);
-            LoginResponseDTO loginResponseDTO = memberService.getUserInfoAndGenerateToken(accessToken);
+    public Object refreshToken(HttpServletRequest request) {
 
-            return loginResponseDTO;    // todo jwtToken 말고 accessToken 발급으로 변경 / refreshToken expired -> 401 재로그인
+        try {
+            validateExistHeader(request);
+            String accessToken = resolveToken(request);
+            String refreshToken = request.getHeader("Refresh-Token");
+
+            log.info("accessToken = {}", accessToken);
+            log.info("refreshToken = {}", refreshToken);
+
+            if (!refreshTokenService.validateRefreshToken(refreshToken)) {
+                // refresh 토큰 유효하지X -> 재로그인
+                return new ErrorResponse("refresh Token Invalid");
+            }
+            return memberService.getUserInfoAndGenerateToken(accessToken, refreshToken);
 
         } catch (Exception e) {
+            log.info(e.getMessage());
             return new ErrorResponse("Invalid token");
         }
     }
 
-//    @GetMapping("/refresh")
-//    public JwtToken refresh(HttpServletRequest request, Authentication authentication) {
-//        validateExistHeader(request);
-//        String email = authentication.getName();
-//        String refreshToken = request.getHeader("Refresh-Token");
-//        Long userId = refreshTokenService.matches(refreshToken, email);
-//        JwtToken jwtToken = refreshTokenService.generateToken(authentication);
-//        refreshTokenRepository.save(
-//                RefreshToken.builder().token(jwtToken.getRefreshToken()).userId(userId).build()
-//        );
-//        return jwtToken;
-//    }
-//
-//    private void validateExistHeader(HttpServletRequest request) {
-//        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-//        String refreshTokenHeader = request.getHeader("Refresh-Token");
-//        if (Objects.isNull(authorizationHeader) || Objects.isNull(refreshTokenHeader)) {
-//            throw new TokenNotFoundException("Token is null");
-//        }
-//    }
+    @Operation(summary = "Access Token Refresh API", description = "Access Token Refresh")
+    @GetMapping("/refresh")
+    public ResponseEntity<String> refresh(HttpServletRequest request) {
+
+        try {
+            validateExistHeader(request);
+            String accessToken = resolveToken(request);
+            String refreshToken = request.getHeader("Refresh-Token");
+
+            log.info("accessToken = {}", accessToken);
+            log.info("refreshToken = {}", refreshToken);
+
+            if (!refreshTokenService.validateRefreshToken(refreshToken)) {
+                // refresh 토큰 유효하지X -> 재로그인
+                log.info("재로그인 필요");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("재로그인 필요");
+            }
+
+            Authentication authentication = refreshTokenService.getAuthentication(accessToken);
+            Long userId = refreshTokenService.matches(refreshToken, authentication.getName());
+            log.info("token refresh 요청 : accessToken - userId = {}", userId);
+
+            String newAccessToken = refreshTokenService.generateToken(authentication);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + newAccessToken)
+                    .body("new access token 발급 성공");
+
+        } catch (Exception e) {
+            log.info("Token Refresh Fail");
+            log.info(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token Refresh Fail");
+        }
+    }
+
+    private void validateExistHeader(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String refreshTokenHeader = request.getHeader("Refresh-Token");
+        if (Objects.isNull(authorizationHeader) || Objects.isNull(refreshTokenHeader)) {
+            throw new TokenNotFoundException("Token is null");
+        }
+    }
+
+    // Request Header에서 access 토큰 정보 추출
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
 
     @Data
     @Schema(title = "MEM_RES_04 : 로그인 실패 응답 DTO")
