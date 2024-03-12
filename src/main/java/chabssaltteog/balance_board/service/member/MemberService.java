@@ -188,10 +188,10 @@ public class MemberService {
 
 
     @Transactional
-    public String changeNickname(NicknameRequestDTO requestDTO, String token) {
+    public String changeNickname(NicknameRequestDTO requestDTO, Authentication authentication) {
         String newNickname = requestDTO.getNickname();
         Long userId = requestDTO.getUserId();
-        Member member = getMember(token);
+        Member member = getMember(authentication);
 
         if (!member.getUserId().equals(userId)) {
             throw new InvalidUserException("올바른 사용자의 요청이 아닙니다.");
@@ -200,14 +200,8 @@ public class MemberService {
         return newNickname;
     }
 
-    private Member getMember(String token) {
-        if (!jwtTokenProvider.validateToken(token)) {
-            throw new RuntimeException("Invalid token");
-        }
-
-        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+    public Member getMember(Authentication authentication) {
         String email = authentication.getName();
-
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
         if (optionalMember.isEmpty()) {
             throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
