@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -50,17 +50,13 @@ public class MainApiController {
     })
     public List<PostDTO> getAllPosts(
             @RequestParam(defaultValue = "0", value="page")  int page,
-            @RequestHeader(value = "Authorization", required = false) String token
+            Authentication authentication
     ) {
         log.info("== GET ALL POSTS ==");
         if (page < 0) {
             return Collections.emptyList();
         }
-        if (token == null) {
-            log.info("==NO TOKEN 메인 페이지 조회==");
-            return mainService.getAllPosts(page);
-        }
-        return mainService.getAllPosts(page, token);
+        return mainService.getAllPosts(page, authentication);
     }
 
     @GetMapping("/posts/{postId}")
@@ -70,13 +66,11 @@ public class MainApiController {
                     content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
-    public PostDTO getPost(@PathVariable(name ="postId") Long postId, @RequestHeader(value = "Authorization", required = false) String token) {
+    public PostDTO getPost(@PathVariable(name ="postId") Long postId,
+                           Authentication authentication) {
         log.info("POST DETAIL : postId = {}", postId);
-        if (token == null) {
-            log.info("==NO TOKEN 상세 페이지 조회==");
-            return mainService.getPostByPostId(postId);
-        }
-        return mainService.getPostByPostId(postId, token);
+
+        return mainService.getPostByPostId(postId, authentication);
     }
 
     @GetMapping("/posts/{postId}/comments")
@@ -109,18 +103,12 @@ public class MainApiController {
     public List<PostDTO> getPostByCategory(
             @PathVariable(name = "category") Category category,
             @RequestParam(defaultValue = "0")  int page,
-            @RequestHeader(value = "Authorization", required = false) String token
+            Authentication authentication
     ) {
         if (page < 0) {
             return Collections.emptyList();
         }
-        if (token == null) {
-            log.info("==NO TOKEN 카테고리 필터링 조회==");
-            return mainService.getPostsByCategory(category, page);
-        }
-        log.info("CATEGORY SEARCH : category = {}", category);
-        log.info("==카테고리 필터링 조회==");
-        return mainService.getPostsByCategory(category, page, token);
+        return mainService.getPostsByCategory(category, page, authentication);
     }
 
     @PostMapping("/new/post")
@@ -179,11 +167,11 @@ public class MainApiController {
     })
     public Object doVote(
             @RequestBody VoteRequestDTO voteRequestDTO,
-            @RequestHeader(value = "Authorization") String token){
+            Authentication authentication){
 
         try {
 
-            return voteService.participateVote(voteRequestDTO, token);
+            return voteService.participateVote(voteRequestDTO, authentication);
 
         } catch (DuplicateVoteException e) {
             log.info(e.getMessage());
@@ -208,9 +196,11 @@ public class MainApiController {
     })
     public ResponseEntity<String> deletePost(
             @PathVariable(name = "postId") Long postId,
-            @RequestHeader(value = "Authorization") String token) {
+            Authentication authentication
+    ) {
         try {
-            postService.deletePost(postId, token);
+            postService.deletePost(postId, authentication);
+            log.info("==Delete Post==");
             return ResponseEntity.ok("게시글이 성공적으로 삭제되었습니다.");
 
         } catch (IllegalArgumentException e) {
@@ -232,10 +222,12 @@ public class MainApiController {
     })
     public ResponseEntity<String> deleteComment(
             @RequestBody CommentDeleteDTO requestDTO,
-            @RequestHeader(value = "Authorization") String token){
+            Authentication authentication
+    ){
 
         try{
-            postService.deleteComment(requestDTO, token);
+            postService.deleteComment(requestDTO, authentication);
+            log.info("==Delete Comment==");
             return ResponseEntity.ok("댓글이 성공적으로 삭제되었습니다.");
 
         } catch (IllegalArgumentException e){

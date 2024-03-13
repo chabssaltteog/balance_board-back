@@ -7,13 +7,14 @@ import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.dto.vote.VoteRequestDTO;
 import chabssaltteog.balance_board.dto.vote.VoteResponseDTO;
 import chabssaltteog.balance_board.exception.DuplicateVoteException;
-import chabssaltteog.balance_board.exception.ValidUserException;
+import chabssaltteog.balance_board.exception.InvalidUserException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteMemberRepository;
 import chabssaltteog.balance_board.repository.VoteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +33,11 @@ public class VoteService {
 
 
     @Transactional
-    public VoteResponseDTO participateVote(VoteRequestDTO voteRequestDTO, String token) {
+    public VoteResponseDTO participateVote(VoteRequestDTO voteRequestDTO, Authentication authentication) {
 
-        Member member = mainService.getMember(token);
+        Member member = mainService.getMember(authentication);
         if (member.getUserId() != voteRequestDTO.getUserId()) {
-            throw new ValidUserException("사용자 정보가 맞지 않습니다.");
+            throw new InvalidUserException("사용자 정보가 맞지 않습니다.");
         }
 
         Optional<Vote> optionalVote = voteRepository.findById(voteRequestDTO.getVoteId());
@@ -44,10 +45,6 @@ public class VoteService {
             throw new RuntimeException("올바른 투표가 아닙니다.");
         }
         Vote vote = optionalVote.get();
-
-        int option1Count = vote.getOption1Count();
-        int option2Count = vote.getOption2Count();
-
 
         // 중복 투표 확인
         boolean checkVoted = voteMemberRepository.existsByVoteAndUser_UserId(vote, voteRequestDTO.getUserId());
@@ -65,6 +62,9 @@ public class VoteService {
 
         VoteMember voteMember = voteMemberRepository.save(new VoteMember(vote, memberRepository.findByUserId(voteRequestDTO.getUserId()),
                 voteRequestDTO.getSelectedOption()));
+
+        int option1Count = vote.getOption1Count();
+        int option2Count = vote.getOption2Count();
 
         return VoteResponseDTO.builder()
                 .voteId(voteMember.getVote().getVoteId())

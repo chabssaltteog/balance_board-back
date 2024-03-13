@@ -27,24 +27,22 @@ import java.util.Optional;
 public class MainService {
 
     private final PostService postService;
-    private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
 
+    // 메인 페이지
+    public List<PostDTO> getAllPosts(int page, Authentication authentication) {
 
-    // 메인 페이지 -> 비로그인
-    public List<PostDTO> getAllPosts(int page) {
-        Page<Post> posts = postService.getAllPosts(page);
+        if (authentication == null) {
+            log.info("==비로그인 메인 페이지 조회==");
+            Page<Post> posts = postService.getAllPosts(page);
 
-        return posts.getContent()
-                .stream()
-                .map(PostDTO::toDTO)
-                .toList();
-    }
+            return posts.getContent()
+                    .stream()
+                    .map(PostDTO::toDTO)
+                    .toList();
+        }
 
-    // 메인 페이지 -> 로그인
-    public List<PostDTO> getAllPosts(int page, String token) {
-
-        Member member = getMember(token);
+        Member member = getMember(authentication);
         Long userId = member.getUserId();
         log.info("모든 게시글 조회 userId = {}", userId);
 
@@ -59,17 +57,17 @@ public class MainService {
                 .toList();
     }
 
-    // 상세 게시글 -> 비로그인
-    public PostDTO getPostByPostId(Long postId) {
+    // 상세 게시글
+    public PostDTO getPostByPostId(Long postId, Authentication authentication) {
 
-        Post post = postService.getPostByPostId(postId);
-        return PostDTO.toDetailDTO(post);
-    }
+        if (authentication == null) {
+            log.info("==비로그인 상세 페이지 조회==");
+            Post post = postService.getPostByPostId(postId);
+            return PostDTO.toDetailDTO(post);
+        }
 
-    // 상세 게시글 -> 로그인
-    public PostDTO getPostByPostId(Long postId, String token) {
+        Member member = getMember(authentication);
 
-        Member member = getMember(token);
         Long userId = member.getUserId();
         log.info("상세 게시글 조회 userId = {}", userId);
 
@@ -79,11 +77,20 @@ public class MainService {
         return PostDTO.toDetailDTO(post, selectedOption);
     }
 
-    // 게시글 카테고리 필터링 -> 로그인
-    public List<PostDTO> getPostsByCategory(Category category, int page, String token) {
-        log.info("카테고리 필터링 조회 category = {}", category);
-        Member member = getMember(token);
+    // 게시글 카테고리 필터링
+    public List<PostDTO> getPostsByCategory(Category category, int page, Authentication authentication) {
 
+        if (authentication == null) {
+            log.info("==비로그인 카테고리 필터링 조회==");
+            List<Post> posts = postService.getPostsByCategory(category, page);
+            return posts.stream()
+                    .map(PostDTO::toDTO)
+                    .toList();
+        }
+
+        log.info("CATEGORY SEARCH : category = {}", category);
+        log.info("==카테고리 필터링 조회==");
+        Member member = getMember(authentication);
         List<Post> posts = postService.getPostsByCategory(category, page);
 
         return posts.stream()
@@ -91,17 +98,6 @@ public class MainService {
                     String selectedOption = getSelectedOption(post, member);
                     return PostDTO.toDTO(post, selectedOption);
                 })
-                .toList();
-    }
-
-    // 게시글 카테고리 필터링 -> 비로그인
-    public List<PostDTO> getPostsByCategory(Category category, int page) {
-
-        log.info("카테고리 필터링 조회 category = {}", category);
-        List<Post> posts = postService.getPostsByCategory(category, page);
-
-        return posts.stream()
-                .map(PostDTO::toDTO)
                 .toList();
     }
 
@@ -150,22 +146,6 @@ public class MainService {
         return CommentDTO.toDTO(addedComment);
     }
 
-
-    public Member getMember(String token) {
-        if (!jwtTokenProvider.validateToken(token)) {
-            throw new RuntimeException("Invalid token");
-        }
-
-        Authentication authentication = jwtTokenProvider.getAuthentication(token);
-        String email = authentication.getName();
-
-        Optional<Member> optionalMember = memberRepository.findByEmail(email);
-        if (optionalMember.isEmpty()) {
-            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
-        }
-        return optionalMember.get();
-    }
-
     private String getSelectedOption(Post post, Member member) {
         Optional<VoteMember> voteMember = member.getVoteMembers()
                 .stream()
@@ -176,5 +156,13 @@ public class MainService {
         return voteMember.map(VoteMember::getVotedOption).orElse(null);
     }
 
+    public Member getMember(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isEmpty()) {
+            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
+        }
+        return optionalMember.get();
+    }
 
 }

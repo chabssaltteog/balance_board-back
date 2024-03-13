@@ -3,18 +3,20 @@ package chabssaltteog.balance_board.service.member;
 import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
+import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
+import chabssaltteog.balance_board.dto.member.ProfilePostDTO;
+import chabssaltteog.balance_board.dto.member.ProfilePostResponseDTO;
+import chabssaltteog.balance_board.dto.member.ProfileInfoResponseDTO;
+import chabssaltteog.balance_board.exception.InvalidUserException;
+import chabssaltteog.balance_board.exception.TokenNotFoundException;
 import chabssaltteog.balance_board.dto.member.*;
-import chabssaltteog.balance_board.exception.ValidUserException;
 import chabssaltteog.balance_board.repository.MemberRepository;
-import chabssaltteog.balance_board.repository.PostRepository;
+import chabssaltteog.balance_board.repository.RefreshTokenRepository;
 import chabssaltteog.balance_board.repository.VoteMemberRepository;
 import chabssaltteog.balance_board.util.JwtToken;
 import chabssaltteog.balance_board.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -34,6 +36,7 @@ public class MemberService {
     private final VoteMemberRepository voteMemberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenService refreshTokenService;
 
 
     @Transactional
@@ -64,31 +67,31 @@ public class MemberService {
         return byNickname.isPresent();
     }
 
-    public LoginResponseDTO getUserInfoAndGenerateToken(String token) {
-
-        // 토큰 유효성 검사
-        if (!jwtTokenProvider.validateToken(token)) {
-            throw new RuntimeException("Invalid token");
-        }
+    public LoginTokenResponseDTO getUserInfoAndGenerateToken(String accessToken, String refreshToken) {
 
         // 토큰에서 사용자 정보 추출
-        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
         String email = authentication.getName();
+        log.info("token login : access token - user email = {}", email);
 
         // 사용자 정보 가져오기
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다."));
 
-        JwtToken newToken = jwtTokenProvider.generateToken(authentication);
-        log.info("newToken = {}", newToken);
+        //access token의 userId와 refresh token의 userId가 같으면 userId 반환
+        Long userId = refreshTokenService.matches(refreshToken, email);
+        log.info("refresh token userId == access token userId");
 
-        return new LoginResponseDTO(
-                member.getEmail(),
-                newToken,
-                member.getUserId(),
-                member.getImageType(),
-                member.getNickname()
-        );
+        String newAccessToken = jwtTokenProvider.generateAccessToken(authentication);
+        log.info("newAccessToken = {}", newAccessToken);
+
+        return LoginTokenResponseDTO.builder()
+                .accessToken(newAccessToken)
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .imageType(member.getImageType())
+                .userId(userId)
+                .build();
     }
 
     public ProfileInfoResponseDTO getProfile(Long userId) {
@@ -185,26 +188,20 @@ public class MemberService {
 
 
     @Transactional
-    public String changeNickname(NicknameRequestDTO requestDTO, String token) {
+    public String changeNickname(NicknameRequestDTO requestDTO, Authentication authentication) {
         String newNickname = requestDTO.getNickname();
         Long userId = requestDTO.getUserId();
-        Member member = getMember(token);
+        Member member = getMember(authentication);
 
         if (!member.getUserId().equals(userId)) {
-            throw new ValidUserException("올바른 사용자의 요청이 아닙니다.");
+            throw new InvalidUserException("올바른 사용자의 요청이 아닙니다.");
         }
         member.setNickname(newNickname);
         return newNickname;
     }
 
-    private Member getMember(String token) {
-        if (!jwtTokenProvider.validateToken(token)) {
-            throw new RuntimeException("Invalid token");
-        }
-
-        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+    public Member getMember(Authentication authentication) {
         String email = authentication.getName();
-
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
         if (optionalMember.isEmpty()) {
             throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
