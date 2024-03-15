@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -63,6 +64,15 @@ public class Member extends BaseTimeEntity implements UserDetails  {
     @Column(name = "image_type")
     private int imageType;    //프로필 사진
 
+    @Column(name = "withdrawn", columnDefinition = "boolean default false")
+    private boolean withdrawn = false;
+
+    @Column(name = "withdrawn_date")
+    private LocalDateTime withdrawnDate;
+
+
+
+
 
     public Member(String email, String password, String nickname, String birthYear, String gender, int imageType) {
         this.email = email;
@@ -82,6 +92,13 @@ public class Member extends BaseTimeEntity implements UserDetails  {
         return this.roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+    }
+
+    public void withdraw(){
+        this.withdrawn = true;
+        this.withdrawnDate = LocalDateTime.now(); // 회원 탈퇴 시간 기록
+        this.nickname = "(알수없음)";
+        System.out.println("withdraw() 메서드가 실행되었습니다.");
     }
 
     @Override

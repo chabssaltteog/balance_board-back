@@ -3,6 +3,7 @@ package chabssaltteog.balance_board.api;
 import chabssaltteog.balance_board.domain.Vote;
 import chabssaltteog.balance_board.domain.VoteMember;
 import chabssaltteog.balance_board.domain.post.Category;
+import chabssaltteog.balance_board.dto.member.WithdrawalRequestDTO;
 import chabssaltteog.balance_board.dto.post.*;
 import chabssaltteog.balance_board.dto.vote.VoteRequestDTO;
 import chabssaltteog.balance_board.dto.vote.VoteResponseDTO;
@@ -11,7 +12,9 @@ import chabssaltteog.balance_board.repository.VoteRepository;
 import chabssaltteog.balance_board.service.MainService;
 import chabssaltteog.balance_board.service.PostService;
 import chabssaltteog.balance_board.service.VoteService;
+import chabssaltteog.balance_board.service.member.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Parameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -40,6 +44,7 @@ public class MainApiController {
     private final MainService mainService;
     private final VoteService voteService;
     private final PostService postService;
+    private final MemberService memberService;
 
     @GetMapping("/posts")
     @Operation(summary = "All Posts", description = "모든 게시글 조회")
@@ -157,6 +162,7 @@ public class MainApiController {
 
     }
 
+
     @PostMapping("/new/vote")
     @Operation(summary = "Create VOTE", description = "투표 실행")
     @ApiResponses(value = {
@@ -236,6 +242,7 @@ public class MainApiController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("댓글 삭제 중 오류가 발생했습니다.");
         }
     }
+
 
     @Data
     @AllArgsConstructor

@@ -5,6 +5,7 @@ import chabssaltteog.balance_board.domain.RefreshToken;
 import chabssaltteog.balance_board.dto.member.LoginRequestDTO;
 import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
 import chabssaltteog.balance_board.dto.member.LoginTokenResponseDTO;
+import chabssaltteog.balance_board.dto.member.WithdrawalRequestDTO;
 import chabssaltteog.balance_board.exception.TokenNotFoundException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.RefreshTokenRepository;
