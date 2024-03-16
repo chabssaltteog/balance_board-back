@@ -64,8 +64,8 @@ public class Member extends BaseTimeEntity implements UserDetails  {
     @Column(name = "image_type")
     private int imageType;    //프로필 사진
 
-    @Column(name = "withdrawn", columnDefinition = "boolean default false")
-    private boolean withdrawn = false;
+    @Column(name = "withdrawn")
+    private Boolean withdrawn;
 
     @Column(name = "withdrawn_date")
     private LocalDateTime withdrawnDate;
