@@ -1,6 +1,7 @@
 package chabssaltteog.balance_board.domain;
 
 
+import chabssaltteog.balance_board.api.member.MemberController;
 import chabssaltteog.balance_board.domain.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
@@ -124,5 +125,14 @@ public class Member extends BaseTimeEntity implements UserDetails  {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void updateWithNewData(MemberController.CreateMemberRequestDTO requestDTO, String encodedPassword) {
+        this.password = encodedPassword;
+        this.nickname = requestDTO.getNickname();
+        this.birthYear = requestDTO.getBirthYear();
+        this.gender = requestDTO.getGender();
+        this.withdrawn = null;
+        this.withdrawnDate = null;
     }
 }
