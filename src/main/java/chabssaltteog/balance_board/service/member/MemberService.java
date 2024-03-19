@@ -22,6 +22,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,6 +38,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Transactional
@@ -209,4 +211,26 @@ public class MemberService {
         return optionalMember.get();
     }
 
+    @Transactional
+    public void withdraw(WithdrawalRequestDTO withdrawalDTO, Authentication authentication){
+        String email = authentication.getName();
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+
+        if (optionalMember.isPresent()) {
+            Member member = optionalMember.get();
+            // 입력한 비밀번호와 저장된 비밀번호를 비교하여 일치하는지 확인
+            if (passwordEncoder.matches(withdrawalDTO.getPassword(), member.getPassword())) {
+                // 비밀번호가 일치하면 회원 탈퇴 처리
+                member.withdraw();
+                memberRepository.save(member);
+            } else {
+                // 비밀번호가 일치하지 않는 경우 처리
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
+        } else {
+            // 해당 이메일을 가진 회원이 없는 경우 처리
+            throw new IllegalArgumentException("해당 이메일을 가진 회원을 찾을 수 없습니다.");
+        }
+
+    }
 }

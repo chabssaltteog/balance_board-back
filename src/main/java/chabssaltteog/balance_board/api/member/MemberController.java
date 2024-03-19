@@ -1,6 +1,7 @@
 package chabssaltteog.balance_board.api.member;
 
 import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.dto.member.WithdrawalRequestDTO;
 import chabssaltteog.balance_board.service.member.MemberService;
 import chabssaltteog.balance_board.service.member.RegisterService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -83,17 +87,54 @@ public class MemberController {
             content = {@Content(schema = @Schema(implementation = ValidateResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
+//    @GetMapping("/validate/email")
+//    public ValidateResponse validateEmail(
+//            @Parameter(name = "email", description = "Parameter Value", example = "aaa@gmail.com", required = true)
+//            @RequestParam String email) {
+//
+//        boolean isDuplicate = registerService.validateDuplicateEmail(email);
+//        ValidateResponse response = new ValidateResponse(isDuplicate);
+//        log.info("Email: {}", email);
+//        log.info("Is duplicate: {}", isDuplicate);
+//
+//        return response;
+//    }
     @GetMapping("/validate/email")
-    public ValidateResponse validateEmail(
+    public ResponseEntity<String> validateEmail(
             @Parameter(name = "email", description = "Parameter Value", example = "aaa@gmail.com", required = true)
             @RequestParam String email) {
 
-        boolean isDuplicate = registerService.validateDuplicateEmail(email);
-        ValidateResponse response = new ValidateResponse(isDuplicate);
-        log.info("Email: {}", email);
-        log.info("Is duplicate: {}", isDuplicate);
+        int isDuplicate = registerService.validateDuplicateEmail(email);
+        if (isDuplicate == 1) {return ResponseEntity.ok("신규회원 회원가입 가능");}
 
-        return response;
+        if (isDuplicate == 2) {return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일 중복.");}
+
+        if (isDuplicate == 3) {return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("탈퇴 후 30일 이내에는 재가입이 제한됩니다.");}
+
+        if (isDuplicate == 4) {return ResponseEntity.ok("탈퇴 후 30일 경과 유저");}
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류");
+    }
+
+    @PostMapping("/withdrawal")
+    @Operation(summary = "Member Withdrawal", description = "회원 탈퇴")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+    })
+    public ResponseEntity<String> memberWithdrawal(@RequestBody WithdrawalRequestDTO withdrawalDTO, Authentication authentication){
+        try {
+            memberService.withdraw(withdrawalDTO, authentication);
+            return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 에러가 발생했습니다.");
+        }
     }
 
     @Data

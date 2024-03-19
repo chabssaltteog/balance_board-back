@@ -4,6 +4,7 @@ import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.dto.member.LoginRequestDTO;
 import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
 import chabssaltteog.balance_board.dto.member.LoginTokenResponseDTO;
+import chabssaltteog.balance_board.dto.member.WithdrawalRequestDTO;
 import chabssaltteog.balance_board.exception.TokenNotFoundException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.service.member.MemberService;
@@ -59,6 +60,12 @@ public class LoginController {
             JwtToken jwtToken = memberService.signIn(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
             Member member = memberRepository.findByEmail(loginRequestDTO.getEmail())
                     .orElseThrow(() -> new RuntimeException("잘못된 이메일입니다."));
+
+            //탈퇴 회원 필터링 추가
+            if (member.getWithdrawn() != null && member.getWithdrawn()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("탈퇴한 회원입니다.");
+            }
+
             Long userId = member.getUserId();
             int imageType = member.getImageType();
             String nickname = member.getNickname();
