@@ -44,7 +44,6 @@ public class MainApiController {
     private final MainService mainService;
     private final VoteService voteService;
     private final PostService postService;
-    private final MemberService memberService;
 
     @GetMapping("/posts")
     @Operation(summary = "All Posts", description = "모든 게시글 조회")

@@ -87,18 +87,6 @@ public class MemberController {
             content = {@Content(schema = @Schema(implementation = ValidateResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
-//    @GetMapping("/validate/email")
-//    public ValidateResponse validateEmail(
-//            @Parameter(name = "email", description = "Parameter Value", example = "aaa@gmail.com", required = true)
-//            @RequestParam String email) {
-//
-//        boolean isDuplicate = registerService.validateDuplicateEmail(email);
-//        ValidateResponse response = new ValidateResponse(isDuplicate);
-//        log.info("Email: {}", email);
-//        log.info("Is duplicate: {}", isDuplicate);
-//
-//        return response;
-//    }
     @GetMapping("/validate/email")
     public ResponseEntity<String> validateEmail(
             @Parameter(name = "email", description = "Parameter Value", example = "aaa@gmail.com", required = true)
