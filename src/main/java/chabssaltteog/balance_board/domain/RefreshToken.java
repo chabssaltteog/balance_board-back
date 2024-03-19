@@ -6,24 +6,27 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+//@RedisHash(value = "refreshToken", timeToLive = 60 * 60 * 24 * 14)  //14일
 public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "refresh_token_id")
-    private Long id;
+    private Long tokenId;
 
+    private String token;
+
+//    @Indexed
     @Column(name = "user_id")
     private Long userId;
-
-    @Column(name = "token")
-    private String token;
 
     public void validateSameToken(String token) {
         if (!this.token.equals(token)) {

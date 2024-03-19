@@ -51,7 +51,7 @@ public class RefreshTokenService {
         if (optionalRefreshToken.isEmpty()) {   // 최초 로그인
             log.info("==최초 로그인==");
             log.info("refreshToken save to DB");
-            RefreshToken savedToken = refreshTokenRepository.save(RefreshToken.builder().userId(userId).token(token).build());
+            refreshTokenRepository.save(RefreshToken.builder().userId(userId).token(token).build());
             return;
         }
 

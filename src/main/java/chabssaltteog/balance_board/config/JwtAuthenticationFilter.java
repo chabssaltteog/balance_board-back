@@ -39,21 +39,14 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             log.info("authentication setting----");
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else if (token == null) {
+            log.info("token == null");
+        } else if (((HttpServletRequest) request).getRequestURI().contains(path) ||
+                ((HttpServletRequest) request).getRequestURI().contains(path2) ||
+                ((HttpServletRequest) request).getRequestURI().contains(path3)) {
+            log.info("---- refresh token / Login filter ----");
         }
         else {
-            if (((HttpServletRequest) request).getRequestURI().contains(path) ||
-                    ((HttpServletRequest) request).getRequestURI().contains(path2) ||
-                    ((HttpServletRequest) request).getRequestURI().contains(path3)) {
-                log.info("refresh token / Login filter ----");
-                chain.doFilter(request, response);
-                return;
-            }
-
-            if (token == null) {
-                log.info("token is null filter ----");
-                chain.doFilter(request, response);
-                return;
-            }
             // 토큰이 유효하지 않거나 만료된 경우 401 응답을 반환
             ((HttpServletResponse) response).sendError(HttpStatus.UNAUTHORIZED.value(), "토큰이 만료되었거나 유효하지 않습니다.");
             return;

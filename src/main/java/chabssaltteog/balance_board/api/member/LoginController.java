@@ -1,13 +1,11 @@
 package chabssaltteog.balance_board.api.member;
 
 import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.domain.RefreshToken;
 import chabssaltteog.balance_board.dto.member.LoginRequestDTO;
 import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
 import chabssaltteog.balance_board.dto.member.LoginTokenResponseDTO;
 import chabssaltteog.balance_board.exception.TokenNotFoundException;
 import chabssaltteog.balance_board.repository.MemberRepository;
-import chabssaltteog.balance_board.repository.RefreshTokenRepository;
 import chabssaltteog.balance_board.service.member.MemberService;
 import chabssaltteog.balance_board.service.member.RefreshTokenService;
 import chabssaltteog.balance_board.util.JwtToken;
@@ -17,7 +15,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,7 +31,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Tag(name = "Login", description = "Login API")
 @RestController
@@ -52,7 +51,9 @@ public class LoginController {
                     content = {@Content(schema = @Schema(implementation = LoginFailResponse.class))})
     })
     @PostMapping("/login")
-    public Object login(@RequestBody @Valid LoginRequestDTO loginRequestDTO) {
+    public Object login(
+            @RequestBody @Valid LoginRequestDTO loginRequestDTO,
+            HttpServletResponse response) {
 
         try {
             JwtToken jwtToken = memberService.signIn(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
@@ -67,6 +68,12 @@ public class LoginController {
 
             log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
             log.info("request email = {}, password = {}", loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
+
+            Cookie accessTokenCookie = createAccessTokenCookie(jwtToken.getAccessToken());
+            Cookie refreshTokenCookie = createRefreshTokenCookie(jwtToken.getRefreshToken());
+            response.addCookie(accessTokenCookie);
+            response.addCookie(refreshTokenCookie);
+            log.info("JWT 토큰 쿠키 생성 및 발급");
 
             return new LoginResponseDTO(loginRequestDTO.getEmail(), jwtToken, userId, imageType, nickname);
 
@@ -84,12 +91,12 @@ public class LoginController {
                     content = {@Content(schema = @Schema(implementation = ErrorResponse.class))})
     })
     @GetMapping("/login/token")
-    public Object refreshToken(HttpServletRequest request) {
+    public Object refreshToken(HttpServletRequest request, HttpServletResponse response) {
 
         try {
             validateExistHeader(request);
             String accessToken = resolveToken(request);
-            String refreshToken = request.getHeader("Refresh-Token");
+            String refreshToken = request.getHeader("refreshToken");
 
             log.info("accessToken = {}", accessToken);
             log.info("refreshToken = {}", refreshToken);
@@ -98,6 +105,9 @@ public class LoginController {
                 // refresh 토큰 유효하지X -> 재로그인
                 return new ErrorResponse("refresh Token Invalid");
             }
+            Cookie accessTokenCookie = createAccessTokenCookie(accessToken);
+            response.addCookie(accessTokenCookie);
+
             return memberService.getUserInfoAndGenerateToken(accessToken, refreshToken);
 
         } catch (Exception e) {
@@ -108,12 +118,12 @@ public class LoginController {
 
     @Operation(summary = "Access Token Refresh API", description = "Access Token Refresh")
     @GetMapping("/refresh")
-    public ResponseEntity<String> refresh(HttpServletRequest request) {
+    public ResponseEntity<String> refresh(HttpServletRequest request, HttpServletResponse response) {
 
         try {
             validateExistHeader(request);
             String accessToken = resolveToken(request);
-            String refreshToken = request.getHeader("Refresh-Token");
+            String refreshToken = request.getHeader("refreshToken");
 
             log.info("accessToken = {}", accessToken);
             log.info("refreshToken = {}", refreshToken);
@@ -130,6 +140,9 @@ public class LoginController {
 
             String newAccessToken = refreshTokenService.generateToken(authentication);
 
+            Cookie accessTokenCookie = createAccessTokenCookie(newAccessToken);
+            response.addCookie(accessTokenCookie);
+
             return ResponseEntity.ok()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + newAccessToken)
                     .body("new access token 발급 성공");
@@ -143,7 +156,7 @@ public class LoginController {
 
     private void validateExistHeader(HttpServletRequest request) {
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String refreshTokenHeader = request.getHeader("Refresh-Token");
+        String refreshTokenHeader = request.getHeader("refreshToken");
         if (Objects.isNull(authorizationHeader) || Objects.isNull(refreshTokenHeader)) {
             throw new TokenNotFoundException("Token is null");
         }
@@ -180,6 +193,19 @@ public class LoginController {
 
         @Schema(description = "Error Message", example = "Invalid token")
         private String message;
+    }
+
+    private Cookie createAccessTokenCookie(String accessToken) {
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge(60 * 60); // 1시간
+        return accessTokenCookie;
+    }
+
+    private Cookie createRefreshTokenCookie(String refreshToken) {
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setMaxAge(14 * 24 * 60 * 60);  // 14일
+        return refreshTokenCookie;
     }
 
 }

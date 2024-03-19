@@ -54,36 +54,6 @@ public class JwtTokenProvider {
                 .build();
     }
 
-//    public JwtToken generateToken(Authentication authentication) {
-//        // 권한 가져오기
-//        String authorities = authentication.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.joining(","));
-//
-//        long now = (new Date()).getTime();
-//
-//        // Access Token 생성
-//        Date accessTokenExpiresIn = new Date(now + 86400000);   // 24시간
-//        String accessToken = Jwts.builder()
-//                .setSubject(authentication.getName())
-//                .claim("auth", authorities)
-//                .setExpiration(accessTokenExpiresIn)
-//                .signWith(key, SignatureAlgorithm.HS256)
-//                .compact();
-//
-//        // Refresh Token 생성
-//        String refreshToken = Jwts.builder()
-//                .setExpiration(new Date(now + 86400000))
-//                .signWith(key, SignatureAlgorithm.HS256)
-//                .compact();
-//
-//        return JwtToken.builder()
-//                .grantType("Bearer")
-//                .accessToken(accessToken)
-//                .refreshToken(refreshToken)
-//                .build();
-//    }
-
     public String generateAccessToken(Authentication authentication) {
         // 권한 가져오기
         String authorities = authentication.getAuthorities().stream()
@@ -92,8 +62,8 @@ public class JwtTokenProvider {
 
         long now = System.currentTimeMillis();
 
-        // Access Token 생성 (30분)
-        long accessTokenExpirationMillis = 30 * 60 * 1000; // 30분
+        // Access Token 생성 (40분)
+        long accessTokenExpirationMillis = 40 * 60 * 1000; // 40분
         Date accessTokenExpiresIn = new Date(now + accessTokenExpirationMillis);
         return Jwts.builder()
                 .setSubject(authentication.getName())
@@ -107,8 +77,8 @@ public class JwtTokenProvider {
     public String generateRefreshToken() {
         long now = System.currentTimeMillis();
 
-        // Refresh Token 생성 (10일)
-        long refreshTokenExpirationMillis = 10 * 24 * 60 * 60 * 1000; // 10일
+        // Refresh Token 생성 (14일)
+        long refreshTokenExpirationMillis = 14 * 24 * 60 * 60 * 1000; // 14일
         Date refreshTokenExpiresIn = new Date(now + refreshTokenExpirationMillis);
         return Jwts.builder()
                 .setExpiration(refreshTokenExpiresIn)
@@ -173,7 +143,19 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
-
+//
+//    public boolean isExpired(String token) {
+//        try {
+//            Jwts.parserBuilder()
+//                    .setSigningKey(key)
+//                    .build()
+//                    .parseClaimsJws(token);
+//            return false;
+//        } catch (ExpiredJwtException e) {
+//            return true;
+//        }
+//
+//    }
 }
 
 
