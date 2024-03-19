@@ -16,6 +16,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -89,9 +90,9 @@ public class ProfileController {
     @PostMapping("/profile/settings/nickname")
     public ResponseEntity<String> changeNickname(
             @RequestBody NicknameRequestDTO nicknameRequestDTO,
-            @RequestHeader("Authorization") String token) {
+            Authentication authentication) {
         try {
-            String newNickname = memberService.changeNickname(nicknameRequestDTO, token);
+            String newNickname = memberService.changeNickname(nicknameRequestDTO, authentication);
             return ResponseEntity.ok("닉네임 변경 성공 -> " + newNickname);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");
