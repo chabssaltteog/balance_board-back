@@ -74,11 +74,10 @@ public class MemberController {
             @RequestParam String nickname) {
 
         boolean isDuplicate = memberService.validateDuplicateNickname(nickname);
-        ValidateResponse response = new ValidateResponse(isDuplicate);
         log.info("Nickname: {}", nickname);
         log.info("Is duplicate: {}", isDuplicate);
 
-        return response;
+        return new ValidateResponse(isDuplicate);
     }
 
     @Operation(summary = "Email validate API", description = "이메일 중복 확인")

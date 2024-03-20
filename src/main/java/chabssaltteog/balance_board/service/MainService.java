@@ -7,6 +7,7 @@ import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.domain.post.Tag;
 import chabssaltteog.balance_board.dto.post.*;
+import chabssaltteog.balance_board.exception.InvalidUserException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -103,12 +104,16 @@ public class MainService {
 
     // 게시글 작성
     @Transactional
-    public CreatePostResponseDTO createPost(CreatePostRequestDTO requestDTO) {
+    public CreatePostResponseDTO createPost(CreatePostRequestDTO requestDTO, Authentication authentication) {
 
         Category category = Category.valueOf(requestDTO.getCategory());
         log.info("CREATE POST Category = {}", category);
 
         Long userId = requestDTO.getUserId();
+        Member member = getMember(authentication);
+        if (!member.getUserId().equals(userId)) {
+            throw new InvalidUserException("올바른 사용자의 요청이 아닙니다.");
+        }
 
         Post post = Post.builder()
                 .title(requestDTO.getTitle())
@@ -128,7 +133,7 @@ public class MainService {
         }
         post.setVoteOptions(requestDTO.getOption1(), requestDTO.getOption2());
 
-        Post createdPost = postService.createPost(userId, post);
+        Post createdPost = postService.createPost(member, post);
 
         return CreatePostResponseDTO.builder()
                 .postId(createdPost.getPostId())
@@ -139,9 +144,9 @@ public class MainService {
 
     // 게시글에 댓글 달기
     @Transactional
-    public CommentDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
+    public CommentDTO addCommentToPost(CreateCommentRequestDTO requestDTO, Authentication authentication) {
 
-        Comment addedComment = postService.addCommentToPost(requestDTO);
+        Comment addedComment = postService.addCommentToPost(requestDTO, authentication);
 
         return CommentDTO.toDTO(addedComment);
     }
