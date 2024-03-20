@@ -8,6 +8,7 @@ import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.dto.post.CommentDTO;
 import chabssaltteog.balance_board.dto.post.CreateCommentRequestDTO;
 import chabssaltteog.balance_board.dto.post.CommentDeleteDTO;
+import chabssaltteog.balance_board.exception.InvalidUserException;
 import chabssaltteog.balance_board.repository.CommentRepository;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.repository.PostRepository;
@@ -65,27 +66,28 @@ public class PostService {
     }
 
     @Transactional
-    public Post createPost(Long userId, Post post) {
-        Member user = memberRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User 정보가 없습니다."));
-        post.setUser(user);
+    public Post createPost(Member member, Post post) {
+
+        post.setUser(member);
         return postRepository.save(post);
     }
 
     @Transactional
-    public Comment addCommentToPost(CreateCommentRequestDTO requestDTO) {
+    public Comment addCommentToPost(CreateCommentRequestDTO requestDTO, Authentication authentication) {
         Long userId = requestDTO.getUserId();
         Long postId = requestDTO.getPostId();
+
+        Member member = getMember(authentication);
+        if (!member.getUserId().equals(userId)) {
+            throw new InvalidUserException("올바른 사용자의 요청이 아닙니다.");
+        }
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글 정보가 없습니다."));
 
-        Member user = memberRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User 정보가 없습니다."));
-
         Comment comment = Comment.builder()
                 .content(requestDTO.getContent())
-                .user(user)
+                .user(member)
                 .post(post)
                 .build();
 
@@ -100,20 +102,20 @@ public class PostService {
 
         Member member = getMember(authentication);
         Long userId = member.getUserId();
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
-        Long postUserId = post.getUser().getUserId();
-        if (!userId.equals(postUserId)) {
+
+        Post post = postRepository.findByIdWithVote(postId)
+                .orElseThrow(() -> new RuntimeException("게시글 또는 투표가 존재하지 않습니다."));
+
+        if (!userId.equals(post.getUser().getUserId())) {
             throw new IllegalArgumentException("게시글을 삭제할 권한이 없습니다.");
         }
 
-        Vote vote = voteRepository.findByPost_PostId(postId)
-                .orElseThrow(() -> new RuntimeException("해당 postId에 대한 투표가 존재하지 않습니다."));
+        Vote vote = post.getVote();
+        if (vote != null) {
+            vote.setPost(null);
+            voteRepository.delete(vote);
+        }
 
-        vote.setPost(null);
-        voteRepository.delete(vote);
-
-        post.deletePost();
         postRepository.delete(post);
     }
 
