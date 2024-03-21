@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,27 +82,55 @@ public class MemberController {
         return response;
     }
 
+//    @Operation(summary = "Email validate API", description = "이메일 중복 확인")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "Success",
+//            content = {@Content(schema = @Schema(implementation = ValidateResponse.class))}),
+//            @ApiResponse(responseCode = "400", description = "Fail")
+//    })
+//    @GetMapping("/validate/email")
+//    public ResponseEntity<String> validateEmail(
+//            @Parameter(name = "email", description = "Parameter Value", example = "aaa@gmail.com", required = true)
+//            @RequestParam String email) {
+//
+//        int isDuplicate = registerService.validateDuplicateEmail(email);
+//        if (isDuplicate == 1) {return ResponseEntity.ok("신규회원 회원가입 가능");}
+//
+//        if (isDuplicate == 2) {return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일 중복.");}
+//
+//        if (isDuplicate == 3) {return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("탈퇴 후 30일 이내에는 재가입이 제한됩니다.");}
+//
+//        if (isDuplicate == 4) {return ResponseEntity.ok("탈퇴 후 30일 경과 유저");}
+//
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류");
+//    }
+
     @Operation(summary = "Email validate API", description = "이메일 중복 확인")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
-            content = {@Content(schema = @Schema(implementation = ValidateResponse.class))}),
+                    content = {@Content(schema = @Schema(implementation = ValidateResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
     @GetMapping("/validate/email")
-    public ResponseEntity<String> validateEmail(
+    public ValidateResponse validateEmail(
             @Parameter(name = "email", description = "Parameter Value", example = "aaa@gmail.com", required = true)
             @RequestParam String email) {
 
         int isDuplicate = registerService.validateDuplicateEmail(email);
-        if (isDuplicate == 1) {return ResponseEntity.ok("신규회원 회원가입 가능");}
 
-        if (isDuplicate == 2) {return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일 중복.");}
-
-        if (isDuplicate == 3) {return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("탈퇴 후 30일 이내에는 재가입이 제한됩니다.");}
-
-        if (isDuplicate == 4) {return ResponseEntity.ok("탈퇴 후 30일 경과 유저");}
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류");
+        if (isDuplicate == 1) {
+            return new ValidateResponse(false);
+        }
+        if (isDuplicate == 2) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이메일 중복."); // 이메일 중복
+        }
+        if (isDuplicate == 3) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "탈퇴 후 30일 이내에는 재가입이 제한됩니다."); // 재가입 제한
+        }
+        if (isDuplicate == 4) {
+            return new ValidateResponse(false); // 탈퇴 후 30일 경과 유저
+        }
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류"); // 서버 오류
     }
 
     @PostMapping("/withdrawal")
