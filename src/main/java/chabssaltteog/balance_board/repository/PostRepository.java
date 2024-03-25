@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Query("SELECT p FROM Post p JOIN FETCH p.category c WHERE c = :category")
+//    @Query("SELECT p FROM Post p JOIN FETCH p.category c WHERE c = :category")
     public List<Post> findByCategory(Category category, Pageable pageable);
 
     @Query("SELECT p FROM Post p JOIN FETCH p.vote v WHERE p.postId = :postId")

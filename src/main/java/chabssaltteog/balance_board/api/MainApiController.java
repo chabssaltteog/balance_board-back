@@ -205,7 +205,7 @@ public class MainApiController {
     ) {
         try {
             postService.deletePost(postId, authentication);
-            log.info("==Delete Post==");
+            log.info("==Delete {} Post==", postId);
             return ResponseEntity.ok("게시글이 성공적으로 삭제되었습니다.");
 
         } catch (IllegalArgumentException e) {
