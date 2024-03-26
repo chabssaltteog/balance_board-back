@@ -6,7 +6,6 @@ import lombok.*;
 @Entity
 @Table(name = "vote_member")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class VoteMember {
 

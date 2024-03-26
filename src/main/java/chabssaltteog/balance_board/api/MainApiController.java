@@ -123,9 +123,9 @@ public class MainApiController {
             @ApiResponse(responseCode = "400", description = "Fail",
                     content = {@Content(schema = @Schema(implementation = CreatePostFailResponseDTO.class))})
     })
-    public Object createPost(@RequestBody CreatePostRequestDTO requestDTO) {
+    public Object createPost(@RequestBody CreatePostRequestDTO requestDTO, Authentication authentication) {
         try {
-            CreatePostResponseDTO postResponseDTO = mainService.createPost(requestDTO);
+            CreatePostResponseDTO postResponseDTO = mainService.createPost(requestDTO, authentication);
             log.info("CREATE POST : userID = {}", postResponseDTO.getUserId());
             log.info("CREATE POST : postID = {}", postResponseDTO.getPostId());
             log.info("CREATE POST : Created Time = {}", postResponseDTO.getCreated());
@@ -146,9 +146,9 @@ public class MainApiController {
             @ApiResponse(responseCode = "400", description = "Fail",
                     content = {@Content(schema = @Schema(implementation = CreateCommentFailResponseDTO.class))})
     })
-    public Object createComment(@RequestBody CreateCommentRequestDTO requestDTO) {
+    public Object createComment(@RequestBody CreateCommentRequestDTO requestDTO, Authentication authentication) {
         try {
-            CommentDTO commentDTO = mainService.addCommentToPost(requestDTO);
+            CommentDTO commentDTO = mainService.addCommentToPost(requestDTO, authentication);
             log.info("CREATE COMMENT : userID = {}", commentDTO.getUserId());
             log.info("CREATE COMMENT : nickname = {}", commentDTO.getNickname());
             log.info("CREATE COMMENT : Created Time = {}", commentDTO.getCreated());
@@ -205,7 +205,7 @@ public class MainApiController {
     ) {
         try {
             postService.deletePost(postId, authentication);
-            log.info("==Delete Post==");
+            log.info("==Delete {} Post==", postId);
             return ResponseEntity.ok("게시글이 성공적으로 삭제되었습니다.");
 
         } catch (IllegalArgumentException e) {
