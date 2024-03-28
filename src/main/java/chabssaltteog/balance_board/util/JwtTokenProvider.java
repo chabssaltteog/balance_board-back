@@ -63,7 +63,7 @@ public class JwtTokenProvider {
         long now = System.currentTimeMillis();
 
         // Access Token 생성 (40분)
-        long accessTokenExpirationMillis = 40 * 60 * 1000; // 40분
+        long accessTokenExpirationMillis = 10 * 60 * 1000; // 40분 todo 10분으로 수정해둠
         Date accessTokenExpiresIn = new Date(now + accessTokenExpirationMillis);
         return Jwts.builder()
                 .setSubject(authentication.getName())
@@ -78,7 +78,7 @@ public class JwtTokenProvider {
         long now = System.currentTimeMillis();
 
         // Refresh Token 생성 (14일)
-        long refreshTokenExpirationMillis = 14 * 24 * 60 * 60 * 1000; // 14일
+        long refreshTokenExpirationMillis = 24 * 60 * 60 * 1000; // 14일 todo 1일로 수정해둠
         Date refreshTokenExpiresIn = new Date(now + refreshTokenExpirationMillis);
         return Jwts.builder()
                 .setExpiration(refreshTokenExpiresIn)
