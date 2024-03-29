@@ -2,6 +2,8 @@ package chabssaltteog.balance_board.api.member;
 
 import chabssaltteog.balance_board.domain.Member;
 import chabssaltteog.balance_board.dto.member.WithdrawalRequestDTO;
+import chabssaltteog.balance_board.exception.DuplicateEmailException;
+import chabssaltteog.balance_board.service.member.MailService;
 import chabssaltteog.balance_board.service.member.MemberService;
 import chabssaltteog.balance_board.service.member.RegisterService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,9 +13,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +39,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final RegisterService registerService;
-
+    private final MailService mailService;
 
     @Operation(summary = "Register API", description = "회원 가입")
     @ApiResponses(value = {
@@ -62,7 +65,6 @@ public class MemberController {
 
     }
 
-
     @Operation(summary = "Nickname validate API", description = "닉네임 중복 확인")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
@@ -80,29 +82,6 @@ public class MemberController {
 
         return new ValidateResponse(isDuplicate);
     }
-
-//    @Operation(summary = "Email validate API", description = "이메일 중복 확인")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "Success",
-//            content = {@Content(schema = @Schema(implementation = ValidateResponse.class))}),
-//            @ApiResponse(responseCode = "400", description = "Fail")
-//    })
-//    @GetMapping("/validate/email")
-//    public ResponseEntity<String> validateEmail(
-//            @Parameter(name = "email", description = "Parameter Value", example = "aaa@gmail.com", required = true)
-//            @RequestParam String email) {
-//
-//        int isDuplicate = registerService.validateDuplicateEmail(email);
-//        if (isDuplicate == 1) {return ResponseEntity.ok("신규회원 회원가입 가능");}
-//
-//        if (isDuplicate == 2) {return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일 중복.");}
-//
-//        if (isDuplicate == 3) {return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("탈퇴 후 30일 이내에는 재가입이 제한됩니다.");}
-//
-//        if (isDuplicate == 4) {return ResponseEntity.ok("탈퇴 후 30일 경과 유저");}
-//
-//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류");
-//    }
 
     @Operation(summary = "Email validate API", description = "이메일 중복 확인")
     @ApiResponses(value = {
@@ -123,6 +102,57 @@ public class MemberController {
         return response;
     }
 
+    @Operation(summary = "Email validate & Email AuthNum Send API", description = "이메일 중복 확인 & 인증 코드 전송")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = {@Content(schema = @Schema(implementation = String.class))})
+    })
+    @GetMapping("/validate/email/send")
+    public ResponseEntity<String> validateEmailSend(
+            @Parameter(name = "email", description = "Parameter Value", example = "aaa@gmail.com", required = true)
+            @RequestParam String email) {
+        log.info("email 인증 API 실행 -> 요청 email = {}", email);
+        try {
+            boolean isDuplicate = registerService.validateDuplicateEmail(email);
+            log.info("Is duplicate: {}", isDuplicate);
+            if (isDuplicate) {  // true -> 이메일 중복
+                throw new DuplicateEmailException("중복되는 이메일입니다.");
+            }
+
+            String authNum = mailService.joinEmail(email);
+            log.info("authNum = {}", authNum);
+            return ResponseEntity.ok(authNum);
+
+        } catch (MessagingException e) {
+            log.info(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이메일 서버에 접근 할 수 없거나 잘못된 이메일 주소입니다.");
+        } catch (DuplicateEmailException e) {
+            log.info(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Email AuthNum Check API", description = "인증 코드 확인")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = {@Content(schema = @Schema(implementation = String.class))})
+    })
+    @PostMapping("/validate/email/check")
+    public ResponseEntity<String> verificationEmail(
+            @RequestBody @Valid EmailCheckDTO emailCheckDTO) {
+        boolean checked = mailService.CheckAuthNum(emailCheckDTO.getEmail(), emailCheckDTO.getAuthNum());
+        if (checked) {
+            return ResponseEntity.ok("인증 성공!");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("인증 실패! 인증 코드를 확인해주세요.");
+        }
+    }
 
     @PostMapping("/withdrawal")
     @Operation(summary = "Member Withdrawal", description = "회원 탈퇴")
@@ -130,9 +160,9 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content(schema = @Schema(implementation = String.class))}),
             @ApiResponse(responseCode = "400", description = "Bad Request",
-                    content = {@Content(schema = @Schema(implementation = String.class))}),
+                content = {@Content(schema = @Schema(implementation = String.class))}),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = {@Content(schema = @Schema(implementation = String.class))}),
+                content = {@Content(schema = @Schema(implementation = String.class))}),
     })
     public ResponseEntity<String> memberWithdrawal(@RequestBody WithdrawalRequestDTO withdrawalDTO, Authentication authentication){
         try {
@@ -259,6 +289,21 @@ public class MemberController {
         @Schema(description = "중복 여부", example = "true")
         private boolean duplicate;
 
+    }
+
+    @Data
+    @AllArgsConstructor
+    @Schema(title = "MEM_RES_04 : 인증 코드 CHECK 응답 DTO")
+    static class EmailCheckDTO {
+
+        @Email
+        @NotEmpty(message = "이메일을 입력해 주세요")
+        @Schema(description = "이메일", example = "aaa@example.com")
+        private String email;
+
+        @Schema(description = "인증 코드", example = "123456")
+        @NotEmpty(message = "인증 번호를 입력해 주세요")
+        private String authNum;
     }
 
 }
