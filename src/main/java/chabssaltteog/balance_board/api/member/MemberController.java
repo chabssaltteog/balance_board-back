@@ -83,24 +83,25 @@ public class MemberController {
         return new ValidateResponse(isDuplicate);
     }
 
-    @Operation(summary = "Email validate API", description = "이메일 중복 확인")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success",
-                    content = {@Content(schema = @Schema(implementation = ValidateResponse.class))}),
-            @ApiResponse(responseCode = "400", description = "Fail")
-    })
-    @GetMapping("/validate/email")
-    public ValidateResponse validateEmail(
-            @Parameter(name = "email", description = "Parameter Value", example = "aaa@gmail.com", required = true)
-            @RequestParam String email) {
+//    @Operation(summary = "Email validate API", description = "이메일 중복 확인")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "Success",
+//                    content = {@Content(schema = @Schema(implementation = ValidateResponse.class))}),
+//            @ApiResponse(responseCode = "400", description = "Fail")
+//    })
+//    @GetMapping("/validate/email")
+//    public ValidateResponse validateEmail(
+//            @Parameter(name = "email", description = "Parameter Value", example = "aaa@gmail.com", required = true)
+//            @RequestParam String email) {
+//
+//        boolean isDuplicate = registerService.validateDuplicateEmail(email);
+//        ValidateResponse response = new ValidateResponse(isDuplicate);
+//        log.info("Email: {}", email);
+//        log.info("Is duplicate: {}", isDuplicate);
+//
+//        return response;
+//    }
 
-        boolean isDuplicate = registerService.validateDuplicateEmail(email);
-        ValidateResponse response = new ValidateResponse(isDuplicate);
-        log.info("Email: {}", email);
-        log.info("Is duplicate: {}", isDuplicate);
-
-        return response;
-    }
 
     @Operation(summary = "Email validate & Email AuthNum Send API", description = "이메일 중복 확인 & 인증 코드 전송")
     @ApiResponses(value = {
@@ -117,10 +118,13 @@ public class MemberController {
             @RequestParam String email) {
         log.info("email 인증 API 실행 -> 요청 email = {}", email);
         try {
-            boolean isDuplicate = registerService.validateDuplicateEmail(email);
+            int isDuplicate = registerService.validateDuplicateEmail(email);
             log.info("Is duplicate: {}", isDuplicate);
-            if (isDuplicate) {  // true -> 이메일 중복
+            if (isDuplicate == 2) {  // true -> 이메일 중복
                 throw new DuplicateEmailException("중복되는 이메일입니다.");
+            }
+            if (isDuplicate == 3) {
+                throw new DuplicateEmailException("탈퇴 후 30일 이내 재가입 제한");
             }
 
             String authNum = mailService.joinEmail(email);
@@ -135,6 +139,8 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+
 
     @Operation(summary = "Email AuthNum Check API", description = "인증 코드 확인")
     @ApiResponses(value = {

@@ -58,7 +58,7 @@ public class RegisterService {
         }
     }
 
-    public boolean validateDuplicateEmail(String email) {
+    public int validateDuplicateEmail(String email) {
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
         if (optionalMember.isPresent()) { // 회원조회
             Member existingMember = optionalMember.get(); // 회원정보 저장
@@ -67,14 +67,14 @@ public class RegisterService {
                 LocalDateTime now = LocalDateTime.now();
                 LocalDateTime thirtyDaysAgo = now.minusDays(30);
                 if (existingMember.getWithdrawnDate() != null && existingMember.getWithdrawnDate().isAfter(thirtyDaysAgo)) {// 30일 이내 탈퇴
-                    return true; // 30일 이내 재가입 제한
+                    return 3; // 30일 이내 재가입 제한
                 } else {
-                    return false; // 30일 경과 유저
+                    return 4; // 30일 경과 유저
                 }
             } else if (withdrawn == null) { // 탈퇴하지 않은 경우
-                return true; // 이메일 중복
+                return 2; // 이메일 중복
             }
         }
-        return false; // 신규 회원가입 가능
+        return 1; // 신규 회원가입 가능
     }
 }
