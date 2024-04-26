@@ -16,6 +16,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -48,11 +49,12 @@ public class MemberController {
             log.info("message = {}", "회원 가입 성공");
             return new CreateMemberResponse(duplicate, savedMemberResponse.getEmail(), savedMemberResponse.getUserId(), savedMemberResponse.getImageType(),
                     savedMemberResponse.getNickname(), savedMemberResponse.getBirthYear(), savedMemberResponse.getGender());
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             String message = e.getMessage();
             boolean duplicate = true;
             log.info("message = {}", message);
-            return new CreateMemberFailResponse(duplicate, request.getEmail(), request.getNickname(), request.getBirthYear(), request.getGender());
+            return new CreateMemberFailResponse(duplicate, request.getUserId(),
+                    request.getNickname(), request.getBirthYear(), request.getGender());
         }
 
     }
@@ -103,14 +105,17 @@ public class MemberController {
     @NoArgsConstructor
     public static class CreateMemberRequestDTO {
 
-        @NotBlank
-        @Email
-        @Schema(description = "email", example = "aaa@gmail.com")
-        private String email;
+//        @NotBlank
+//        @Email
+//        @Schema(description = "email", example = "aaa@gmail.com")
+//        private String email;
+//
+//        @NotBlank
+//        @Schema(description = "password", example = "1231!@aa")
+//        private String password;
 
-        @NotBlank
-        @Schema(description = "password", example = "1231!@aa")
-        private String password;
+        @Schema(description = "사용자 userID", example = "49")
+        private Long userId;
 
         @NotBlank(message = "닉네임을 입력해주세요.")
         @Size(min = 3, max = 10, message = "닉네임은 3글자 이상 10글자 이하로 입력해야 합니다.")
@@ -125,18 +130,18 @@ public class MemberController {
         @NotBlank
         private String gender;
 
-        @Builder.Default private List<String> roles = new ArrayList<>();
-
+//        @Builder.Default private List<String> roles = new ArrayList<>();
+/**
         public Member toEntity(String encodedPassword, List<String> roles) {
             return Member.builder()
                     .email(email)
-                    .password(encodedPassword)
+//                    .password(encodedPassword)
                     .nickname(nickname)
                     .gender(gender)
-                    .roles(roles)
+//                    .roles(roles)
                     .birthYear(birthYear)
                     .build();
-        }
+        }*/
 
     }
 
@@ -186,11 +191,15 @@ public class MemberController {
     @NoArgsConstructor
     @Schema(title = "MEM_RES_02 : 회원 가입 실패 응답 DTO")
     static class CreateMemberFailResponse {
+
         @Schema(description = "Email 중복 여부", example = "true")
         private boolean duplicate;
 
-        @Schema(description = "입력한 email", example = "aaa@gmail.com")
-        private String email;
+//        @Schema(description = "입력한 email", example = "aaa@gmail.com")
+//        private String email;
+
+        @Schema(description = "사용자 ID", example = "6")
+        private Long userId;
 
         @Schema(description = "사용자 닉네임", example = "몽글몽글")
         private String nickname;

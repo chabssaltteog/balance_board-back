@@ -57,6 +57,7 @@ public class Post extends BaseTimeEntity {
     private int commentCount;
 
     @Column(name = "vote_count")
+    @ColumnDefault("0")
     private int voteCount;
 
     @Builder

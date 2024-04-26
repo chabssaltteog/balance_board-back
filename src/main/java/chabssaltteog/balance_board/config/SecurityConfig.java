@@ -1,5 +1,7 @@
 package chabssaltteog.balance_board.config;
 
+import chabssaltteog.balance_board.config.oauth.OAuth2LoginSuccessHandler;
+import chabssaltteog.balance_board.service.oauth.OAuth2MemberService;
 import chabssaltteog.balance_board.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,9 +24,9 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
-//    private final CustomOAuth2UserService customOAuth2UserService;
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final OAuth2MemberService oAuth2MemberService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -51,30 +53,27 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorizeRequest) -> authorizeRequest
 //                        .requestMatchers("/posts/new", "/comments/save").hasRole(MyRole.ADMIN.name())
                         .requestMatchers("/", "/css/**", "images/**", "/js/**", "/login/*", "/logout/*",
-                                "/posts/**", "/comments/**", "/api/**", "/swagger-resources/**", "/swagger-ui/**",
-                                "/api/user/*", "/login/oauth2/**").permitAll()
+                                "/api/**", "/swagger-resources/**", "/swagger-ui/**",
+                                "/login/oauth2/**", "/oauth2/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .logout(
                         (logoutConfig) -> logoutConfig.logoutSuccessUrl("/")    // logout
-                ).addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
-//                .oauth2Login(oauth2 -> oauth2
-//                        .loginPage("/oauth2/authorization/google")
-//                        .userInfoEndpoint(userInfo -> userInfo
-//                                .userService(customOAuth2UserService))
-//                        .redirectionEndpoint(redirection -> redirection
-//                                .baseUri("/join"))
-//                );
+                )
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(new OAuth2LoginSuccessHandler())
+//                        .loginPage("login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oAuth2MemberService))
+                );
         return http.getOrBuild();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://52.78.127.145:8080", "http://127.0.0.1:3000", "http://localhost:3000", "http://localhost:8080",
-                "https://balance-board-front-git-develop-chabssaltteog.vercel.app", "https://balance-board-front-1wyd.vercel.app",
-                "https://balanceboard.swygbro.com"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

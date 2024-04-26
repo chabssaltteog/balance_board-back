@@ -54,9 +54,11 @@ public class RefreshTokenService {
             refreshTokenRepository.save(RefreshToken.builder().userId(userId).token(token).build());
             return;
         }
-
-        refreshTokenRepository.delete(optionalRefreshToken.get());  // 삭제 후 저장
-        refreshTokenRepository.save(RefreshToken.builder().userId(userId).token(token).build());
+        log.info("Refresh TOKEN 업데이트");
+        RefreshToken refreshToken = optionalRefreshToken.get();
+        refreshToken.updateRefreshToken(token);
+//        refreshTokenRepository.delete(optionalRefreshToken.get());  // 삭제 후 저장
+//        refreshTokenRepository.save(RefreshToken.builder().userId(userId).token(token).build());
     }
 
     public Authentication getAuthentication(String accessToken) {

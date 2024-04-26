@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
@@ -22,12 +23,11 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 @Slf4j
-public class JwtAuthenticationFilter extends GenericFilterBean {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final String path = "api/user/login/token/";
-    private final String path2 = "api/user/refresh";
-    private final String path3 = "api/user/login";
+
+    /**
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         // 1. Request Header에서 JWT 토큰 추출
@@ -51,6 +51,30 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             ((HttpServletResponse) response).sendError(HttpStatus.UNAUTHORIZED.value(), "토큰이 만료되었거나 유효하지 않습니다.");
             return;
         }
+        chain.doFilter(request, response);
+    } */
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        // 1. Request Header에서 JWT 토큰 추출
+        String token = resolveToken(request);
+
+        // 2. validateToken으로 토큰 유효성 검사
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
+            log.info("authentication setting----");
+            Authentication authentication = jwtTokenProvider.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else if (request.getRequestURI().contains("api/user/refresh") ||
+                request.getRequestURI().startsWith("/api/user/login") ||
+                request.getRequestURI().startsWith("/login/oauth2")) {
+            log.info("---- refresh token / Login filter ----");
+        }
+//        else {
+//            // 토큰이 유효하지 않거나 만료된 경우 401 응답을 반환
+//            response.sendError(HttpStatus.UNAUTHORIZED.value(), "토큰이 만료되었거나 유효하지 않습니다.");
+//            return;
+//        }
         chain.doFilter(request, response);
     }
 

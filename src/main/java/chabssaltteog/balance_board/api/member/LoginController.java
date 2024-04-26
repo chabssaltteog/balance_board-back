@@ -1,13 +1,16 @@
 package chabssaltteog.balance_board.api.member;
 
 import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.domain.oauth.api.OauthToken;
 import chabssaltteog.balance_board.dto.member.LoginRequestDTO;
 import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
 import chabssaltteog.balance_board.dto.member.LoginTokenResponseDTO;
+import chabssaltteog.balance_board.dto.oauth.KakaoLoginResponseDTO;
 import chabssaltteog.balance_board.exception.TokenNotFoundException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.service.member.MemberService;
 import chabssaltteog.balance_board.service.member.RefreshTokenService;
+import chabssaltteog.balance_board.service.oauth.LoginService;
 import chabssaltteog.balance_board.util.JwtToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,6 +45,7 @@ public class LoginController {
     private final MemberService memberService;
     private final MemberRepository memberRepository;
     private final RefreshTokenService refreshTokenService;
+    private final LoginService loginService;
 
     @Operation(summary = "Login API", description = "Login")
     @ApiResponses(value = {
@@ -81,6 +85,41 @@ public class LoginController {
             return new LoginFailResponse(loginRequestDTO.getEmail(), loginRequestDTO.getPassword(), e.getMessage());
         }
 
+    }
+
+    @Operation(summary = "KAKAO LOGIN API", description = "카카오 로그인")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = KakaoLoginResponseDTO.class))}),
+            @ApiResponse(responseCode = "500", description = "Fail",
+                    content = {@Content(schema = @Schema(implementation = ResponseEntity.class))})
+    })
+    @GetMapping("/kakao")
+    public ResponseEntity<Object> kakaoLogin(@RequestParam String code, HttpServletResponse response) {
+        try {
+            OauthToken oauthToken = loginService.getAccessToken(code);
+            if (oauthToken == null) {
+                return ResponseEntity.status(500).body("token 교환 실패");
+            }
+            KakaoLoginResponseDTO responseDTO = loginService.saveKakaoMem(oauthToken.getAccess_token());
+            if (responseDTO == null) {
+                return ResponseEntity.status(500).body("사용자 정보 불러오기 실패");
+            }
+
+            JwtToken jwtToken = responseDTO.getJwtToken();
+            log.info("jwtToken = {}", jwtToken);
+
+            refreshTokenService.saveToken(jwtToken.getRefreshToken(), responseDTO.getUserId());
+
+            Cookie accessTokenCookie = createAccessTokenCookie(jwtToken.getAccessToken());
+            Cookie refreshTokenCookie = createRefreshTokenCookie(jwtToken.getRefreshToken());
+            response.addCookie(accessTokenCookie);
+            response.addCookie(refreshTokenCookie);
+
+            return ResponseEntity.ok(responseDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("오류가 발생했습니다.");
+        }
     }
 
     @Operation(summary = "Token Login API", description = "Access Token Refresh & Get User Data")

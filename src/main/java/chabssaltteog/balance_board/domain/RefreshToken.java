@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.index.Indexed;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "refresh_token")
 @Entity
 //@RedisHash(value = "refreshToken", timeToLive = 60 * 60 * 24 * 14)  //14일
 public class RefreshToken {
@@ -27,6 +28,10 @@ public class RefreshToken {
 //    @Indexed
     @Column(name = "user_id")
     private Long userId;
+
+    public void updateRefreshToken(String token) {
+        this.token = token;
+    }
 
     public void validateSameToken(String token) {
         if (!this.token.equals(token)) {

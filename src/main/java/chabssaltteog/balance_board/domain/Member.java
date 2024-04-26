@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Entity
@@ -22,32 +21,28 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @EqualsAndHashCode(of = "userId")
-public class Member extends BaseTimeEntity implements UserDetails  {
+public class Member extends BaseTimeEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", updatable = false, nullable = false)
     private Long userId;        //pk
 
-    /**
     @Column(nullable = false, name = "provider_id")
     private String providerId;    //providerId -> google 고유 ID
 
     @Column(nullable = false)
     private String provider;
-    */
 
     @Column(nullable = false, unique = true)
     private String email;
 
-
-//    @Column(nullable = false)
-//    private String name;
-
+    /**
     @Column(nullable = false)
     private String password;
+    */
 
-    private String nickname;
+    private String nickname;        // 사용자 입력값
 
     @Column(name = "birth_year")
     private String birthYear;            //사용자 입력값
@@ -63,30 +58,44 @@ public class Member extends BaseTimeEntity implements UserDetails  {
     @Column(name = "image_type")
     private int imageType;    //프로필 사진
 
+    private String role;
 
-    public Member(String email, String password, String nickname, String birthYear, String gender, int imageType) {
+    public void addInfo(String nickname, String birthYear, String gender) {
+        this.nickname = nickname;
+        this.birthYear = birthYear;
+        this.gender = gender;
+    }
+
+    public Member(String email, String nickname, String birthYear, String gender, int imageType) {
         this.email = email;
-        this.password = password;
+    //    this.password = password;
         this.nickname = nickname;
         this.birthYear = birthYear;
         this.gender = gender;
         this.imageType = imageType;
     }
 
+    /**
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
+     */
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(role));
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
     }
 
     @Override
     public String getUsername() {
-        return null;
+        return email;
     }
 
     @Override

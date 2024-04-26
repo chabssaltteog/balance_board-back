@@ -1,4 +1,4 @@
-package chabssaltteog.balance_board.config;
+package chabssaltteog.balance_board.config.oauth;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
