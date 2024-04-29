@@ -1,8 +1,5 @@
 package chabssaltteog.balance_board.dto.vote;
 
-import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.domain.Vote;
-import chabssaltteog.balance_board.domain.post.Post;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,8 +1,8 @@
 package chabssaltteog.balance_board.service;
 
-import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.domain.Vote;
-import chabssaltteog.balance_board.domain.VoteMember;
+import chabssaltteog.balance_board.domain.member.Member;
+import chabssaltteog.balance_board.domain.vote.Vote;
+import chabssaltteog.balance_board.domain.vote.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.dto.vote.VoteRequestDTO;
 import chabssaltteog.balance_board.dto.vote.VoteResponseDTO;
@@ -36,7 +36,7 @@ public class VoteService {
     public VoteResponseDTO participateVote(VoteRequestDTO voteRequestDTO, Authentication authentication) {
 
         Member member = mainService.getMember(authentication);
-        if (member.getUserId() != voteRequestDTO.getUserId()) {
+        if (!member.getUserId().equals(voteRequestDTO.getUserId())) {
             throw new InvalidUserException("사용자 정보가 맞지 않습니다.");
         }
 
@@ -46,6 +46,9 @@ public class VoteService {
         }
         Vote vote = optionalVote.get();
 
+        Post post = postRepository.findById(voteRequestDTO.getPostId())
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
         // 중복 투표 확인
         boolean checkVoted = voteMemberRepository.existsByVoteAndUser_UserId(vote, voteRequestDTO.getUserId());
         if (checkVoted) {
@@ -54,21 +57,20 @@ public class VoteService {
 
         vote.participate(voteRequestDTO.getSelectedOption());
 
-        Post post = postRepository.findById(voteRequestDTO.getPostId()).orElseThrow(() -> new RuntimeException("Post not found"));
-
         post.incrementVoteCount();
 
-        postRepository.save(post);
-
-        VoteMember voteMember = voteMemberRepository.save(new VoteMember(vote, memberRepository.findByUserId(voteRequestDTO.getUserId()),
+        voteMemberRepository.save(new VoteMember(vote, memberRepository.findByUserId(voteRequestDTO.getUserId()),
                 voteRequestDTO.getSelectedOption()));
 
         int option1Count = vote.getOption1Count();
         int option2Count = vote.getOption2Count();
 
+        int experiencePoints = member.incrementExperiencePoints(5);
+        member.updateLevel(experiencePoints);
+
         return VoteResponseDTO.builder()
-                .voteId(voteMember.getVote().getVoteId())
-                .userId(voteMember.getUser().getUserId())
+                .voteId(voteRequestDTO.getVoteId())
+                .userId(voteRequestDTO.getUserId())
                 .selectedOption(voteRequestDTO.getSelectedOption())
                 .option1Count(option1Count)
                 .option2Count(option2Count)

@@ -1,5 +1,6 @@
-package chabssaltteog.balance_board.domain;
+package chabssaltteog.balance_board.domain.vote;
 
+import chabssaltteog.balance_board.domain.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 

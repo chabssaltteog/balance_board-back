@@ -1,17 +1,14 @@
 package chabssaltteog.balance_board.service.member;
 
-import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.domain.VoteMember;
+import chabssaltteog.balance_board.domain.member.Member;
+import chabssaltteog.balance_board.domain.vote.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
-import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
 import chabssaltteog.balance_board.dto.member.ProfilePostDTO;
 import chabssaltteog.balance_board.dto.member.ProfilePostResponseDTO;
 import chabssaltteog.balance_board.dto.member.ProfileInfoResponseDTO;
 import chabssaltteog.balance_board.exception.InvalidUserException;
-import chabssaltteog.balance_board.exception.TokenNotFoundException;
 import chabssaltteog.balance_board.dto.member.*;
 import chabssaltteog.balance_board.repository.MemberRepository;
-import chabssaltteog.balance_board.repository.RefreshTokenRepository;
 import chabssaltteog.balance_board.repository.VoteMemberRepository;
 import chabssaltteog.balance_board.util.JwtToken;
 import chabssaltteog.balance_board.util.JwtTokenProvider;
@@ -89,7 +86,8 @@ public class MemberService {
                 .accessToken(newAccessToken)
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .imageType(member.getImageType())
+                .level(member.getLevel())
+//                .imageType(member.getImageType())
                 .userId(userId)
                 .build();
     }
@@ -100,22 +98,14 @@ public class MemberService {
                 .orElseThrow(() -> new RuntimeException("유효하지 않은 사용자입니다."));
 
         //todo 토큰으로 사용자 정보 뽑아내고, 이 사용자 정보랑 userId랑 같은지 확인
-//
-//        List<Post> myPosts = member.getPosts();
-//        List<ProfilePostDTO> userPosts = myPosts.stream()
-//                .map(ProfilePostDTO::toDTO).toList();   // 작성한 글들
-//
-//        List<VoteMember> voteMembers = voteMemberRepository.findByUser(member);
-//
-//        List<ProfilePostDTO> votedPosts = voteMembers.stream()
-//                .map(voteMember -> ProfilePostDTO.toDTO(voteMember.getVote().getPost()))
-//                .collect(Collectors.toList());  // 투표한 글들
 
         return ProfileInfoResponseDTO.builder()
                 .userId(userId)
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .imageType(member.getImageType())
+                .level(member.getLevel())
+                .experiencePoints(member.getExperiencePoints())
+//                .imageType(member.getImageType())
                 .build();
     }
 

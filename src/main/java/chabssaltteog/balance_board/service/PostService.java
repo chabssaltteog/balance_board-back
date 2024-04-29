@@ -1,7 +1,7 @@
 package chabssaltteog.balance_board.service;
 
-import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.domain.Vote;
+import chabssaltteog.balance_board.domain.member.Member;
+import chabssaltteog.balance_board.domain.vote.Vote;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
@@ -91,6 +91,9 @@ public class PostService {
 
         post.addComments(comment);
         post.incrementCommentCount();
+
+        int experiencePoints = user.incrementExperiencePoints(2);// 댓글 작성
+        user.updateLevel(experiencePoints);
 
         return commentRepository.save(comment);
     }

@@ -1,12 +1,11 @@
 package chabssaltteog.balance_board.service.member;
 
-import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.domain.member.Member;
 import chabssaltteog.balance_board.domain.oauth.PrincipalDetails;
 import chabssaltteog.balance_board.exception.InvalidUserException;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,6 +33,7 @@ public class RegisterService {
 //        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
 //        Member member = principal.getMember();
 //        int randomNum = new Random().nextInt(5) + 1;
+
         Member member = memberRepository.findByUserId(requestDTO.getUserId());
         if (member == null) {
             throw new NoSuchElementException("userID 가 잘못되었습니다.");
@@ -44,6 +44,7 @@ public class RegisterService {
         } else {
             throw new InvalidUserException("기존 사용자입니다.");
         }
+
         //authentication principal member 변경
 //        updatePrincipalDetailsWithAdditionalInfo(member);
 
@@ -55,11 +56,12 @@ public class RegisterService {
         return byEmail.isPresent();
     }
 
+    /**
     @Transactional
     public void updatePrincipalDetailsWithAdditionalInfo(Member member) {
         PrincipalDetails updatedPrincipalDetails = new PrincipalDetails(member, null); // attributes는 null로 설정
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(updatedPrincipalDetails, null, updatedPrincipalDetails.getAuthorities())
         );
-    }
+    } */
 }

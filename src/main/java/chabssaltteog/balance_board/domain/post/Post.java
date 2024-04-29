@@ -1,8 +1,8 @@
 package chabssaltteog.balance_board.domain.post;
 
 import chabssaltteog.balance_board.domain.BaseTimeEntity;
-import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.domain.Vote;
+import chabssaltteog.balance_board.domain.member.Member;
+import chabssaltteog.balance_board.domain.vote.Vote;
 import chabssaltteog.balance_board.repository.PostRepository;
 import chabssaltteog.balance_board.repository.VoteRepository;
 import jakarta.persistence.*;

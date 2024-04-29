@@ -1,6 +1,7 @@
 package chabssaltteog.balance_board.api.member;
 
-import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.domain.member.Level;
+import chabssaltteog.balance_board.domain.member.Member;
 import chabssaltteog.balance_board.service.member.MemberService;
 import chabssaltteog.balance_board.service.member.RegisterService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,16 +12,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Tag(name = "Register", description = "Register API")
@@ -45,15 +41,13 @@ public class MemberController {
 
         try {
             CreateMemberResponse savedMemberResponse = registerService.register(request);
-            boolean duplicate = false;
+            savedMemberResponse.duplicate = false;
             log.info("message = {}", "회원 가입 성공");
-            return new CreateMemberResponse(duplicate, savedMemberResponse.getEmail(), savedMemberResponse.getUserId(), savedMemberResponse.getImageType(),
-                    savedMemberResponse.getNickname(), savedMemberResponse.getBirthYear(), savedMemberResponse.getGender());
+            return savedMemberResponse;
         } catch (Exception e) {
             String message = e.getMessage();
-            boolean duplicate = true;
             log.info("message = {}", message);
-            return new CreateMemberFailResponse(duplicate, request.getUserId(),
+            return new CreateMemberFailResponse(true, request.getUserId(),
                     request.getNickname(), request.getBirthYear(), request.getGender());
         }
 
@@ -161,8 +155,8 @@ public class MemberController {
         @Schema(description = "사용자 ID", example = "6")
         private Long userId;
 
-        @Schema(description = "사용자 프로필 사진(1~5)", example = "2")
-        private int imageType;
+//        @Schema(description = "사용자 프로필 사진(1~5)", example = "2")
+//        private int imageType;
 
         @Schema(description = "사용자 닉네임", example = "몽글몽글")
         private String nickname;
@@ -173,14 +167,22 @@ public class MemberController {
         @Schema(description = "사용자 성별", example = "male")
         private String gender;
 
+//        @Schema(description = "사용자 LEVEL", example = "레벨1")
+//        private Level level;
+
+//        @Schema(description = "사용자 경험치 점수", example = "5")
+//        private int experiencePoints;
+
         static public CreateMemberResponse toDto(Member member) {
             return CreateMemberResponse.builder()
                     .userId(member.getUserId())
                     .email(member.getEmail())
                     .nickname(member.getNickname())
                     .birthYear(member.getBirthYear())
-                    .imageType(member.getImageType())
+//                    .imageType(member.getImageType())
                     .gender(member.getGender())
+//                    .level(member.getLevel())
+//                    .experiencePoints(member.getExperiencePoints())
                     .build();
         }
     }

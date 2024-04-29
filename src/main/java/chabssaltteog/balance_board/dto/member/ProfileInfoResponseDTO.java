@@ -1,5 +1,6 @@
 package chabssaltteog.balance_board.dto.member;
 
+import chabssaltteog.balance_board.domain.member.Level;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,13 +23,13 @@ public class ProfileInfoResponseDTO {
     @Schema(description = "사용자 닉네임", example = "몽글몽글")
     private String nickname;
 
-    @Schema(description = "프로필 사진", example = "4")
-    private int imageType;
+    @Schema(description = "사용자 레벨", example = "레벨2")
+    private Level level;
 
-//    @Schema(description = "사용자가 작성한 글 리스트")
-//    private List<ProfilePostDTO> userPosts;
-//
-//    @Schema(description = "사용자가 투표한 글 리스트")
-//    private List<ProfilePostDTO> votedPosts;
+    @Schema(description = "사용자 경험치 점수", example = "35")
+    private int experiencePoints;
+
+//    @Schema(description = "프로필 사진", example = "4")
+//    private int imageType;
 
 }

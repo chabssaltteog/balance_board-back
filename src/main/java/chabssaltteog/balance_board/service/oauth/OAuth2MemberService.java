@@ -1,6 +1,6 @@
 package chabssaltteog.balance_board.service.oauth;
 
-import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.domain.member.Member;
 import chabssaltteog.balance_board.domain.oauth.KakaoMemberInfo;
 import chabssaltteog.balance_board.domain.oauth.Oauth2MemberInfo;
 import chabssaltteog.balance_board.domain.oauth.PrincipalDetails;

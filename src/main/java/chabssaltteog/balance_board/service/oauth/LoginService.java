@@ -1,6 +1,6 @@
 package chabssaltteog.balance_board.service.oauth;
 
-import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.domain.member.Member;
 import chabssaltteog.balance_board.domain.oauth.api.KakaoProfile;
 import chabssaltteog.balance_board.domain.oauth.api.OauthToken;
 import chabssaltteog.balance_board.dto.oauth.KakaoLoginResponseDTO;
@@ -102,14 +102,14 @@ public class LoginService {
                     .role("ROLE_USER")
                     .provider("kakao")
                     .providerId(profile.getId().toString())
-                    .imageType(new Random().nextInt(5) + 1)
+//                    .imageType(new Random().nextInt(5) + 1)
                     .build();
             memberRepository.save(member);
 
             JwtToken jwtToken = generateJwtToken(member);
 
             return new KakaoLoginResponseDTO(member.getUserId(), 0,
-                    member.getEmail(), null, member.getImageType(), jwtToken);
+                    member.getEmail(), null, member.getLevel(), member.getExperiencePoints(), jwtToken);
         } else {
             Member member = optionalMember.get();
             log.info("기존 사용자");
@@ -117,7 +117,7 @@ public class LoginService {
             JwtToken jwtToken = generateJwtToken(member);
 
             return new KakaoLoginResponseDTO(member.getUserId(), 1, member.getEmail(),
-                    member.getNickname(), member.getImageType(), jwtToken);
+                    member.getNickname(), member.getLevel(), member.getExperiencePoints(), jwtToken);
         }
     }
 

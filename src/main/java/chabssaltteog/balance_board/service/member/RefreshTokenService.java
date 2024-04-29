@@ -1,7 +1,7 @@
 package chabssaltteog.balance_board.service.member;
 
-import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.domain.RefreshToken;
+import chabssaltteog.balance_board.domain.member.Member;
+import chabssaltteog.balance_board.domain.member.RefreshToken;
 import chabssaltteog.balance_board.exception.InvalidRefreshTokenException;
 import chabssaltteog.balance_board.exception.InvalidUserException;
 import chabssaltteog.balance_board.repository.MemberRepository;

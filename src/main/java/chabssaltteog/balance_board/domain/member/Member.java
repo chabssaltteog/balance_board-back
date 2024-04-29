@@ -1,6 +1,8 @@
-package chabssaltteog.balance_board.domain;
+package chabssaltteog.balance_board.domain.member;
 
 
+import chabssaltteog.balance_board.domain.BaseTimeEntity;
+import chabssaltteog.balance_board.domain.vote.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
@@ -49,30 +51,62 @@ public class Member extends BaseTimeEntity implements UserDetails {
 
     private String gender;      //사용자 입력값
 
-    @OneToMany(mappedBy = "user") //읽기 전용
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) //읽기 전용
     private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // 사용자가 참여한 투표 목록
     private List<VoteMember> voteMembers = new ArrayList<>();
 
-    @Column(name = "image_type")
-    private int imageType;    //프로필 사진
+//    @Column(name = "image_type")
+//    private int imageType;    //프로필 사진
 
     private String role;
+
+    @Enumerated(EnumType.STRING)
+    private Level level;
+
+    @Column(name = "experience_points", columnDefinition = "INT DEFAULT 0")
+    private int experiencePoints;
 
     public void addInfo(String nickname, String birthYear, String gender) {
         this.nickname = nickname;
         this.birthYear = birthYear;
         this.gender = gender;
+        this.level = Level.레벨1;
     }
 
-    public Member(String email, String nickname, String birthYear, String gender, int imageType) {
-        this.email = email;
-    //    this.password = password;
-        this.nickname = nickname;
-        this.birthYear = birthYear;
-        this.gender = gender;
-        this.imageType = imageType;
+    public int incrementExperiencePoints(int points) {
+        this.experiencePoints += points;
+        return experiencePoints;
+    }
+
+    public int decrementExperiencePoints(int points) {
+        this.experiencePoints -= points;
+        return experiencePoints;
+    }
+
+    public void updateLevel(int experiencePoints) {
+        if (experiencePoints >= 0 && experiencePoints < 30) {
+            this.level = Level.레벨1;
+        } else if (experiencePoints >= 30 && experiencePoints < 60) {
+            this.level = Level.레벨2;
+        } else if (experiencePoints >= 60 && experiencePoints < 110) {
+            this.level = Level.레벨3;
+        } else if (experiencePoints >= 110 && experiencePoints < 160) {
+            this.level = Level.레벨4;
+        } else if (experiencePoints >= 160 && experiencePoints < 230) {
+            this.level = Level.레벨5;
+        } else if (experiencePoints >= 230 && experiencePoints < 300) {
+            this.level = Level.레벨6;
+        } else if (experiencePoints >= 300 && experiencePoints < 390) {
+            this.level = Level.레벨7;
+        } else if (experiencePoints >= 390 && experiencePoints < 480) {
+            this.level = Level.레벨8;
+        } else if (experiencePoints >= 480 && experiencePoints < 590) {
+            this.level = Level.레벨9;
+        } else if (experiencePoints >= 590) {
+            this.level = Level.레벨10;
+        }
     }
 
     /**

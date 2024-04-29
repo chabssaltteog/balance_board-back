@@ -1,12 +1,9 @@
 package chabssaltteog.balance_board.domain.post;
 
 import chabssaltteog.balance_board.domain.BaseTimeEntity;
-import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.domain.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter

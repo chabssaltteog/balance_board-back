@@ -1,6 +1,6 @@
 package chabssaltteog.balance_board.domain.oauth;
 
-import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.domain.member.Member;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;

@@ -1,4 +1,4 @@
-package chabssaltteog.balance_board.domain;
+package chabssaltteog.balance_board.domain.vote;
 
 import chabssaltteog.balance_board.domain.post.Post;
 import jakarta.persistence.*;

@@ -1,4 +1,4 @@
-package chabssaltteog.balance_board.domain;
+package chabssaltteog.balance_board.domain.member;
 
 import chabssaltteog.balance_board.exception.InvalidRefreshTokenException;
 import jakarta.persistence.*;

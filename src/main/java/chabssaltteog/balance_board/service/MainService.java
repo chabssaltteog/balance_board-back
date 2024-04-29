@@ -1,14 +1,13 @@
 package chabssaltteog.balance_board.service;
 
-import chabssaltteog.balance_board.domain.Member;
-import chabssaltteog.balance_board.domain.VoteMember;
+import chabssaltteog.balance_board.domain.member.Member;
+import chabssaltteog.balance_board.domain.vote.VoteMember;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.domain.post.Tag;
 import chabssaltteog.balance_board.dto.post.*;
 import chabssaltteog.balance_board.repository.MemberRepository;
-import chabssaltteog.balance_board.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -109,6 +107,10 @@ public class MainService {
         log.info("CREATE POST Category = {}", category);
 
         Long userId = requestDTO.getUserId();
+        Member member = memberRepository.findByUserId(userId);
+        if(member == null) {
+            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
+        }
 
         Post post = Post.builder()
                 .title(requestDTO.getTitle())
@@ -129,6 +131,9 @@ public class MainService {
         post.setVoteOptions(requestDTO.getOption1(), requestDTO.getOption2());
 
         Post createdPost = postService.createPost(userId, post);
+
+        int experiencePoints = member.incrementExperiencePoints(3); // 글 작성
+        member.updateLevel(experiencePoints);
 
         return CreatePostResponseDTO.builder()
                 .postId(createdPost.getPostId())

@@ -69,7 +69,7 @@ public class PostDTO {
     public static PostDTO toDTO(Post post) {    //메인 페이지용 - token 없을 때
         return PostDTO.builder()
                 .postId(post.getPostId())
-                .imageType(post.getUser().getImageType())
+//                .imageType(post.getUser().getImageType())
                 .nickname(post.getUser().getNickname())
                 .title(post.getTitle())
                 .created(post.getCreated())
@@ -90,7 +90,7 @@ public class PostDTO {
     public static PostDTO toDTO(Post post, String selectedOption) {    //메인 페이지용 - token이 있을 때
         return PostDTO.builder()
                 .postId(post.getPostId())
-                .imageType(post.getUser().getImageType())
+//                .imageType(post.getUser().getImageType())
                 .nickname(post.getUser().getNickname())
                 .title(post.getTitle())
                 .created(post.getCreated())
@@ -111,7 +111,7 @@ public class PostDTO {
     public static PostDTO toDetailDTO(Post post, String selectedOption){   //상세 페이지용 - token이 있을 때
         PostDTOBuilder builder = PostDTO.builder()
                 .postId(post.getPostId())
-                .imageType(post.getUser().getImageType())
+//                .imageType(post.getUser().getImageType())
                 .nickname(post.getUser().getNickname())
                 .title(post.getTitle())
                 .created(post.getCreated())
@@ -133,7 +133,7 @@ public class PostDTO {
     public static PostDTO toDetailDTO(Post post){   //상세 페이지용 - token 없을 때
         return PostDTO.builder()
                 .postId(post.getPostId())
-                .imageType(post.getUser().getImageType())
+//                .imageType(post.getUser().getImageType())
                 .nickname(post.getUser().getNickname())
                 .title(post.getTitle())
                 .created(post.getCreated())

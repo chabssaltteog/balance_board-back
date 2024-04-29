@@ -1,6 +1,6 @@
 package chabssaltteog.balance_board.api.member;
 
-import chabssaltteog.balance_board.domain.Member;
+import chabssaltteog.balance_board.domain.member.Member;
 import chabssaltteog.balance_board.domain.oauth.api.OauthToken;
 import chabssaltteog.balance_board.dto.member.LoginRequestDTO;
 import chabssaltteog.balance_board.dto.member.LoginResponseDTO;
@@ -47,7 +47,8 @@ public class LoginController {
     private final RefreshTokenService refreshTokenService;
     private final LoginService loginService;
 
-    @Operation(summary = "Login API", description = "Login")
+
+    @Operation(summary = "일반 Login API", description = "현재 사용 X")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content(schema = @Schema(implementation = LoginResponseDTO.class))}),
@@ -64,7 +65,7 @@ public class LoginController {
             Member member = memberRepository.findByEmail(loginRequestDTO.getEmail())
                     .orElseThrow(() -> new RuntimeException("잘못된 이메일입니다."));
             Long userId = member.getUserId();
-            int imageType = member.getImageType();
+//            int imageType = member.getImageType();
             String nickname = member.getNickname();
 
             // refreshToken을 db에 저장
@@ -79,7 +80,7 @@ public class LoginController {
             response.addCookie(refreshTokenCookie);
             log.info("JWT 토큰 쿠키 생성 및 발급");
 
-            return new LoginResponseDTO(loginRequestDTO.getEmail(), jwtToken, userId, imageType, nickname);
+            return new LoginResponseDTO(loginRequestDTO.getEmail(), jwtToken, userId, nickname);
 
         } catch (Exception e) {
             return new LoginFailResponse(loginRequestDTO.getEmail(), loginRequestDTO.getPassword(), e.getMessage());
