@@ -21,7 +21,10 @@ public class LoginTokenResponseDTO {
     private Long userId;
 
     @Schema(description = "사용자 레벨", example = "레벨2")
-    private Level level;
+    private int level;
+
+    @Schema(description = "사용자 경험치 점수", example = "35")
+    private int experiencePoints;
 
 //    @Schema(description = "사용자 프로필 사진", example = "1")
 //    private int imageType;

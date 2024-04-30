@@ -108,16 +108,18 @@ public class LoginService {
 
             JwtToken jwtToken = generateJwtToken(member);
 
-            return new KakaoLoginResponseDTO(member.getUserId(), 0,
-                    member.getEmail(), null, member.getLevel(), member.getExperiencePoints(), jwtToken);
+            return new KakaoLoginResponseDTO(
+                    member.getUserId(), 0, member.getEmail(), null,
+                    member.getLevel().getValue(), member.getExperiencePoints(), jwtToken);
         } else {
             Member member = optionalMember.get();
             log.info("기존 사용자");
 
             JwtToken jwtToken = generateJwtToken(member);
 
-            return new KakaoLoginResponseDTO(member.getUserId(), 1, member.getEmail(),
-                    member.getNickname(), member.getLevel(), member.getExperiencePoints(), jwtToken);
+            return new KakaoLoginResponseDTO(
+                    member.getUserId(), 1, member.getEmail(), member.getNickname(),
+                    member.getLevel().getValue(), member.getExperiencePoints(), jwtToken);
         }
     }
 

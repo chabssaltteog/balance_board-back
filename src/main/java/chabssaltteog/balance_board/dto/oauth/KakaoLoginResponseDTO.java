@@ -24,7 +24,7 @@ public class KakaoLoginResponseDTO {
     private String nickname;
 
     @Schema(description = "사용자 레벨", example = "레벨1")
-    private Level level;
+    private int level;
 
     @Schema(description = "사용자 경험치 점수", example = "25")
     private int experiencePoints;

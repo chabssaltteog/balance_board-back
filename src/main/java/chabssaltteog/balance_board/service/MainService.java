@@ -131,10 +131,10 @@ public class MainService {
         post.setVoteOptions(requestDTO.getOption1(), requestDTO.getOption2());
 
         Post createdPost = postService.createPost(userId, post);
-
+        // member의 현재 Level 받아놓는다.
         int experiencePoints = member.incrementExperiencePoints(3); // 글 작성
         member.updateLevel(experiencePoints);
-
+        // member의 Level이 변경되었는지 확인
         return CreatePostResponseDTO.builder()
                 .postId(createdPost.getPostId())
                 .created(createdPost.getCreated())

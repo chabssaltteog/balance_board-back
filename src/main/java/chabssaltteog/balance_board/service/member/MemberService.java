@@ -86,7 +86,8 @@ public class MemberService {
                 .accessToken(newAccessToken)
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .level(member.getLevel())
+                .level(member.getLevel().getValue())
+                .experiencePoints(member.getExperiencePoints())
 //                .imageType(member.getImageType())
                 .userId(userId)
                 .build();
