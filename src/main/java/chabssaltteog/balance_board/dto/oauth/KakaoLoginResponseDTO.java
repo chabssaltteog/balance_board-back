@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-@Schema(title = "카카오 로그인 성공 응답 DTO")
+@Schema(title = "MEM_RES_07 : 카카오 로그인 성공 응답 DTO")
 public class KakaoLoginResponseDTO {
 
     @Schema(description = "UserId", example = "49")

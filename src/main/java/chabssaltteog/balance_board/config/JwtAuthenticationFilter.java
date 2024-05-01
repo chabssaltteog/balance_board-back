@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -66,9 +67,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else if (request.getRequestURI().contains("api/user/refresh") ||
-                request.getRequestURI().startsWith("/api/user/login") ||
-                request.getRequestURI().startsWith("/login/oauth2")) {
+                request.getRequestURI().startsWith("/api/user/login")) {
             log.info("---- refresh token / Login filter ----");
+        }
+
+        if (token == null && request.getRequestURI().contains("api/main/new/vote")) {
+            log.info("anonymous member vote");
+            Authentication authentication = new UsernamePasswordAuthenticationToken("anonymous", null, null);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 //        else {
 //            // 토큰이 유효하지 않거나 만료된 경우 401 응답을 반환

@@ -2,6 +2,7 @@ package chabssaltteog.balance_board.api;
 
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.dto.post.*;
+import chabssaltteog.balance_board.dto.vote.AnonymousVoteResponseDTO;
 import chabssaltteog.balance_board.dto.vote.VoteRequestDTO;
 import chabssaltteog.balance_board.dto.vote.VoteResponseDTO;
 import chabssaltteog.balance_board.exception.DuplicateVoteException;
@@ -155,18 +156,23 @@ public class MainApiController {
     }
 
     @PostMapping("/new/vote")
-    @Operation(summary = "Create VOTE", description = "투표 실행")
+    @Operation(summary = "Create VOTE", description = "투표 실행 / 비회원 투표 : userId == null && token == null")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success",
+            @ApiResponse(responseCode = "201", description = "Vote Success",
                     content = {@Content(schema = @Schema(implementation = VoteResponseDTO.class))}),
-            @ApiResponse(responseCode = "400", description = "Fail",
+            @ApiResponse(responseCode = "200", description = "비회원 투표",
+                    content = {@Content(schema = @Schema(implementation = AnonymousVoteResponseDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Vote Fail",
                     content = {@Content(schema = @Schema(implementation = VoteFailResponseDTO.class))})
     })
     public Object doVote(
-            @RequestBody VoteRequestDTO voteRequestDTO,
-            Authentication authentication){
+            @RequestBody VoteRequestDTO voteRequestDTO, Authentication authentication){
 
         try {
+            //비회원 투표
+            if (voteRequestDTO.getUserId() == null && authentication.getPrincipal() == "anonymous") {
+                return voteService.anonymousVote(voteRequestDTO);
+            }
 
             return voteService.participateVote(voteRequestDTO, authentication);
 

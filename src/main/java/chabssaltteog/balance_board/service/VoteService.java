@@ -4,6 +4,7 @@ import chabssaltteog.balance_board.domain.member.Member;
 import chabssaltteog.balance_board.domain.vote.Vote;
 import chabssaltteog.balance_board.domain.vote.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
+import chabssaltteog.balance_board.dto.vote.AnonymousVoteResponseDTO;
 import chabssaltteog.balance_board.dto.vote.VoteRequestDTO;
 import chabssaltteog.balance_board.dto.vote.VoteResponseDTO;
 import chabssaltteog.balance_board.exception.DuplicateVoteException;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.webjars.NotFoundException;
 
 import java.util.Optional;
 
@@ -37,12 +39,12 @@ public class VoteService {
 
         Member member = mainService.getMember(authentication);
         if (!member.getUserId().equals(voteRequestDTO.getUserId())) {
-            throw new InvalidUserException("사용자 정보가 맞지 않습니다.");
+            throw new NotFoundException("사용자 정보가 맞지 않습니다.");
         }
 
         Optional<Vote> optionalVote = voteRepository.findById(voteRequestDTO.getVoteId());
         if (optionalVote.isEmpty()) {
-            throw new RuntimeException("올바른 투표가 아닙니다.");
+            throw new NotFoundException("올바른 투표가 아닙니다.");
         }
         Vote vote = optionalVote.get();
 
@@ -75,6 +77,19 @@ public class VoteService {
                 .option1Count(option1Count)
                 .option2Count(option2Count)
                 .build();
+    }
 
+    public AnonymousVoteResponseDTO anonymousVote(VoteRequestDTO voteRequestDTO) {
+
+        Long voteId = voteRequestDTO.getVoteId();
+        if (voteRepository.findById(voteId).isEmpty()) {
+            throw new NotFoundException("올바른 투표가 아닙니다.");
+        }
+        Vote vote = voteRepository.findById(voteId).get();
+
+        return AnonymousVoteResponseDTO.builder()
+                .option1Count(vote.getOption1Count())
+                .option2Count(vote.getOption2Count())
+                .build();
     }
 }

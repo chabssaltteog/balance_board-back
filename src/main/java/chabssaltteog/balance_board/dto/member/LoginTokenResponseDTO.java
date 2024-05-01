@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Schema(title = "MEM_RES_06 : Token 로그인 성공 응답 DTO")
 public class LoginTokenResponseDTO {
 
     @Schema(description = "사용자가 입력한 email", example = "bbb@gmail.com")
