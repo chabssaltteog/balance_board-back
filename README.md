@@ -9,7 +9,7 @@
  	
   ●	MYSQL 8.0.36
   
-  ● Thymeleaf
+  ● Redis
 
 # git 커밋 메시지
   ●	{type} : {subject} 
