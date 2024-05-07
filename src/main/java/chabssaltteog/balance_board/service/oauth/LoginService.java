@@ -1,5 +1,6 @@
 package chabssaltteog.balance_board.service.oauth;
 
+import chabssaltteog.balance_board.domain.member.Level;
 import chabssaltteog.balance_board.domain.member.Member;
 import chabssaltteog.balance_board.domain.oauth.api.KakaoProfile;
 import chabssaltteog.balance_board.domain.oauth.api.OauthToken;
@@ -102,6 +103,7 @@ public class LoginService {
                     .role("ROLE_USER")
                     .provider("kakao")
                     .providerId(profile.getId().toString())
+                    .level(Level.레벨1)
 //                    .imageType(new Random().nextInt(5) + 1)
                     .build();
             memberRepository.save(member);

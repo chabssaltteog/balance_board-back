@@ -104,7 +104,7 @@ public class MemberService {
                 .userId(userId)
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .level(member.getLevel())
+                .level(member.getLevel().getValue())
                 .experiencePoints(member.getExperiencePoints())
 //                .imageType(member.getImageType())
                 .build();

@@ -26,21 +26,23 @@ public class CommentDTO {
     @Schema(description = "User 닉네임", example = "몽글몽글")
     private String nickname;
 
-//    @Schema(description = "User 프로필 사진", example = "2")
-//    private int imageType;
-
     @Schema(description = "댓글 내용", example = "저도 동의합니다.")
     private String content;
 
     @Schema(description = "댓글 생성 시간", example = "2024-02-26 19:34:28.683605")
     private LocalDateTime created;
 
+    @Schema(description = "레벨 업을 했는지?", example = "true")
+    private boolean isLevelUp;
+
+    @Schema(description = "현재 사용자 레벨", example = "4")
+    private int updatedLevel;
+
     public static CommentDTO toDTO(Comment comment) {   // 상세 페이지용 -> 댓글 전부 다 보냄
         return CommentDTO.builder()
                 .commentId(comment.getCommentId())
                 .userId(comment.getUser().getUserId())
                 .nickname(comment.getUser().getNickname())
-//                .imageType(comment.getUser().getImageType())
                 .content(comment.getContent())
                 .created(comment.getCreated())
                 .build();

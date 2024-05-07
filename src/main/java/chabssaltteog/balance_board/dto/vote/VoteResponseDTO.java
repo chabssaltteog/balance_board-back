@@ -28,5 +28,11 @@ public class VoteResponseDTO {
     @Schema(description = "옵션 2 Count", example = "15")
     private int option2Count;
 
+    @Schema(description = "레벨 업을 했는지?", example = "true")
+    private boolean isLevelUp;
+
+    @Schema(description = "현재 사용자 레벨", example = "4")
+    private int updatedLevel;
+
 }
 

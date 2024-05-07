@@ -67,16 +67,32 @@ public class VoteService {
         int option1Count = vote.getOption1Count();
         int option2Count = vote.getOption2Count();
 
+        int preLevel = member.getLevel().getValue();
         int experiencePoints = member.incrementExperiencePoints(5);
-        member.updateLevel(experiencePoints);
+        int updatedLevel = member.updateLevel(experiencePoints);
 
-        return VoteResponseDTO.builder()
-                .voteId(voteRequestDTO.getVoteId())
-                .userId(voteRequestDTO.getUserId())
-                .selectedOption(voteRequestDTO.getSelectedOption())
-                .option1Count(option1Count)
-                .option2Count(option2Count)
-                .build();
+        //Level up
+        if (preLevel != updatedLevel) {
+            return VoteResponseDTO.builder()
+                    .voteId(voteRequestDTO.getVoteId())
+                    .userId(voteRequestDTO.getUserId())
+                    .selectedOption(voteRequestDTO.getSelectedOption())
+                    .option1Count(option1Count)
+                    .option2Count(option2Count)
+                    .isLevelUp(true)
+                    .updatedLevel(updatedLevel)
+                    .build();
+        } else {
+            return VoteResponseDTO.builder()
+                    .voteId(voteRequestDTO.getVoteId())
+                    .userId(voteRequestDTO.getUserId())
+                    .selectedOption(voteRequestDTO.getSelectedOption())
+                    .option1Count(option1Count)
+                    .option2Count(option2Count)
+                    .isLevelUp(false)
+                    .updatedLevel(updatedLevel)
+                    .build();
+        }
     }
 
     public AnonymousVoteResponseDTO anonymousVote(VoteRequestDTO voteRequestDTO) {

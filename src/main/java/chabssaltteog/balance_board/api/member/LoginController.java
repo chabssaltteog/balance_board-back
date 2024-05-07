@@ -119,7 +119,7 @@ public class LoginController {
 
             return ResponseEntity.ok(responseDTO);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("오류가 발생했습니다.");
+            return ResponseEntity.status(500).body("오류 발생! error = " + e.getMessage());
         }
     }
 

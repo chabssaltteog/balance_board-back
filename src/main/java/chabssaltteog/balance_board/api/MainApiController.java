@@ -144,7 +144,6 @@ public class MainApiController {
         try {
             CommentDTO commentDTO = mainService.addCommentToPost(requestDTO);
             log.info("CREATE COMMENT : userID = {}", commentDTO.getUserId());
-            log.info("CREATE COMMENT : nickname = {}", commentDTO.getNickname());
             log.info("CREATE COMMENT : Created Time = {}", commentDTO.getCreated());
             return commentDTO;
         } catch (Exception e) {
@@ -173,7 +172,6 @@ public class MainApiController {
             if (voteRequestDTO.getUserId() == null && authentication.getPrincipal() == "anonymous") {
                 return voteService.anonymousVote(voteRequestDTO);
             }
-
             return voteService.participateVote(voteRequestDTO, authentication);
 
         } catch (DuplicateVoteException e) {

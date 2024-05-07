@@ -131,24 +131,37 @@ public class MainService {
         post.setVoteOptions(requestDTO.getOption1(), requestDTO.getOption2());
 
         Post createdPost = postService.createPost(userId, post);
-        // member의 현재 Level 받아놓는다.
+
+        int preLevel = member.getLevel().getValue();
+
         int experiencePoints = member.incrementExperiencePoints(3); // 글 작성
-        member.updateLevel(experiencePoints);
-        // member의 Level이 변경되었는지 확인
-        return CreatePostResponseDTO.builder()
-                .postId(createdPost.getPostId())
-                .created(createdPost.getCreated())
-                .userId(userId)
-                .build();
+        int updatedLevel = member.updateLevel(experiencePoints);
+
+        // Level Up
+        if (preLevel != updatedLevel) {
+            return CreatePostResponseDTO.builder()
+                    .postId(createdPost.getPostId())
+                    .created(createdPost.getCreated())
+                    .userId(userId)
+                    .isLevelUp(true)
+                    .updatedLevel(updatedLevel)
+                    .build();
+        } else {
+            return CreatePostResponseDTO.builder()
+                    .postId(createdPost.getPostId())
+                    .created(createdPost.getCreated())
+                    .userId(userId)
+                    .isLevelUp(false)
+                    .updatedLevel(updatedLevel)
+                    .build();
+        }
     }
 
     // 게시글에 댓글 달기
     @Transactional
     public CommentDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
 
-        Comment addedComment = postService.addCommentToPost(requestDTO);
-
-        return CommentDTO.toDTO(addedComment);
+        return postService.addCommentToPost(requestDTO);
     }
 
     private String getSelectedOption(Post post, Member member) {

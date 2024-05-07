@@ -72,7 +72,6 @@ public class Member extends BaseTimeEntity implements UserDetails {
         this.nickname = nickname;
         this.birthYear = birthYear;
         this.gender = gender;
-        this.level = Level.레벨1;
     }
 
     public int incrementExperiencePoints(int points) {
@@ -85,7 +84,7 @@ public class Member extends BaseTimeEntity implements UserDetails {
         return experiencePoints;
     }
 
-    public void updateLevel(int experiencePoints) {
+    public int updateLevel(int experiencePoints) {
         if (experiencePoints >= 0 && experiencePoints < 30) {
             this.level = Level.레벨1;
         } else if (experiencePoints >= 30 && experiencePoints < 60) {
@@ -107,6 +106,7 @@ public class Member extends BaseTimeEntity implements UserDetails {
         } else if (experiencePoints >= 590) {
             this.level = Level.레벨10;
         }
+        return level.getValue();
     }
 
     /**

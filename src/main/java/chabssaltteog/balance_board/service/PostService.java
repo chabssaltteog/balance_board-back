@@ -73,7 +73,7 @@ public class PostService {
     }
 
     @Transactional
-    public Comment addCommentToPost(CreateCommentRequestDTO requestDTO) {
+    public CommentDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
         Long userId = requestDTO.getUserId();
         Long postId = requestDTO.getPostId();
 
@@ -92,10 +92,22 @@ public class PostService {
         post.addComments(comment);
         post.incrementCommentCount();
 
+        int preLevel = user.getLevel().getValue();
         int experiencePoints = user.incrementExperiencePoints(2);// 댓글 작성
-        user.updateLevel(experiencePoints);
+        int updatedLevel = user.updateLevel(experiencePoints);
 
-        return commentRepository.save(comment);
+        commentRepository.save(comment);
+        CommentDTO commentDTO = CommentDTO.toDTO(comment);
+
+        if (preLevel != updatedLevel) {
+            commentDTO.setLevelUp(true);
+            commentDTO.setUpdatedLevel(updatedLevel);
+        } else {
+            commentDTO.setLevelUp(false);
+            commentDTO.setUpdatedLevel(updatedLevel);
+        }
+
+        return commentDTO;
     }
 
     @Transactional

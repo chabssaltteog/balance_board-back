@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
               title = "balance_board API Docs",
                 description = "API Docs",
-                version = "1.0.0"
+                version = "1.1.0"
         )
 )
 @Configuration

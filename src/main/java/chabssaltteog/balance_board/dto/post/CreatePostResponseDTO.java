@@ -24,4 +24,10 @@ public class CreatePostResponseDTO {
     @Schema(description = "게시글 작성자 ID", example = "6")
     private Long userId;
 
+    @Schema(description = "레벨업을 했는지", example = "true")
+    private boolean isLevelUp;
+
+    @Schema(description = "현재 사용자 레벨", example = "4")
+    private int updatedLevel;
+
 }
