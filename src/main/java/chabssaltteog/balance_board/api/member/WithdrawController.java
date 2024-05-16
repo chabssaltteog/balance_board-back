@@ -33,7 +33,13 @@ public class WithdrawController {
         return withdrawalService.sendMail(requestDto);
     }
 
-//    @PostMapping
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "Success",
+//                    content = {@Content(schema = @Schema(implementation = MailRequestDto.class))}),
+//            @ApiResponse(responseCode = "400", description = "Fail",
+//                    content = {@Content(schema = @Schema(implementation = ProfileController.ProfileFailResponse.class))})
+//    })
+//    @PostMapping("/deleteUserData")
 //    public boolean withdraw(){
 //
 //    }

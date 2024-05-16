@@ -1,6 +1,9 @@
 package chabssaltteog.balance_board.util;
 
+import chabssaltteog.balance_board.domain.member.Member;
 import chabssaltteog.balance_board.dto.withdrawal.MailRequestDto;
+import chabssaltteog.balance_board.repository.MemberRepository;
+import chabssaltteog.balance_board.service.member.MemberService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
@@ -16,6 +19,8 @@ import java.util.Properties;
 @Component
 public class MailUtil {
 
+    private final MemberService memberService;
+
     @Value("${spring.mail.host}")
     private String host;
     @Value("${spring.mail.port}")
@@ -27,12 +32,19 @@ public class MailUtil {
     @Value("${spring.mail.properties.mail.smtp.from}")
     private String emailFrom;
 
-//    private String subject = "테스트 이메일";;
-//    private String body = "<a href=\"https://www.naver.com\" target=\"_blank\" style=\"display:inline-block;height:40px;font-size:14px;color:blue;text-decoration:underline;\">\n" +
-//            "  <button>클릭하세요</button>\n" +
-//            "</a>";
+    public MailUtil(MemberService memberService) {
+        this.memberService = memberService;
+    }
 
     public boolean sendEmail(MailRequestDto mailRequestDto) {
+
+        int withdrawalCode = memberService.createRandomCode();
+
+        String subject = "테스트 이메일";
+        String body = "<a href=\"https://www.naver.com/?code=" + withdrawalCode + "\" target=\"_blank\" style=\"display:inline-block;height:40px;font-size:14px;color:blue;text-decoration:underline;\">\n" +
+                "  <button>클릭하세요</button>\n" +
+                "</a>";
+
         // Send email
         Properties prop = new Properties();
         prop.put("mail.smtp.host", host);
@@ -58,12 +70,12 @@ public class MailUtil {
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailRequestDto.getEmail()));
 
             // Subject
-            message.setSubject(mailRequestDto.getSubject()); //메일 제목을 입력
+            message.setSubject(subject); //메일 제목을 입력
 
             // Text
 //            message.setText(body);    //메일 내용을 입력
             message.setContent(
-                    mailRequestDto.getBody(), "text/html; charset=utf-8"
+                    body, "text/html; charset=utf-8"
             );
             // send the message
             Transport.send(message); ////전송

@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 
 @Entity
@@ -68,6 +69,9 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Column(name = "experience_points", columnDefinition = "INT DEFAULT 0")
     private int experiencePoints;
 
+    @Column(name = "withdrawal_code")
+    private int withdrawalCode;
+
     public void addInfo(String nickname, String birthYear, String gender) {
         this.nickname = nickname;
         this.birthYear = birthYear;
@@ -121,6 +125,7 @@ public class Member extends BaseTimeEntity implements UserDetails {
         authorities.add(new SimpleGrantedAuthority(role));
         return authorities;
     }
+
 
     @Override
     public String getPassword() {

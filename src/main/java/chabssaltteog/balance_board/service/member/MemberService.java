@@ -200,4 +200,24 @@ public class MemberService {
         return optionalMember.get();
     }
 
+    public int createWithdrawalCode(String email){
+
+        int withdrawalCode = createRandomCode();
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(()->new IllegalArgumentException("회원을 찾을 수 없습니다."));
+
+        member.setWithdrawalCode(withdrawalCode);
+
+        memberRepository.save(member);
+
+        return withdrawalCode;
+    }
+
+    public int createRandomCode() {
+        Random rand = new Random();
+        rand.setSeed((System.currentTimeMillis()));
+        return rand.nextInt(9000) + 1000;
+    }
+
 }
