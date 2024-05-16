@@ -1,5 +1,6 @@
 package chabssaltteog.balance_board.util;
 
+import chabssaltteog.balance_board.dto.withdrawal.MailRequestDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
@@ -26,7 +27,12 @@ public class MailUtil {
     @Value("${spring.mail.properties.mail.smtp.from}")
     private String emailFrom;
 
-    public boolean sendEmail(String subject, String body, String to) {
+//    private String subject = "테스트 이메일";;
+//    private String body = "<a href=\"https://www.naver.com\" target=\"_blank\" style=\"display:inline-block;height:40px;font-size:14px;color:blue;text-decoration:underline;\">\n" +
+//            "  <button>클릭하세요</button>\n" +
+//            "</a>";
+
+    public boolean sendEmail(MailRequestDto mailRequestDto) {
         // Send email
         Properties prop = new Properties();
         prop.put("mail.smtp.host", host);
@@ -49,14 +55,16 @@ public class MailUtil {
         try {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailFrom));            //수신자메일주소
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailRequestDto.getEmail()));
 
             // Subject
-            message.setSubject(subject); //메일 제목을 입력
+            message.setSubject(mailRequestDto.getSubject()); //메일 제목을 입력
 
             // Text
-            message.setText(body);    //메일 내용을 입력
-
+//            message.setText(body);    //메일 내용을 입력
+            message.setContent(
+                    mailRequestDto.getBody(), "text/html; charset=utf-8"
+            );
             // send the message
             Transport.send(message); ////전송
             return true;
