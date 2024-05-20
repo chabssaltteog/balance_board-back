@@ -1,14 +1,9 @@
 package chabssaltteog.balance_board.util;
 
-import chabssaltteog.balance_board.domain.member.Member;
 import chabssaltteog.balance_board.dto.withdrawal.MailRequestDto;
-import chabssaltteog.balance_board.repository.MemberRepository;
 import chabssaltteog.balance_board.service.member.MemberService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import javax.mail.*;
 import javax.mail.internet.AddressException;
@@ -17,7 +12,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 @Component
-public class MailUtil {
+public class MailUtil {     //이메일 전송관련 클래스
 
     private final MemberService memberService;
 
@@ -41,8 +36,7 @@ public class MailUtil {
         int withdrawalCode = memberService.createRandomCode();
 
         String subject = "테스트 이메일";
-        String body = "<a href=\"https://www.naver.com/?code=" + withdrawalCode + "\" target=\"_blank\" style=\"display:inline-block;height:40px;font-size:14px;color:blue;text-decoration:underline;\">\n" +
-                "  <button>클릭하세요</button>\n" +
+        String body = "<a href=\"http://localhost:8081/api/withdrawal?withdrawalCode=" + withdrawalCode + "  <button>클릭하세요</button>\n" +
                 "</a>";
 
         // Send email
@@ -54,10 +48,7 @@ public class MailUtil {
         prop.put("mail.smtp.starttls.required", "true");
         prop.put("mail.smtp.ssl.protocols", "TLSv1.2");
         prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-//        prop.put("mail.smtp.ssl.enable", "true");
-//        prop.put("mail.smtp.ssl.trust", host);
 
-//        System.out.println("host: " + host + ", port: " + port + ", username: " + username + ", password: " + password);
         Session session = Session.getDefaultInstance(prop, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, password);

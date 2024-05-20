@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,12 +35,13 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Column(nullable = false, name = "provider_id")
     private String providerId;    //providerId -> google 고유 ID
 
-    @Column(nullable = false)
+    @Column(name = "provider")
     private String provider;
 
-    @Column(nullable = false, unique = true)
+//    @Column(nullable = false, unique = true)
+//    private String email;
+    @Column(name = "email")   //회원 탈퇴를 위한 unique 제약조건 해제
     private String email;
-
     /**
     @Column(nullable = false)
     private String password;
@@ -68,6 +70,12 @@ public class Member extends BaseTimeEntity implements UserDetails {
 
     @Column(name = "experience_points", columnDefinition = "INT DEFAULT 0")
     private int experiencePoints;
+
+    @Column(name = "withdrawn")
+    private Boolean withdrawn;
+
+    @Column(name = "withdrawn_date")
+    private LocalDateTime withdrawnDate;
 
     @Column(name = "withdrawal_code")
     private int withdrawalCode;
@@ -126,6 +134,13 @@ public class Member extends BaseTimeEntity implements UserDetails {
         return authorities;
     }
 
+    public void withdraw(){     //회원 탈퇴 정보 업데이트
+        this.withdrawn = true;
+        this.withdrawnDate = LocalDateTime.now();
+        this.nickname = "(알수없음)";
+        this.provider = null;
+        this.role = null;
+    }
 
     @Override
     public String getPassword() {
