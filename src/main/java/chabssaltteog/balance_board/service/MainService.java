@@ -3,7 +3,6 @@ package chabssaltteog.balance_board.service;
 import chabssaltteog.balance_board.domain.member.Member;
 import chabssaltteog.balance_board.domain.vote.VoteMember;
 import chabssaltteog.balance_board.domain.post.Category;
-import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.domain.post.Tag;
 import chabssaltteog.balance_board.dto.post.*;
@@ -56,12 +55,12 @@ public class MainService {
     }
 
     // 상세 게시글
-    public PostDTO getPostByPostId(Long postId, Authentication authentication) {
+    public PostDetailDTO getPostByPostId(Long postId, Authentication authentication) {
 
         if (authentication == null) {
             log.info("==비로그인 상세 페이지 조회==");
             Post post = postService.getPostByPostId(postId);
-            return PostDTO.toDetailDTO(post);
+            return PostDetailDTO.toDetailDTO(post);
         }
 
         Member member = getMember(authentication);
@@ -72,7 +71,7 @@ public class MainService {
         Post post = postService.getPostByPostId(postId);
 
         String selectedOption = getSelectedOption(post, member);
-        return PostDTO.toDetailDTO(post, selectedOption);
+        return PostDetailDTO.toDetailDTO(post, selectedOption);
     }
 
     // 게시글 카테고리 필터링
@@ -162,6 +161,12 @@ public class MainService {
     public CommentDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
 
         return postService.addCommentToPost(requestDTO);
+    }
+
+    //게시글에 좋아요/싫어요 누르기
+    @Transactional
+    public LikeHateResponseDTO likeOrHatePost(LikeHateRequestDTO likeHateDTO) throws Exception {
+        return postService.likeOrHatePost(likeHateDTO);
     }
 
     private String getSelectedOption(Post post, Member member) {

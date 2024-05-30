@@ -18,4 +18,7 @@ public class AnonymousVoteResponseDTO {
 
     @Schema(description = "옵션 2 Count", example = "15")
     private int option2Count;
+
+    @Schema(description = "selectedOption", example = "op1")
+    private String selectedOption;
 }

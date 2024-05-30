@@ -36,6 +36,9 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "vote_id")   //관계 주인
     private Vote vote;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Like> likes = new ArrayList<>();
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tag> tags = new ArrayList<>();
 
@@ -59,6 +62,14 @@ public class Post extends BaseTimeEntity {
     @Column(name = "vote_count")
     @ColumnDefault("0")
     private int voteCount;
+
+    @Column(name = "like_count")
+    @ColumnDefault("0")
+    private int likeCount;
+
+    @Column(name = "hate_count")
+    @ColumnDefault("0")
+    private int hateCount;
 
     @Builder
     public Post(
@@ -125,6 +136,22 @@ public class Post extends BaseTimeEntity {
 
     public void decrementCommentCount() {
         this.commentCount--;
+    }
+
+    public void incrementLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decrementLikeCount() {
+        this.likeCount--;
+    }
+
+    public void incrementHateCount() {
+        this.hateCount++;
+    }
+
+    public void decrementHateCount() {
+        this.hateCount--;
     }
 
 }

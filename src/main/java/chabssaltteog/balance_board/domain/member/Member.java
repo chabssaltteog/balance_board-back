@@ -2,6 +2,7 @@ package chabssaltteog.balance_board.domain.member;
 
 
 import chabssaltteog.balance_board.domain.BaseTimeEntity;
+import chabssaltteog.balance_board.domain.post.Like;
 import chabssaltteog.balance_board.domain.vote.VoteMember;
 import chabssaltteog.balance_board.domain.post.Post;
 import jakarta.persistence.*;
@@ -39,11 +40,6 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    /**
-    @Column(nullable = false)
-    private String password;
-    */
-
     private String nickname;        // 사용자 입력값
 
     @Column(name = "birth_year")
@@ -54,11 +50,11 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) //읽기 전용
     private List<Post> posts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) //읽기 전용
+    private List<Like> likes = new ArrayList<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // 사용자가 참여한 투표 목록
     private List<VoteMember> voteMembers = new ArrayList<>();
-
-//    @Column(name = "image_type")
-//    private int imageType;    //프로필 사진
 
     private String role;
 
@@ -108,12 +104,6 @@ public class Member extends BaseTimeEntity implements UserDetails {
         }
         return level.getValue();
     }
-
-    /**
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Builder.Default
-    private List<String> roles = new ArrayList<>();
-     */
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

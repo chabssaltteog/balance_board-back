@@ -48,10 +48,11 @@ public class CommentDTO {
                 .build();
     }
 
+    /*
     public static List<CommentDTO> toDTOList(List<Comment> comments) {  // 메인 페이지용 -> 댓글 2개만 보냄
         return comments.stream()
                 .limit(2) // 최대 2개의 댓글
                 .map(CommentDTO::toDTO)
                 .collect(Collectors.toList());
-    }
+    }*/
 }
