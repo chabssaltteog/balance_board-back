@@ -61,7 +61,7 @@ public class MainApiController {
     @Operation(summary = "Post Detail", description = "게시글 상세")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
-                    content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
+                    content = {@Content(schema = @Schema(implementation = PostDetailDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
     public PostDetailDTO getPost(@PathVariable(name ="postId") Long postId,
@@ -136,16 +136,16 @@ public class MainApiController {
     @Operation(summary = "Create COMMENT", description = "댓글 작성")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
-                    content = {@Content(schema = @Schema(implementation = CommentDTO.class))}),
+                    content = {@Content(schema = @Schema(implementation = CreateCommentResponseDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Fail",
                     content = {@Content(schema = @Schema(implementation = CreateCommentFailResponseDTO.class))})
     })
     public Object createComment(@RequestBody CreateCommentRequestDTO requestDTO) {
         try {
-            CommentDTO commentDTO = mainService.addCommentToPost(requestDTO);
-            log.info("CREATE COMMENT : userID = {}", commentDTO.getUserId());
-            log.info("CREATE COMMENT : Created Time = {}", commentDTO.getCreated());
-            return commentDTO;
+            CreateCommentResponseDTO commentResponseDTO = mainService.addCommentToPost(requestDTO);
+            log.info("CREATE COMMENT : userID = {}", commentResponseDTO.getUserId());
+            log.info("CREATE COMMENT : Created Time = {}", commentResponseDTO.getCreated());
+            return commentResponseDTO;
         } catch (Exception e) {
             String message = e.getMessage();
             log.info("exception message = {}", message);

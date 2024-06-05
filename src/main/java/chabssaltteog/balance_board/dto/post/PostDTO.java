@@ -50,7 +50,10 @@ public class PostDTO {
     private Integer commentCount;
 
     @Schema(description = "사용자가 선택한 투표 옵션", example = "살까?")
-    private String selectedOption;
+    private String selectedVoteOption;
+
+    @Schema(description = "사용자가 선택한 좋아요/싫어요 옵션", example = "hate")
+    private String selectedLikeOption;
 
     @Schema(description = "좋아요 수", example = "12")
     private int likeCount;
@@ -72,13 +75,14 @@ public class PostDTO {
                 .option1Count(post.getVote().getOption1Count())
                 .option2Count(post.getVote().getOption2Count())
                 .commentCount(post.getCommentCount())
-                .selectedOption(null)
+                .selectedVoteOption(null)
+                .selectedLikeOption(null)
                 .likeCount(post.getLikeCount())
                 .hateCount(post.getHateCount())
                 .build();
     }
 
-    public static PostDTO toDTO(Post post, String selectedOption) {    //메인 페이지용 - token 있을 때
+    public static PostDTO toDTO(Post post, String selectedVoteOption, String selectedLikeOption) {    //메인 페이지용 - token 있을 때
         return PostDTO.builder()
                 .postId(post.getPostId())
                 .title(post.getTitle())
@@ -91,7 +95,8 @@ public class PostDTO {
                 .option1Count(post.getVote().getOption1Count())
                 .option2Count(post.getVote().getOption2Count())
                 .commentCount(post.getCommentCount())
-                .selectedOption(selectedOption)
+                .selectedVoteOption(selectedVoteOption)
+                .selectedLikeOption(selectedLikeOption)
                 .likeCount(post.getLikeCount())
                 .hateCount(post.getHateCount())
                 .build();

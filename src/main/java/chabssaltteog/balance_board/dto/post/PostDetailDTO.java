@@ -61,7 +61,10 @@ public class PostDetailDTO {
     private List<TagDTO> tags;
 
     @Schema(description = "사용자가 선택한 투표 옵션", example = "살까?")
-    private String selectedOption;
+    private String selectedVoteOption;
+
+    @Schema(description = "사용자가 선택한 좋아요/싫어요 옵션", example = "hate")
+    private String selectedLikeOption;
 
     @Schema(description = "좋아요 수", example = "12")
     private int likeCount;
@@ -71,7 +74,7 @@ public class PostDetailDTO {
 
 
 
-    public static PostDetailDTO toDetailDTO(Post post, String selectedOption){   //상세 페이지용 - token이 있을 때
+    public static PostDetailDTO toDetailDTO(Post post, String selectedVoteOption, String selectedLikeOption){   //상세 페이지용 - token이 있을 때
         return PostDetailDTO.builder()
                 .postId(post.getPostId())
                 .nickname(post.getUser().getNickname())
@@ -84,12 +87,12 @@ public class PostDetailDTO {
                 .option2(post.getVote().getOption2())
                 .option1Count(post.getVote().getOption1Count())
                 .option2Count(post.getVote().getOption2Count())
-                /*.comments(post.getComments().stream().map(CommentDTO::toDTO).collect(Collectors.toList())) // 댓글 다 가져옴*/
                 .commentCount(post.getCommentCount())
                 .tags(post.getTags().stream().map(TagDTO::toDTO).collect(Collectors.toList()))
                 .likeCount(post.getLikeCount())
                 .hateCount(post.getHateCount())
-                .selectedOption(selectedOption)
+                .selectedVoteOption(selectedVoteOption)
+                .selectedLikeOption(selectedLikeOption)
                 .build();
     }
 
@@ -111,7 +114,8 @@ public class PostDetailDTO {
                 .tags(post.getTags().stream().map(TagDTO::toDTO).collect(Collectors.toList()))
                 .likeCount(post.getLikeCount())
                 .hateCount(post.getHateCount())
-                .selectedOption(null)
+                .selectedVoteOption(null)
+                .selectedLikeOption(null)
                 .build();
 
     }

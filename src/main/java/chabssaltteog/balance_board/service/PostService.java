@@ -72,7 +72,7 @@ public class PostService {
     }
 
     @Transactional
-    public CommentDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
+    public CreateCommentResponseDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
         Long userId = requestDTO.getUserId();
         Long postId = requestDTO.getPostId();
 
@@ -96,17 +96,17 @@ public class PostService {
         int updatedLevel = user.updateLevel(experiencePoints);
 
         commentRepository.save(comment);
-        CommentDTO commentDTO = CommentDTO.toDTO(comment);
+        CreateCommentResponseDTO commentResponseDTO = CreateCommentResponseDTO.toDTO(comment);
 
         if (preLevel != updatedLevel) {
-            commentDTO.setLevelUp(true);
-            commentDTO.setUpdatedLevel(updatedLevel);
+            commentResponseDTO.setLevelUp(true);
+            commentResponseDTO.setUpdatedLevel(updatedLevel);
         } else {
-            commentDTO.setLevelUp(false);
-            commentDTO.setUpdatedLevel(updatedLevel);
+            commentResponseDTO.setLevelUp(false);
+            commentResponseDTO.setUpdatedLevel(updatedLevel);
         }
 
-        return commentDTO;
+        return commentResponseDTO;
     }
 
     @Transactional
@@ -155,20 +155,11 @@ public class PostService {
         commentRepository.delete(comment);
     }
 
-    private Member getMember(Authentication authentication) {
-        String email = authentication.getName();
-        Optional<Member> optionalMember = memberRepository.findByEmail(email);
-        if (optionalMember.isEmpty()) {
-            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
-        }
-        return optionalMember.get();
-    }
-
     @Transactional
     public LikeHateResponseDTO likeOrHatePost(LikeHateRequestDTO likeHateDTO) throws Exception {
         Long postId = likeHateDTO.getPostId();
         Long userId = likeHateDTO.getUserId();
-        String action = likeHateDTO.getAction();   // like or dislike or cancel
+        String action = likeHateDTO.getAction();   // like or hate or cancel
 
         Optional<Like> optionalLike = likeRepository.findByUser_UserIdAndPost_PostId(userId, postId);
         Optional<Member> optionalMember = memberRepository.findById(userId);
@@ -190,7 +181,7 @@ public class PostService {
                         .likeCount(post.getLikeCount())
                         .hateCount(post.getHateCount())
                         .build();
-            } else if (action.equals("dislike")) {
+            } else if (action.equals("hate")) {
                 likeRepository.save(new Like(member, post, false));
                 post.incrementHateCount();
                 return LikeHateResponseDTO.builder()
@@ -232,4 +223,14 @@ public class PostService {
         }
         return null;
     }
+
+    private Member getMember(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isEmpty()) {
+            throw new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.");
+        }
+        return optionalMember.get();
+    }
+
 }

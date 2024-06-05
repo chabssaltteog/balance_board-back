@@ -11,4 +11,5 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
     // 좋아요/싫어요 를 직접적으로 확인
     Optional<Like> findByUser_UserIdAndPost_PostId(Long userId, Long postId);
+
 }

@@ -19,6 +19,6 @@ public class LikeHateRequestDTO {
     @Schema(description = "좋아요/싫어요 누른 post ID", example = "11")
     private Long postId;
 
-    @Schema(description = "like, dislike, cancel", example = "dislike")
+    @Schema(description = "like, hate, cancel", example = "hate")
     private String action;     // 좋아요, 싫어요, 취소
 }
