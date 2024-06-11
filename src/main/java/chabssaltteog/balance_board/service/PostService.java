@@ -39,6 +39,11 @@ public class PostService {
         return postRepository.findAll(pageRequest);
     }
 
+    public List<Post> getHotPosts() {
+        PageRequest topThree = PageRequest.of(0, 3);
+        return postRepository.findHotPosts(topThree);
+    }
+
     public Post getPostByPostId(Long postId) {
         return postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
     }

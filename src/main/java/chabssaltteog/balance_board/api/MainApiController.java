@@ -57,6 +57,21 @@ public class MainApiController {
         return mainService.getAllPosts(page, authentication);
     }
 
+    @GetMapping("/posts/hot")
+    @Operation(summary = "Hot Posts", description = "인기 게시글 top 3")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Fail",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "500", description = "Server Error",
+                    content = {@Content(schema = @Schema(implementation = String.class))})
+    })
+    public List<PostDTO> getHotPosts(Authentication authentication) {
+        log.info("== GET HOT POSTS ==");
+        return mainService.getHotPosts(authentication);
+    }
+
     @GetMapping("/posts/{postId}")
     @Operation(summary = "Post Detail", description = "게시글 상세")
     @ApiResponses(value = {

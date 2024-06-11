@@ -58,6 +58,32 @@ public class MainService {
                 .toList();
     }
 
+    //인기 게시글 top 3
+    public List<PostDTO> getHotPosts(Authentication authentication) {
+
+        if (authentication == null) {
+            log.info("==비로그인 메인 페이지 인기글 조회==");
+            List<Post> hotPosts = postService.getHotPosts();
+
+            return hotPosts.stream()
+                    .map(PostDTO::toDTO)
+                    .toList();
+        }
+        Member member = getMember(authentication);
+        Long userId = member.getUserId();
+        log.info("인기 게시글 조회 userId = {}", userId);
+
+        List<Post> hotPosts = postService.getHotPosts();
+
+        return hotPosts.stream()
+                .map(post -> {
+                    String selectedVoteOption = getSelectedVoteOption(post, member);
+                    String selectedLikeOption = getSelectedLikeOption(post.getPostId(), userId);
+                    return PostDTO.toDTO(post, selectedVoteOption, selectedLikeOption);
+                })
+                .toList();
+    }
+
     // 상세 게시글
     public PostDetailDTO getPostByPostId(Long postId, Authentication authentication) {
 
