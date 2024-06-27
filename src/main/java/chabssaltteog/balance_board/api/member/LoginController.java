@@ -103,8 +103,12 @@ public class LoginController {
                 return ResponseEntity.status(500).body("token 교환 실패");
             }
             KakaoLoginResponseDTO responseDTO = loginService.saveKakaoMem(oauthToken.getAccess_token());
-            if (responseDTO == null) {
-                return ResponseEntity.status(500).body("사용자 정보 불러오기 실패");
+//            if (responseDTO == null) {
+//                return ResponseEntity.status(500).body("사용자 정보 불러오기 실패");
+//            }
+            if(responseDTO == null){ //위 주석 후 추가
+                log.info("탈퇴한 회원입니다");
+                return ResponseEntity.status(400).body("탈퇴한 회원입니다");
             }
 
             JwtToken jwtToken = responseDTO.getJwtToken();

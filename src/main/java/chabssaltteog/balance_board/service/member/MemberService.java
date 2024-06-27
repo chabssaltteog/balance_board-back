@@ -200,6 +200,7 @@ public class MemberService {
         return optionalMember.get();
     }
 
+    @Transactional
     public int createWithdrawalCode(String email){
 
         int withdrawalCode = createRandomCode();
@@ -208,6 +209,7 @@ public class MemberService {
                 .orElseThrow(()->new IllegalArgumentException("회원을 찾을 수 없습니다."));
 
         member.setWithdrawalCode(withdrawalCode);
+        log.info("회원 탈퇴코드: {}", member.getWithdrawalCode());
 
         memberRepository.save(member);
 
@@ -218,6 +220,17 @@ public class MemberService {
         Random rand = new Random();
         rand.setSeed((System.currentTimeMillis()));
         return rand.nextInt(9000) + 1000;
+    }
+
+    public String getUserEmail(Authentication authentication) {
+        String email = authentication.getName();
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다."));
+        // 로그 찍기
+        log.info("회원 이메일: {}", member.getEmail());
+        log.info("회원 닉네임: {}", member.getNickname());
+
+        return member.getEmail();
     }
 
 }

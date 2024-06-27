@@ -78,7 +78,7 @@ public class Member extends BaseTimeEntity implements UserDetails {
     private LocalDateTime withdrawnDate;
 
     @Column(name = "withdrawal_code")
-    private int withdrawalCode;
+    private Integer withdrawalCode;
 
     public void addInfo(String nickname, String birthYear, String gender) {
         this.nickname = nickname;
@@ -134,12 +134,16 @@ public class Member extends BaseTimeEntity implements UserDetails {
         return authorities;
     }
 
+    public boolean isWithdrawn() {
+        return withdrawn != null && withdrawn;
+    }
+
     public void withdraw(){     //회원 탈퇴 정보 업데이트
         this.withdrawn = true;
         this.withdrawnDate = LocalDateTime.now();
         this.nickname = "(알수없음)";
-        this.provider = null;
-        this.role = null;
+//        this.provider = null;
+//        this.role = null;
     }
 
     @Override

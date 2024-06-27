@@ -44,11 +44,6 @@ dependencies {
 //	implementation group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
 	implementation group: 'javax.mail', name: 'mail', version: '1.4.7'
 
-
-
-
-
-
 	runtimeOnly 'mysql:mysql-connector-java'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-devtools'

@@ -21,6 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -90,6 +91,48 @@ public class LoginService {
         return oauthToken;
     }
 
+//    public KakaoLoginResponseDTO saveKakaoMem(String token) {
+//        KakaoProfile profile = findProfile(token);
+//        if (profile == null) {
+//            return null;
+//        }
+//        Optional<Member> optionalMember = memberRepository.findByEmail(profile.kakao_account.getEmail());
+//        if (optionalMember.isEmpty()) {
+//            log.info("신규 사용자");
+//            Member member = Member.builder()
+//                    .email(profile.kakao_account.getEmail())
+//                    .role("ROLE_USER")
+//                    .provider("kakao")
+//                    .providerId(profile.getId().toString())
+//                    .level(Level.레벨1)
+////                    .imageType(new Random().nextInt(5) + 1)
+//                    .withdrawn(false)
+//                    .build();
+//            memberRepository.save(member);
+//
+//            JwtToken jwtToken = generateJwtToken(member);
+//
+//            return new KakaoLoginResponseDTO(
+//                    member.getUserId(), 0, member.getEmail(), null,
+//                    member.getLevel().getValue(), member.getExperiencePoints(), jwtToken);
+//        } else {
+//            Member member = optionalMember.get();
+//            log.info("기존 사용자, withdrawn 상태 = {}", member.wheterWithdrawn());
+//            if(member.wheterWithdrawn()){
+//                log.info("탈퇴한 사용자");
+//                return null;
+//            }
+//            log.info("기존 사용자");
+//
+//            JwtToken jwtToken = generateJwtToken(member);
+//
+//            return new KakaoLoginResponseDTO(
+//                    member.getUserId(), 1, member.getEmail(), member.getNickname(),
+//                    member.getLevel().getValue(), member.getExperiencePoints(), jwtToken);
+//        }
+//    }
+
+    @Transactional
     public KakaoLoginResponseDTO saveKakaoMem(String token) {
         KakaoProfile profile = findProfile(token);
         if (profile == null) {
@@ -104,7 +147,7 @@ public class LoginService {
                     .provider("kakao")
                     .providerId(profile.getId().toString())
                     .level(Level.레벨1)
-//                    .imageType(new Random().nextInt(5) + 1)
+                    .withdrawn(false)
                     .build();
             memberRepository.save(member);
 
@@ -115,6 +158,11 @@ public class LoginService {
                     member.getLevel().getValue(), member.getExperiencePoints(), jwtToken);
         } else {
             Member member = optionalMember.get();
+            log.info("기존 사용자, withdrawn 상태 = {}", member.isWithdrawn());
+            if (member.isWithdrawn()) {
+                log.info("탈퇴한 사용자: {}", member.getEmail());
+                return null;
+            }
             log.info("기존 사용자");
 
             JwtToken jwtToken = generateJwtToken(member);
@@ -124,6 +172,7 @@ public class LoginService {
                     member.getLevel().getValue(), member.getExperiencePoints(), jwtToken);
         }
     }
+
 
     private JwtToken generateJwtToken(Member member) {
         Authentication authentication = new UsernamePasswordAuthenticationToken(member, null, member.getAuthorities());

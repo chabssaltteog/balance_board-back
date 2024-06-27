@@ -1,8 +1,11 @@
 package chabssaltteog.balance_board.util;
 
 import chabssaltteog.balance_board.dto.withdrawal.MailRequestDto;
+import chabssaltteog.balance_board.exception.InvalidUserException;
 import chabssaltteog.balance_board.service.member.MemberService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.mail.*;
@@ -12,6 +15,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 @Component
+@Slf4j
 public class MailUtil {     //이메일 전송관련 클래스
 
     private final MemberService memberService;
@@ -31,13 +35,23 @@ public class MailUtil {     //이메일 전송관련 클래스
         this.memberService = memberService;
     }
 
-    public boolean sendEmail(MailRequestDto mailRequestDto) {
+    public boolean sendEmail(String email, int withdrawalCode) {
 
-        int withdrawalCode = memberService.createRandomCode();
 
         String subject = "테스트 이메일";
-        String body = "<a href=\"http://localhost:8081/api/withdrawal?withdrawalCode=" + withdrawalCode + "  <button>클릭하세요</button>\n" +
-                "</a>";
+        /*String body = "<a href=\"http://localhost:8081/api/withdrawal?withdrawalCode=" + withdrawalCode + "  <button>클릭하세요</button>\n" +
+                "</a>";*/
+
+        String body = "<html>" +
+                "<body>" +
+                "<p>탈퇴를 원하시면 아래 버튼을 클릭해주세요:</p>" +
+                "<a href=\"http://localhost:8081/api/withdrawal/withdraw?withdrawalCode=" + withdrawalCode + "\">" +
+                "클릭하세요" +
+                "</a>" +
+                "</body>" +
+                "</html>";
+
+        log.info("이메일 본문: {}", body); // 이메일 본문 로그 추가
 
         // Send email
         Properties prop = new Properties();
@@ -58,7 +72,7 @@ public class MailUtil {     //이메일 전송관련 클래스
         try {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailFrom));            //수신자메일주소
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailRequestDto.getEmail()));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
 
             // Subject
             message.setSubject(subject); //메일 제목을 입력
@@ -73,10 +87,10 @@ public class MailUtil {     //이메일 전송관련 클래스
             return true;
         } catch (AddressException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("AddressException while sending email: {}", e.getMessage());
         } catch (MessagingException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("MessagingException while sending email: {}", e.getMessage());
         }
         return false;
     }
