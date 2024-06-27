@@ -1,17 +1,13 @@
 package chabssaltteog.balance_board.service;
 
 import chabssaltteog.balance_board.domain.member.Member;
+import chabssaltteog.balance_board.domain.post.Like;
 import chabssaltteog.balance_board.domain.vote.Vote;
 import chabssaltteog.balance_board.domain.post.Category;
 import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
-import chabssaltteog.balance_board.dto.post.CommentDTO;
-import chabssaltteog.balance_board.dto.post.CreateCommentRequestDTO;
-import chabssaltteog.balance_board.dto.post.CommentDeleteDTO;
-import chabssaltteog.balance_board.repository.CommentRepository;
-import chabssaltteog.balance_board.repository.MemberRepository;
-import chabssaltteog.balance_board.repository.PostRepository;
-import chabssaltteog.balance_board.repository.VoteRepository;
+import chabssaltteog.balance_board.dto.post.*;
+import chabssaltteog.balance_board.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,8 +16,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.webjars.NotFoundException;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -34,10 +32,16 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final VoteRepository voteRepository;
+    private final LikeRepository likeRepository;
 
     public Page<Post> getAllPosts(int page) {
         PageRequest pageRequest = PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "created"));
         return postRepository.findAll(pageRequest);
+    }
+
+    public List<Post> getHotPosts() {
+        PageRequest topThree = PageRequest.of(0, 3);
+        return postRepository.findHotPosts(topThree);
     }
 
     public Post getPostByPostId(Long postId) {
@@ -73,7 +77,7 @@ public class PostService {
     }
 
     @Transactional
-    public CommentDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
+    public CreateCommentResponseDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
         Long userId = requestDTO.getUserId();
         Long postId = requestDTO.getPostId();
 
@@ -97,17 +101,17 @@ public class PostService {
         int updatedLevel = user.updateLevel(experiencePoints);
 
         commentRepository.save(comment);
-        CommentDTO commentDTO = CommentDTO.toDTO(comment);
+        CreateCommentResponseDTO commentResponseDTO = CreateCommentResponseDTO.toDTO(comment);
 
         if (preLevel != updatedLevel) {
-            commentDTO.setLevelUp(true);
-            commentDTO.setUpdatedLevel(updatedLevel);
+            commentResponseDTO.setLevelUp(true);
+            commentResponseDTO.setUpdatedLevel(updatedLevel);
         } else {
-            commentDTO.setLevelUp(false);
-            commentDTO.setUpdatedLevel(updatedLevel);
+            commentResponseDTO.setLevelUp(false);
+            commentResponseDTO.setUpdatedLevel(updatedLevel);
         }
 
-        return commentDTO;
+        return commentResponseDTO;
     }
 
     @Transactional
@@ -154,6 +158,75 @@ public class PostService {
             post.decrementCommentCount();
         }
         commentRepository.delete(comment);
+    }
+
+    @Transactional
+    public LikeHateResponseDTO likeOrHatePost(LikeHateRequestDTO likeHateDTO) throws Exception {
+        Long postId = likeHateDTO.getPostId();
+        Long userId = likeHateDTO.getUserId();
+        String action = likeHateDTO.getAction();   // like or hate or cancel
+
+        Optional<Like> optionalLike = likeRepository.findByUser_UserIdAndPost_PostId(userId, postId);
+        Optional<Member> optionalMember = memberRepository.findById(userId);
+        Optional<Post> optionalPost = postRepository.findById(postId);
+
+        if (optionalMember.isEmpty()) {
+            throw new NotFoundException("사용자 정보가 맞지 않습니다.");
+        } Member member = optionalMember.get();   // 좋아요를 누른 member
+
+        if (optionalPost.isEmpty()) {
+            throw new NotFoundException("게시글 정보가 맞지 않습니다.");
+        } Post post = optionalPost.get();         // 좋아요를 누른 post
+
+        if (optionalLike.isEmpty()) {   // First Time
+            if (action.equals("like")) {
+                likeRepository.save(new Like(member, post, true));
+                post.incrementLikeCount();
+                return LikeHateResponseDTO.builder()
+                        .likeCount(post.getLikeCount())
+                        .hateCount(post.getHateCount())
+                        .build();
+            } else if (action.equals("hate")) {
+                likeRepository.save(new Like(member, post, false));
+                post.incrementHateCount();
+                return LikeHateResponseDTO.builder()
+                        .likeCount(post.getLikeCount())
+                        .hateCount(post.getHateCount())
+                        .build();
+            } else throw new IllegalAccessException("cancel을 할 것이 없습니다.");
+        }
+        Like like = optionalLike.get();
+        boolean isLike = like.isLike(); // true or false
+
+        if (isLike == true) {   // 좋아요로 저장된 상태
+            if (action.equals("dislike")) { // 좋아요 -> 싫어요로 업데이트
+                post.decrementLikeCount();
+                post.incrementHateCount();
+                like.setLike(false);
+            } else if (action.equals("cancel")) {   //좋아요 취소
+                post.decrementLikeCount();
+                likeRepository.delete(like);
+            }
+            return LikeHateResponseDTO.builder()
+                    .likeCount(post.getLikeCount())
+                    .hateCount(post.getHateCount())
+                    .build();
+        }
+        else if (isLike == false) {   // 싫어요로 저장된 상태
+            if (action.equals("like")) {  // 싫어요 -> 좋아요로 업데이트
+                post.decrementHateCount();
+                post.incrementLikeCount();
+                like.setLike(true);
+            } else if (action.equals("cancel")) {   //싫어요 취소
+                post.decrementHateCount();
+                likeRepository.delete(like);
+            }
+            return LikeHateResponseDTO.builder()
+                    .likeCount(post.getLikeCount())
+                    .hateCount(post.getHateCount())
+                    .build();
+        }
+        return null;
     }
 
     private Member getMember(Authentication authentication) {

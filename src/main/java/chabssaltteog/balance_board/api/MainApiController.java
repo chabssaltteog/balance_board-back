@@ -57,14 +57,29 @@ public class MainApiController {
         return mainService.getAllPosts(page, authentication);
     }
 
+    @GetMapping("/posts/hot")
+    @Operation(summary = "Hot Posts", description = "인기 게시글 top 3")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Fail",
+                    content = {@Content(schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "500", description = "Server Error",
+                    content = {@Content(schema = @Schema(implementation = String.class))})
+    })
+    public List<PostDTO> getHotPosts(Authentication authentication) {
+        log.info("== GET HOT POSTS ==");
+        return mainService.getHotPosts(authentication);
+    }
+
     @GetMapping("/posts/{postId}")
     @Operation(summary = "Post Detail", description = "게시글 상세")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
-                    content = {@Content(schema = @Schema(implementation = PostDTO.class))}),
+                    content = {@Content(schema = @Schema(implementation = PostDetailDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Fail")
     })
-    public PostDTO getPost(@PathVariable(name ="postId") Long postId,
+    public PostDetailDTO getPost(@PathVariable(name ="postId") Long postId,
                            Authentication authentication) {
         log.info("POST DETAIL : postId = {}", postId);
 
@@ -136,16 +151,16 @@ public class MainApiController {
     @Operation(summary = "Create COMMENT", description = "댓글 작성")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success",
-                    content = {@Content(schema = @Schema(implementation = CommentDTO.class))}),
+                    content = {@Content(schema = @Schema(implementation = CreateCommentResponseDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Fail",
                     content = {@Content(schema = @Schema(implementation = CreateCommentFailResponseDTO.class))})
     })
     public Object createComment(@RequestBody CreateCommentRequestDTO requestDTO) {
         try {
-            CommentDTO commentDTO = mainService.addCommentToPost(requestDTO);
-            log.info("CREATE COMMENT : userID = {}", commentDTO.getUserId());
-            log.info("CREATE COMMENT : Created Time = {}", commentDTO.getCreated());
-            return commentDTO;
+            CreateCommentResponseDTO commentResponseDTO = mainService.addCommentToPost(requestDTO);
+            log.info("CREATE COMMENT : userID = {}", commentResponseDTO.getUserId());
+            log.info("CREATE COMMENT : Created Time = {}", commentResponseDTO.getCreated());
+            return commentResponseDTO;
         } catch (Exception e) {
             String message = e.getMessage();
             log.info("exception message = {}", message);
@@ -235,6 +250,25 @@ public class MainApiController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("댓글 삭제 중 오류가 발생했습니다.");
+        }
+    }
+
+    @PostMapping("/posts/{postId}/likes")
+    @Operation(summary = "Like or Hate post", description = "좋아요/싫어요 달기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success",
+            content = {@Content(schema = @Schema(implementation = LikeHateResponseDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+            content = {@Content(schema = @Schema(implementation = String.class))})
+    })
+    public Object likeOrHatePost(@RequestBody LikeHateRequestDTO likeHateDTO, @PathVariable Long postId) {
+        try {
+            log.info("좋아요 / 싫어요 action");
+            log.info("postId = {}", postId);
+            return mainService.likeOrHatePost(likeHateDTO);
+        } catch (Exception e) {
+            log.info("좋아요 / 싫어요 error 발생");
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 

@@ -1,12 +1,13 @@
 package chabssaltteog.balance_board.service;
 
 import chabssaltteog.balance_board.domain.member.Member;
+import chabssaltteog.balance_board.domain.post.Like;
 import chabssaltteog.balance_board.domain.vote.VoteMember;
 import chabssaltteog.balance_board.domain.post.Category;
-import chabssaltteog.balance_board.domain.post.Comment;
 import chabssaltteog.balance_board.domain.post.Post;
 import chabssaltteog.balance_board.domain.post.Tag;
 import chabssaltteog.balance_board.dto.post.*;
+import chabssaltteog.balance_board.repository.LikeRepository;
 import chabssaltteog.balance_board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ public class MainService {
 
     private final PostService postService;
     private final MemberRepository memberRepository;
+    private final LikeRepository likeRepository;
 
     // 메인 페이지
     public List<PostDTO> getAllPosts(int page, Authentication authentication) {
@@ -49,19 +51,46 @@ public class MainService {
         return posts.getContent()
                 .stream()
                 .map(post -> {
-                    String selectedOption = getSelectedOption(post, member);
-                    return PostDTO.toDTO(post, selectedOption);
+                    String selectedVoteOption = getSelectedVoteOption(post, member);
+                    String selectedLikeOption = getSelectedLikeOption(post.getPostId(), userId);
+                    return PostDTO.toDTO(post, selectedVoteOption, selectedLikeOption);
+                })
+                .toList();
+    }
+
+    //인기 게시글 top 3
+    public List<PostDTO> getHotPosts(Authentication authentication) {
+
+        if (authentication == null) {
+            log.info("==비로그인 메인 페이지 인기글 조회==");
+            List<Post> hotPosts = postService.getHotPosts();
+
+            return hotPosts.stream()
+                    .map(PostDTO::toDTO)
+                    .toList();
+        }
+        Member member = getMember(authentication);
+        Long userId = member.getUserId();
+        log.info("인기 게시글 조회 userId = {}", userId);
+
+        List<Post> hotPosts = postService.getHotPosts();
+
+        return hotPosts.stream()
+                .map(post -> {
+                    String selectedVoteOption = getSelectedVoteOption(post, member);
+                    String selectedLikeOption = getSelectedLikeOption(post.getPostId(), userId);
+                    return PostDTO.toDTO(post, selectedVoteOption, selectedLikeOption);
                 })
                 .toList();
     }
 
     // 상세 게시글
-    public PostDTO getPostByPostId(Long postId, Authentication authentication) {
+    public PostDetailDTO getPostByPostId(Long postId, Authentication authentication) {
 
         if (authentication == null) {
             log.info("==비로그인 상세 페이지 조회==");
             Post post = postService.getPostByPostId(postId);
-            return PostDTO.toDetailDTO(post);
+            return PostDetailDTO.toDetailDTO(post);
         }
 
         Member member = getMember(authentication);
@@ -71,8 +100,9 @@ public class MainService {
 
         Post post = postService.getPostByPostId(postId);
 
-        String selectedOption = getSelectedOption(post, member);
-        return PostDTO.toDetailDTO(post, selectedOption);
+        String selectedVoteOption = getSelectedVoteOption(post, member);
+        String selectedLikeOption = getSelectedLikeOption(post.getPostId(), member.getUserId());
+        return PostDetailDTO.toDetailDTO(post, selectedVoteOption, selectedLikeOption);
     }
 
     // 게시글 카테고리 필터링
@@ -93,8 +123,9 @@ public class MainService {
 
         return posts.stream()
                 .map(post -> {
-                    String selectedOption = getSelectedOption(post, member);
-                    return PostDTO.toDTO(post, selectedOption);
+                    String selectedVoteOption = getSelectedVoteOption(post, member);
+                    String selectedLikeOption = getSelectedLikeOption(post.getPostId(), member.getUserId());
+                    return PostDTO.toDTO(post, selectedVoteOption, selectedLikeOption);
                 })
                 .toList();
     }
@@ -159,12 +190,18 @@ public class MainService {
 
     // 게시글에 댓글 달기
     @Transactional
-    public CommentDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
+    public CreateCommentResponseDTO addCommentToPost(CreateCommentRequestDTO requestDTO) {
 
         return postService.addCommentToPost(requestDTO);
     }
 
-    private String getSelectedOption(Post post, Member member) {
+    //게시글에 좋아요/싫어요 누르기
+    @Transactional
+    public LikeHateResponseDTO likeOrHatePost(LikeHateRequestDTO likeHateDTO) throws Exception {
+        return postService.likeOrHatePost(likeHateDTO);
+    }
+
+    private String getSelectedVoteOption(Post post, Member member) {
         Optional<VoteMember> voteMember = member.getVoteMembers()
                 .stream()
                 .filter(vm -> vm.getVote().getPost().equals(post))
@@ -183,4 +220,15 @@ public class MainService {
         return optionalMember.get();
     }
 
+    private String getSelectedLikeOption(Long postId, Long userId) {
+        Optional<Like> optionalLike = likeRepository.findByUser_UserIdAndPost_PostId(userId, postId);
+        if (optionalLike.isEmpty()) {
+            return null;
+        }
+        Like like = optionalLike.get();
+        boolean isLike = like.isLike();
+        if (isLike) {
+            return "like";
+        } else return "hate";
+    }
 }

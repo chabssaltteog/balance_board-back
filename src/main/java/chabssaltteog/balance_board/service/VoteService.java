@@ -106,6 +106,7 @@ public class VoteService {
         return AnonymousVoteResponseDTO.builder()
                 .option1Count(vote.getOption1Count())
                 .option2Count(vote.getOption2Count())
+                .selectedOption(voteRequestDTO.getSelectedOption())
                 .build();
     }
 }
