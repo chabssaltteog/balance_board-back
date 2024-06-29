@@ -108,7 +108,7 @@ public class LoginController {
 //            }
             if(responseDTO == null){ //위 주석 후 추가
                 log.info("탈퇴한 회원입니다");
-                return ResponseEntity.status(400).body("탈퇴한 회원입니다");
+                return ResponseEntity.status(403).body("탈퇴한 회원입니다");
             }
 
             JwtToken jwtToken = responseDTO.getJwtToken();

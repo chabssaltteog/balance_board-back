@@ -119,10 +119,10 @@ public class WithdrawController {
         }*/
         if (result) {
             log.info("회원 탈퇴가 성공적으로 완료되었습니다. 탈퇴 코드: {}", withdrawalCode);
-            return new ModelAndView("redirect:/withdrawalSuccess");
+            return new ModelAndView("redirect:http://52.78.127.145:8081/withdrawalSuccess");
         } else {
             log.warn("회원 탈퇴 실패. 유효하지 않은 탈퇴 코드이거나 이미 탈퇴된 회원입니다. 탈퇴 코드: {}", withdrawalCode);
-            return new ModelAndView("redirect:/error/withdrawalFail");
+            return new ModelAndView("redirect:http://52.78.127.145:8081/error/withdrawalFail");
         }
 
     }

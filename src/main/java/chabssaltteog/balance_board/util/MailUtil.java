@@ -42,12 +42,31 @@ public class MailUtil {     //이메일 전송관련 클래스
         /*String body = "<a href=\"http://localhost:8081/api/withdrawal?withdrawalCode=" + withdrawalCode + "  <button>클릭하세요</button>\n" +
                 "</a>";*/
 
+//        String body = "<html>" +
+//                "<body>" +
+//                "<p>탈퇴를 원하시면 아래 버튼을 클릭해주세요:</p>" +
+//                "<a href=\"http://localhost:8081/api/withdrawal/withdraw?withdrawalCode=" + withdrawalCode + "\">" +
+//                "클릭하세요" +
+//                "</a>" +
+//                "</body>" +
+//                "</html>";
+
         String body = "<html>" +
+                "<head>" +
+                "<style>" +
+                "body { font-family: Arial, sans-serif; line-height: 1.6; }" +
+                ".container { padding: 20px; border: 1px solid #e2e2e2; border-radius: 5px; max-width: 600px; margin: 0 auto; }" +
+                ".button { display: inline-block; padding: 10px 20px; margin-top: 20px; font-size: 16px; color: white; background-color: #007bff; text-decoration: none; border-radius: 5px; }" +
+                ".button:hover { background-color: #0056b3; }" +
+                "</style>" +
+                "</head>" +
                 "<body>" +
+                "<div class=\"container\">" +
+                "<p>안녕하세요, 밸런스보드입니다.</p>" +
                 "<p>탈퇴를 원하시면 아래 버튼을 클릭해주세요:</p>" +
-                "<a href=\"http://localhost:8081/api/withdrawal/withdraw?withdrawalCode=" + withdrawalCode + "\">" +
-                "클릭하세요" +
-                "</a>" +
+                "<a href=\"http://localhost:8081/api/withdrawal/withdraw?withdrawalCode=" + withdrawalCode + "\" class=\"button\">탈퇴하기</a>" +
+                "<p>감사합니다.</p>" +
+                "</div>" +
                 "</body>" +
                 "</html>";
 
